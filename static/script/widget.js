@@ -183,7 +183,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         
         //pull the dialog out of the DOM and add it back in at the document root level so absolute positioning is /actually/ absolute.
         $self.detach();
-        $j("body").append($self);
+        $("body").append($self);
         
         $self.css("position","absolute");
         $self.css("top", dialogTop);
@@ -278,30 +278,64 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
  */
 (function($)
 {
+  var $widget;
+  var $dialog;
+  var options = {};
 
   $(document).ready(
     function()
     {
+      config();
+      createDialog();
       createWidget();
     });
 
-  function createWidget()
+  /**
+   * Gather options and set local configuration
+   */
+  function config()
   {
-    var $script_tag = $("#klearchoice_script");
-    var options = {};
     var i;
+    var $script_tag = $("#klearchoice_script");
+    //gather up the options
     for(i=0;i<$script_tag[0].attributes.length;i++)
       options[$script_tag[0].attributes[i].name.toLowerCase()]=$script_tag[0].attributes[i].value;
+
+    //determine the URL of the iframe based on the env option
+    if(options.env)
+    {
+      if(options.env == 'dev')
+      {
+        options.url = 'http://localhost:3000/donor_widget.html';
+      }
+      if(options.env == 'qa')
+      {
+        options.url = 'https://klearapp.com/donor_widget.html';
+      }
+    }
+    else
+    {
+      options.env='prod';
+      options.url='https://app.klearchoice.com/donor_widget.html';
+    }
+  }
+
+  /**
+   * Create the Donate widget based on the secified options
+   */
+  function createWidget()
+  {
 
     var debug = options["debug"];
     var charity_id = options["charity_id"];
     var placement = options["placement"] || "right";
     var tab_style = options["tab_style"];
 
-    if(debug)
+    /*if(debug)
       alert("creating widget for charity: " + charity_id + ", options loaded");
+    */
 
-    var $widget = $("<div id='klearchoice_donate_tab'>Donate</div>");
+    $widget = $("<div id='klearchoice_donate_tab'>Donate</div>");
     //style the tab. If a css class has been specified, use that class. Otherwise, use default styling
     if(tab_style)
     {
@@ -312,18 +346,88 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       $widget.css(
         {
           'position':'absolute',
-          'height':'22px',
-          'width':'60px',
+          'cursor':'pointer',
+          'right':'-30px',
+          'height':'30px',
+          'width':'80px',
+          'text-align':'center',
           '-webkit-transform':'rotate(-90deg)',
           '-moz-transform':'rotate(-90deg)',
-          'filter':'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
+          //'-ms-transform-origin': '0 0',
+          '-ms-transform': 'rotate(-90deg)',
           'border':'2px solid white',
-          'background-color':'#455a78'
+          'background-color':'#455a78',
+          'font-size':'20px',
+          'font-family':'Calibri,Helvetica,Arial',
+          'color':'white'
         });
+      if($.browser.msie) {
+          //$widget.css({'right':'0px'});
+          if(parseFloat($.browser.version) < 9)
+          {
+            //for IE 8 and below, we need to transform differently, and add an outer wrapper, or the click event doesn't work. Grr.
+            $widget.css({
+              'filter':'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
+              'position':'',
+              'right':''
+              });
+            var $wrapper = $("<div style='width:30px; height:80px'></div>");
+            $wrapper.css(
+              {
+                'position':'absolute',
+                'cursor':'pointer',
+                'right':'0px',
+                'background-color':'#455a78'
+              });
+            $wrapper.append($widget);
+            $widget=$wrapper;
+          }
+        }
     }
 
+    $("body").append($widget);
+    $widget.offset(
+    {
+      top: ($("body").height() /2) - ($widget.width() /2),
+      left: $widget.left
+    });
 
+    $widget.click(
+      function()
+      {
+        $dialog.popup();
+        
+      });
+    
+  }
 
+  /**
+   * Create the main dialog, which is just an iframe into our app
+   * The URL of the iframe depends on the env setting in the config options
+   */
+  function createDialog()
+  {
+    $dialog = $("<div id='klearchoice_dialog'></div>");
+    var $iframe = $("<iframe src='" + options.url + "?charity_id=" + options.charity_id + "'></iframe>");
+    $iframe.css({'height':'100%', 'width':'100%', 'border':'1px solid'});
+    $dialog.append($iframe);
+
+    if(options.dialog_style)
+    {
+      $dialog.addClass(dialog_style);
+    }
+    else
+    {
+      $dialog.css(
+        {
+          'height':'400px',
+          'width':'600px',
+          'display':'none',
+          'position':'absolute'
+        });
+        
+    }
+    $("body").append($dialog);
     
   }
 
