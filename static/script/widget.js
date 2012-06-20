@@ -290,7 +290,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     var $script_tag = $("#klearchoice_script");
     var options = {};
     var i;
-    for(i=0;i<$script_tag[0].attributes.length)
+    for(i=0;i<$script_tag[0].attributes.length;i++)
       options[$script_tag[0].attributes[i].name.toLowerCase()]=$script_tag[0].attributes[i].value;
 
     var debug = options["debug"];
