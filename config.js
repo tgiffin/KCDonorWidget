@@ -5,14 +5,14 @@ module.exports = function()
   console.log("determining configuration...");
   switch(process.env.NODE_ENV)
   {
-    case 'dev':
+    case 'development':
     {
       return {
         port: 3000
       };
       break;
     }
-    case 'prod':
+    case 'production':
     {
       return {
         port: 80
