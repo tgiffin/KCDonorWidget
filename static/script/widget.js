@@ -310,17 +310,17 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       }
       if(options.env == 'qa')
       {
-        options.url = 'https://klearapp.com/';
+        options.url = 'http://klearapp.com/';
       }
       if(options.env == 'prod')
       {
-        options.url='https://app.klearchoice.com/';
+        options.url='http://app.klearchoice.com/';
       }
     }
     else
     {
       options.env='prod';
-      options.url='https://app.klearchoice.com/';
+      options.url='http://app.klearchoice.com/';
     }
   }
 
