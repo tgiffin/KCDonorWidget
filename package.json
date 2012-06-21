@@ -1,0 +1,21 @@
+{
+  "author": "Clayton Gulick <clay@ratiosoftware.com> (http://ratiosoftware.com)",
+  "name": "KCDonorWidget",
+  "description": "Klear Choice Donor Widget",
+  "version": "0.1.0",
+  "homepage": "http://klearchoice.com",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Klearchoice/KCDonorWidget.git"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": "~0.6.11"
+  },
+  "dependencies": {
+    "express": "~2.5.10",
+    "mustache": "~0.4.0"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {}
+}
