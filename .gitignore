@@ -1,3 +1,5 @@
 *~
 *.swp
 .bin
+
+/node_modules/npm
