@@ -207,7 +207,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         //debug("closing...");
     	var $self=this;
     	
-    	options = jQuery().extend({useOffScreenHide:false},options);
+    	options = $.extend({useOffScreenHide:false},options);
     	
     	//if we're missing the background prop, this isn't a valid element. Just bail.
     	if(!$self[0].popupBackground) return this;
@@ -224,11 +224,11 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
 	            .css("display","none")
 	            .removeClass("jquery_popup_plugin_popup");
     	}
-        $self[0].popupBackground.remove();
-		$self[0].popupBackground=null;
+      $self[0].popupBackground.remove();
+      $self[0].popupBackground=null;
         
         
-        return this;
+      return this;
     };
 
 
@@ -306,17 +306,17 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       if(options.env == 'dev')
       {
-        options.url = 'http://localhost:3000/donor_widget.html';
+        options.url = 'http://localhost:3000/';
       }
       if(options.env == 'qa')
       {
-        options.url = 'https://klearapp.com/donor_widget.html';
+        options.url = 'https://klearapp.com/';
       }
     }
     else
     {
       options.env='prod';
-      options.url='https://app.klearchoice.com/donor_widget.html';
+      options.url='https://app.klearchoice.com/';
     }
   }
 
@@ -408,8 +408,28 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
   function createDialog()
   {
     $dialog = $("<div id='klearchoice_dialog'></div>");
-    var $iframe = $("<iframe src='" + options.url + "?charity_id=" + options.charity_id + "'></iframe>");
-    $iframe.css({'height':'100%', 'width':'100%', 'border':'1px solid'});
+    var $header = $("<div style='width:100%; height: 5%; position: relative;background-color:#e9e9e9'></div>");
+    var $close_button = $("<div></div>")
+      .css(
+        {
+          'width':'17px',
+          'height':'17px',
+          'position':'absolute',
+          'right':'5px',
+          'top':'5px',
+          'text-align':'center',
+          'font-size':'19px',
+          'background-color':'#e9e9e9',
+          'background-repeat':'no-repeat',
+          'background-image':"url('" + options.url + "images/closeButton.png')"
+        })
+      .click(function() {$dialog.closePopup()})
+      .mouseover( function() { $close_button.css('background-image',"url('" + options.url + "images/closeButtonOver.png')"); })
+      .mouseout( function() { $close_button.css('background-image',"url('" + options.url + "images/closeButton.png')"); });
+    $header.append($close_button);
+    $dialog.append($header);
+    var $iframe = $("<iframe src='" + options.url + "donor_widget.html?charity_id=" + options.charity_id + "'></iframe>");
+    $iframe.css({'height':'95%', 'width':'100%', 'border':'none'});
     $dialog.append($iframe);
 
     if(options.dialog_style)
@@ -423,7 +443,8 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
           'height':'400px',
           'width':'600px',
           'display':'none',
-          'position':'absolute'
+          'position':'absolute',
+          'border':'1px solid black'
         });
         
     }
