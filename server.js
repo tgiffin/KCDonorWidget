@@ -7,8 +7,15 @@ var conf = new Config();
 
 if(!conf.port) { console.log("unable to determine configuration, please check environment variables"); return; }
 
-console.log("Starting klearchoice server on " + conf.port + "...");
-var app = express.createServer();
+console.log("Creating server instance...");
+if(conf.options)
+{
+  var app = express.createServer(conf.options);
+}
+else
+{
+  var app = express.createServer();
+}
 
 /* Config */
 app.use(express.static(__dirname + '/static'));
@@ -32,6 +39,7 @@ app.get("/donor_widget.html", function(request, response)
   });
 
 
+console.log("Starting klearchoice server on " + conf.port + "...");
 /* Server startup */
 app.listen(conf.port);
 

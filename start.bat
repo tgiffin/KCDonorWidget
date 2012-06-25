@@ -1,3 +1,3 @@
-set NODE_EXE=c:\node\node.exe
-set NODE_ENV=dev
+set NODE_EXE=node-dev
+set NODE_ENV=development
 %NODE_EXE% --debug server.js

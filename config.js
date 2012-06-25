@@ -1,4 +1,5 @@
 var console = require("console");
+var fs = require("fs");
 
 module.exports = function()
 {
@@ -8,14 +9,19 @@ module.exports = function()
     case 'development':
     {
       return {
-        port: 3000
+        port: 3000//,
+        //options: {}
       };
       break;
     }
     case 'production':
     {
       return {
-        port: 80
+        port: 80,
+        options: {
+          key: fs.readFileSync("/home/node/app.klearchoice.com.key"),
+          cert: fs.readFileSync("/home/node/app.klearchoice.com.crt")
+        }
       };
       break;
     }
