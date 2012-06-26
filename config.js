@@ -9,15 +9,18 @@ module.exports = function()
     case 'development':
     {
       return {
-        port: 3000//,
-        //options: {}
+        port: 3000,
+        options: {
+          key: fs.readFileSync(__dirname + "/../keys/app.klearchoice.com.key"),
+          cert: fs.readFileSync(__dirname + "/../keys/app.klearchoice.com.crt")
+        }
       };
       break;
     }
     case 'production':
     {
       return {
-        port: 80,
+        port: 443,
         options: {
           key: fs.readFileSync("/home/node/app.klearchoice.com.key"),
           cert: fs.readFileSync("/home/node/app.klearchoice.com.crt")
