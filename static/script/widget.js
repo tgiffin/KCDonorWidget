@@ -304,23 +304,23 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     //determine the URL of the iframe based on the env option
     if(options.env)
     {
-      if(options.env == 'dev')
+      if(options.env == 'development')
       {
         options.url = 'http://localhost:3000/';
       }
       if(options.env == 'qa')
       {
-        options.url = 'http://klearapp.com/';
+        options.url = 'https://klearapp.com/';
       }
-      if(options.env == 'prod')
+      if(options.env == 'production')
       {
-        options.url='http://app.klearchoice.com/';
+        options.url='https://app.klearchoice.com/';
       }
     }
     else
     {
-      options.env='prod';
-      options.url='http://app.klearchoice.com/';
+      options.env='production';
+      options.url='https://app.klearchoice.com/';
     }
   }
 
