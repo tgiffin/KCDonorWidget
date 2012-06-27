@@ -306,7 +306,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       if(options.env == 'development')
       {
-        options.url = 'http://localhost:3000/';
+        options.url = 'https://localhost:3000/';
       }
       if(options.env == 'qa')
       {
@@ -412,7 +412,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
   function createDialog()
   {
     $dialog = $("<div id='klearchoice_dialog'></div>");
-    var $header = $("<div style='width:100%; height: 5%; position: relative;background-color:#e9e9e9'></div>");
+    var $header = $("<div style='width:100%; height: 6%; position: relative;background-color:#e9e9e9'></div>");
     var $close_button = $("<div></div>")
       .css(
         {
@@ -444,7 +444,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       $dialog.css(
         {
-          'height':'400px',
+          'height':'485px',
           'width':'600px',
           'display':'none',
           'position':'absolute',

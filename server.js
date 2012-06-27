@@ -1,8 +1,10 @@
-var express = require("express");
-var console = require("console");
+var express = require("express"); //web framework
+var everyauth = require("everyauth"); //oath lib
+var util = require("util");
 var mustache = require("mustache"); //templating engine
+var console = require("console");
 var fs = require("fs");
-var Config = require("./config");
+var Config = require("./config"); //environment configuration settings
 var conf = new Config();
 
 if(!conf.port) { console.log("unable to determine configuration, please check environment variables"); return; }
@@ -18,8 +20,31 @@ else
 }
 
 /* Config */
+
+//setup everyauth
+everyauth.dwolla
+  .appId('1JUZIa33HXhhyyDhX3PpT6XDk8vp3B0NtO0lQe7rbxKiOhYTGI')
+  .appSecret('pTqTyg6VCVMO6UlgXnarzqndt3mJLDJdJNiI4dLSwDo3rIoi3/')
+  .scope('accountinfofull|send')
+  .myHostname(conf.hostname)
+  .findOrCreateUser(
+    function(session,accessToken,accessTokenExtra,dwollaUserMetadata)
+    {
+      //console.log(util.inspect(dwollaUserMetadata));
+      return {id: dwollaUserMetadata.Id, dwolla: dwollaUserMetadata};
+
+    })
+  .redirectPath("/authenticate_complete.html");
+
+//set up express
 app.use(express.static(__dirname + '/static'));
 app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(express.cookieParser());
+app.use(express.session({secret:"let's agree to disagree"}));
+app.use(everyauth.middleware());
+app.use(app.router);
+app.use(express.errorHandler());
 app.set("views",__dirname + "/templates/");
 
 /* Request Handlers */
@@ -37,6 +62,17 @@ app.get("/donor_widget.html", function(request, response)
       }));
 
   });
+app.get("/authenticate_complete.html", function(request, response)
+  {
+    response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+      {
+        charity_id: request.query['charity_id'],
+        user: request.session.auth.dwolla.user
+      }));
+
+  });
+
+
 
 
 console.log("Starting klearchoice server on " + conf.port + "...");
