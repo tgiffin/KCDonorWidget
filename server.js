@@ -44,7 +44,7 @@ app.use(express.cookieParser());
 app.use(express.session({secret:"let's agree to disagree"}));
 app.use(everyauth.middleware());
 app.use(app.router);
-app.use(express.errorHandler());
+app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 app.set("views",__dirname + "/templates/");
 
 /* Request Handlers */
@@ -67,6 +67,18 @@ app.get("/authenticate_complete.html", function(request, response)
     response.send(mustache.to_html(loadTemplate('authenticate_complete'),
       {
         charity_id: request.query['charity_id'],
+        user: request.session.auth.dwolla.user
+      }));
+
+  });
+app.post("/confirm_amount", function(request, response)
+  {
+    //console.log(util.inspect(request));
+    var amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
+    response.send(mustache.to_html(loadTemplate('confirm_amount'),
+      {
+        amount: amount,
+        charity_name: request.query['charity_id'],
         user: request.session.auth.dwolla.user
       }));
 

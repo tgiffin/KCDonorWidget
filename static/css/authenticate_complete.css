@@ -1,0 +1,32 @@
+body
+{
+  background-color: #f9f9f9;
+  font-family: Calibri,Arial,Helvetica,sans-serif;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+body > div
+{
+  width: 360px;
+  margin: 80px auto;
+}
+
+#amount
+{
+  font-size: 2em;
+  border: solid 1px black;
+  background-color: #FBFBFB;
+  text-align: right;
+  width: 200px;
+  margin: 0px auto;
+  display: block;
+
+}
+
+#donate_button, #cancel_button
+{
+  float: right;
+  margin-top: 15px;
+  margin-right: 10px;
+}
