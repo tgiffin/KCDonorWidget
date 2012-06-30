@@ -1,13 +1,30 @@
 var express = require("express"); //web framework
 var everyauth = require("everyauth"); //oath lib
+var urllib = require("url"); //for parsing urls
 var util = require("util");
-var mustache = require("mustache"); //templating engine
 var console = require("console");
-var fs = require("fs");
 var Config = require("./config"); //environment configuration settings
 var conf = new Config();
 
 if(!conf.port) { console.log("unable to determine configuration, please check environment variables"); return; }
+
+/** 
+ * Ensure the user is logged in for any path other than those listed in the exceptions array
+ */
+function authenticate(request, response, next)
+{
+  //console.log("authenticate...");
+  var exceptions = [
+                      '/donor_widget.html',
+                      '/test/'
+                  ]
+  var pathname = urllib.parse(request.url).pathname;
+  if(exceptions.indexOf(pathname) >= 0) {next(); return; }
+
+  if(request.session && request.session.auth) { next(); return; }
+
+  response.redirect(conf.url + "/donor_widget.html");
+}
 
 console.log("Creating server instance...");
 if(conf.options)
@@ -18,6 +35,8 @@ else
 {
   var app = express.createServer();
 }
+
+exports.app = app;
 
 /* Config */
 
@@ -41,50 +60,20 @@ app.use(express.static(__dirname + '/static'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
-app.use(express.session({secret:"let's agree to disagree"}));
+app.use(express.session({secret:"let's agree to disagree about not agreeing"}));
 app.use(everyauth.middleware());
+app.use(authenticate);
 app.use(app.router);
 app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 app.set("views",__dirname + "/templates/");
 
 /* Request Handlers */
-app.get("/test/", function(request, response)
-        {
-            response.send("hello?");
-        });
-app.get("/donor_widget.html", function(request, response)
+var routes = require("./routes");
+routes.forEach(
+  function(item)
   {
-    //console.log("donor widget: charity_id:" + request.params['charity_id']);
-    //console.log(request);
-    response.send(mustache.to_html(loadTemplate('donor_widget'),
-      {
-        charity_id: request.query['charity_id']
-      }));
-
+    app[item.verb](item.path,item.action);
   });
-app.get("/authenticate_complete.html", function(request, response)
-  {
-    response.send(mustache.to_html(loadTemplate('authenticate_complete'),
-      {
-        charity_id: request.query['charity_id'],
-        user: request.session.auth.dwolla.user
-      }));
-
-  });
-app.post("/confirm_amount", function(request, response)
-  {
-    //console.log(util.inspect(request));
-    var amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
-    response.send(mustache.to_html(loadTemplate('confirm_amount'),
-      {
-        amount: amount,
-        charity_name: request.query['charity_id'],
-        user: request.session.auth.dwolla.user
-      }));
-
-  });
-
-
 
 
 console.log("Starting klearchoice server on " + conf.port + "...");
@@ -92,12 +81,4 @@ console.log("Starting klearchoice server on " + conf.port + "...");
 app.listen(conf.port);
 
 
-/* Utility functions */
-
-/**
- * Tiny utiltiy function to load a template using the views path
- */
-function loadTemplate(template) {
-    return fs.readFileSync(app.set('views') + template+ '.html')+ '';
-}
 

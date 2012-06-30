@@ -444,7 +444,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       $dialog.css(
         {
-          'height':'485px',
+          'height':'550px',
           'width':'600px',
           'display':'none',
           'position':'absolute',
