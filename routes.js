@@ -20,5 +20,15 @@ module.exports = [
     verb: 'post',
     path: '/confirm_amount',
     action: actions.confirm_amount
+  },
+  {
+    verb: 'post',
+    path: '/send_payment',
+    action: actions.send_payment
+  },
+  {
+    verb: 'get',
+    path: '/thank_you.html',
+    action: actions.thank_you
   }
 ];

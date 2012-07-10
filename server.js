@@ -23,7 +23,8 @@ function authenticate(request, response, next)
 
   if(request.session && request.session.auth) { next(); return; }
 
-  response.redirect(conf.url + "/donor_widget.html");
+  response.redirect(conf.hostname + "/donor_widget.html");
+  response.end();
 }
 
 console.log("Creating server instance...");
@@ -42,8 +43,8 @@ exports.app = app;
 
 //setup everyauth
 everyauth.dwolla
-  .appId('1JUZIa33HXhhyyDhX3PpT6XDk8vp3B0NtO0lQe7rbxKiOhYTGI')
-  .appSecret('pTqTyg6VCVMO6UlgXnarzqndt3mJLDJdJNiI4dLSwDo3rIoi3/')
+  .appId(conf.dwolla_app_id)
+  .appSecret(conf.dwolla_app_secret)
   .scope('accountinfofull|send')
   .myHostname(conf.hostname)
   .findOrCreateUser(
@@ -72,6 +73,7 @@ var routes = require("./routes");
 routes.forEach(
   function(item)
   {
+    console.log("Registering route: " + item.verb + " - " + item.path + " = " + util.inspect(item.action));
     app[item.verb](item.path,item.action);
   });
 

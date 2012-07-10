@@ -8,6 +8,10 @@ scripts = {
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",
                                             null,
                                             "/script/app/authenticate_complete.js"
+                                          ],
+  "/confirm_amount"                     : [
+                                            "/script/lib/jquery.popup.js",
+                                            "/script/app/confirm_amount.js"
                                           ]
 
 };

@@ -1,0 +1,69 @@
+var https = require('https');
+var console = require('console');
+var util = require('util');
+var conf = new (require("./config"))();
+
+exports.dwolla = 
+{
+  send: function(params)
+  {
+    var success_callback = params.success_callback;
+    var error_callback = params.error_callback;
+    var path = conf.dwolla_path + "?oauth_token=" + encodeURIComponent(params.user_token);
+
+    var body = JSON.stringify(
+      {
+        //oauth_token: params.user_token,
+        pin: params.pin,
+        destinationId: params.destination_id,
+        amount: 1 // params.amount + params.fee,
+        //assumeCosts: true,
+        //notes: "Charitable donation facilitated by KlearChoice Inc"
+      });
+
+    var req = https.request(
+      {
+        hostname: 'www.dwolla.com',
+        path: path,
+        method: 'POST',
+        headers: {"Content-Type":"application/json"}
+      });
+    req.on("response", function(response)
+      {
+        var result='';
+        response.on('data', 
+          function(chunk) 
+          { 
+            result += chunk; 
+          });
+        response.on('end', 
+          function() 
+          { 
+            handle_result(result); 
+          });
+      });
+    req.on("error", function(error)
+      {
+        console.log("Error in http request!");
+      });
+    //console.log("path: " + path + " request: " + body);
+    req.write(body);
+    req.end();
+
+    function handle_result(result)
+    {
+      var p = JSON.parse(result);
+      console.log(util.inspect(p));
+
+      if(p.Success==false)
+      {
+        if(error_callback) error_callback(p.Message);
+        return;
+      }
+
+      if(success_callback) success_callback(p);
+    }
+
+
+  }
+}
