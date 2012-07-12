@@ -48,6 +48,7 @@ exports.dwolla =
         console.log("Error in http request!");
       });
     //console.log("path: " + path + " request: " + body);
+    log.debug("payment request - path: " + path + " request: " + body);
     req.write(body);
     req.end();
 
