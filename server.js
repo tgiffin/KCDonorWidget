@@ -33,6 +33,7 @@ function authenticate(request, response, next)
   //console.log("authenticate...");
   log.debug("authenticate request: " + request.url);
   var exceptions = [
+                      '/favicon.ico',
                       '/donor_widget.html',
                       '/test/'
                   ]
