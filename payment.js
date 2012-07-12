@@ -61,7 +61,14 @@ exports.dwolla =
         return;
       }
 
-      if(success_callback) success_callback(p);
+      if(p.Success==true)
+      {
+        if(success_callback) success_callback(p);
+        return;
+      }
+
+      if(error_callback) error_callback("Unknown response received from payment gateway. Please try again later.");
+
     }
 
 

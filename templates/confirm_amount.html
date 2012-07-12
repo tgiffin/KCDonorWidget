@@ -6,7 +6,7 @@
     <script src="/script/app/app.js" type="text/javascript"></script>
   </head>
   <body>
-    <div>
+    <div id="content">
       <p>Great! You're almost done.</p>
       <p>Please confirm the following information, and we'll send your donation.</p>
       <table id="info_wrapper">
@@ -46,6 +46,11 @@
     <div id="error_popup">
       <p>There was a problem processing your payment request:</p>
       <p id="error_message"></p>
+      <a href="#" id="close_popup" class="button">Close</a>
+    </div>
+    <div id="whats_this_popup">
+      <p>This is the small fee charged by Dwolla and KlearChoice Inc for facilitating and processing this payment. Please note, this fee is considerably less than what is charged by credit card companies, by using Klear Choice and Dwolla, you're ensuring your charity receives the maximum benefit from your donation. </p>
+      <a href="#" id="close_whats_this" class="button">Close</a>
     </div>
   </body>
 </html>
