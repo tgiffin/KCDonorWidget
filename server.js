@@ -5,20 +5,17 @@ var urllib = require("url"); //for parsing urls
 var util = require("util");
 var console = require("console");
 var Config = require("./config"); //environment configuration settings
-var log = require("./logly");
 var conf = new Config();
+var log = conf.logger;
 var session_store = null;
 
 log.name("DonorWidget");
 if(conf.env == "development")
 {
-  log.mode("debug");
   var session_store = new express.session.MemoryStore();
 }
 else if(conf.env == "production")
 {
-  log.mode("debug");
-  //log.mode("warn");
   var session_store = new redis_store();
 }
 

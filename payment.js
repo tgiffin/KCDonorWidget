@@ -2,6 +2,7 @@ var https = require('https');
 var console = require('console');
 var util = require('util');
 var conf = new (require("./config"))();
+var log = conf.logger;
 
 exports.dwolla = 
 {

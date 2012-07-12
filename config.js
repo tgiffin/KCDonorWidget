@@ -1,5 +1,6 @@
 var console = require("console");
 var fs = require("fs");
+var log = require("./logly");
 
 module.exports = function()
 {
@@ -8,8 +9,10 @@ module.exports = function()
   {
     case 'development':
     {
+      log.mode("debug");
       return {
         env: "development",
+        logger: log,
         port: 3000,
         hostname: "https://localhost:3000",
         dwolla_path: "/oauth/rest/testapi/send",
@@ -25,8 +28,11 @@ module.exports = function()
     }
     case 'production':
     {
+      log.mode("debug");
+      //log.mode("warn");
       return {
         env: "production",
+        logger: log,
         port: 443,
         hostname: "https://app.klearchoice.com",
         dwolla_path: "/oath/rest/transactions/send",
