@@ -61,7 +61,7 @@ exports.dwolla =
       {
         log.error("Error parsing server result: " + result);
         p.Success=false;
-        p.Message="There was a problem communicating with the payment gateway. Please try again later.");
+        p.Message="There was a problem communicating with the payment gateway. Please try again later.";
       }
       console.log(util.inspect(p));
 
