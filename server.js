@@ -1,10 +1,18 @@
 var express = require("express"); //web framework
+var redis_store = require("connect-redis")(express);
 var everyauth = require("everyauth"); //oath lib
 var urllib = require("url"); //for parsing urls
 var util = require("util");
 var console = require("console");
 var Config = require("./config"); //environment configuration settings
 var conf = new Config();
+var session_store = null;
+
+if(conf.env == "development")
+  var session_store = new express.session.MemoryStore();
+else if(conf.env == "production")
+  var session_store = new redis_store();
+
 
 if(!conf.port) { console.log("unable to determine configuration, please check environment variables"); return; }
 
@@ -61,7 +69,7 @@ app.use(express.static(__dirname + '/static'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
-app.use(express.session({secret:"let's agree to disagree about not agreeing"}));
+app.use(express.session({store: session_store, secret:"let's agree to disagree about not agreeing"}));
 app.use(everyauth.middleware());
 app.use(authenticate);
 app.use(app.router);

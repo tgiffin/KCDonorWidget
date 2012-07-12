@@ -9,6 +9,7 @@ module.exports = function()
     case 'development':
     {
       return {
+        env: "development",
         port: 3000,
         hostname: "https://localhost:3000",
         dwolla_path: "/oauth/rest/testapi/send",
@@ -25,6 +26,7 @@ module.exports = function()
     case 'production':
     {
       return {
+        env: "production",
         port: 443,
         hostname: "https://app.klearchoice.com",
         dwolla_path: "/oath/rest/transactions/send",
