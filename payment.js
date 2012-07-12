@@ -52,7 +52,17 @@ exports.dwolla =
 
     function handle_result(result)
     {
-      var p = JSON.parse(result);
+      var p = {};
+      try
+      {
+        p = JSON.parse(result);
+      }
+      catch(err)
+      {
+        log.error("Error parsing server result: " + result);
+        p.Success=false;
+        p.Message="There was a problem communicating with the payment gateway. Please try again later.");
+      }
       console.log(util.inspect(p));
 
       if(p.Success==false)
