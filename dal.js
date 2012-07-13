@@ -12,14 +12,20 @@ module.exports = {
       {
         host: conf.db_host,
         user: conf.db_username,
+        database: conf.db_name,
         password: conf.db_password
       });
     connection.connect(
       function(err)
       {
-        log.error("CRITICAL ERROR: Unable to connect to database");
+        log.error("CRITICAL ERROR: Unable to connect to database:" + util.inspect(err));
       }
     );
+    connection.on("error",
+      function(err) 
+      {
+        log.error("CRITICAL ERROR: database error: " + util.inspect(err)); 
+      });
   },
 
   close: function()
@@ -29,7 +35,7 @@ module.exports = {
 
   getCharity: function(charity_id, callback, error_callback)
   {
-    connection.query("select charity_name, dwolla_id from charity where charity_id=?",charity_id,
+    connection.query("select id, charity_name, dwolla_id from charity where id=?",[charity_id],
       function(err, rows)
       {
         if(err)

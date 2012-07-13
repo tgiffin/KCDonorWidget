@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `charity`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `charity` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `charity_name` varchar(100) DEFAULT NULL,
   `address1` varchar(200) DEFAULT NULL,
   `address2` varchar(200) DEFAULT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `charity` (
   `dwolla_id` varchar(45) DEFAULT NULL,
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +42,7 @@ CREATE TABLE `charity` (
 
 LOCK TABLES `charity` WRITE;
 /*!40000 ALTER TABLE `charity` DISABLE KEYS */;
+INSERT INTO `charity` VALUES (1,'Test Charity','111 Test Address Rd',NULL,'Grapevine','TX','76051','812-708-2911','2012-07-13 18:20:30');
 /*!40000 ALTER TABLE `charity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -53,7 +54,7 @@ DROP TABLE IF EXISTS `donor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `donor` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
   `email` varchar(200) DEFAULT NULL,
   `dwolla_id` varchar(45) DEFAULT NULL,
@@ -79,13 +80,15 @@ DROP TABLE IF EXISTS `transactions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transactions` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `donor_id` int(11) DEFAULT NULL,
   `charity_id` int(11) DEFAULT NULL,
   `amount` decimal(8,2) DEFAULT NULL,
   `klearchoice_fee` decimal(8,2) DEFAULT NULL,
   `processor_fee` decimal(8,2) DEFAULT NULL,
   `confirmation_number` varchar(100) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
+  `message` varchar(200) DEFAULT NULL,
   `create_date` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -109,4 +112,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-07-13 12:21:47
+-- Dump completed on 2012-07-13 13:21:17

@@ -1,7 +1,8 @@
 var mustache = require("mustache"); //templating engine
 var console = require("console");
 var server = require("./server");
-var payment = require("./payment.js");
+var payment = require("./payment"); //payment processor
+var dal = require("./dal"); //data access layer
 var fs = require("fs");
 var Config = require("./config");
 var conf = new Config();
@@ -15,9 +16,11 @@ exports.donor_widget = function(request, response)
   {
     //console.log("donor widget: charity_id:" + request.params['charity_id']);
     //console.log(request);
+    var charity_id = request.session.charity_id = request.query['charity_id']
+
     response.send(mustache.to_html(loadTemplate('donor_widget'),
       {
-        charity_id: request.query['charity_id']
+        charity_id: charity_id
       }));
 
   }
@@ -25,20 +28,34 @@ exports.donor_widget = function(request, response)
 /**
  * Once oauth is complete, we display this page
  */
-exports.authenticate_complete = function(request, response)
+exports.authenticate_complete = function(request, response,next)
   {
     var err = request.session.error;
     if(err)
     {
       request.session.error = null;
     }
-    request.session.charity_id = request.query['charity_id'];
-    response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+
+    dal.open();
+    var info;
+    dal.getCharity(request.session.charity_id,
+      function(row)
       {
-        charity_id: request.session.charity_id,
-        user: request.session.auth.dwolla.user,
-        error: err
-      }));
+        request.session.charity = info = row;
+
+        response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+          {
+            charity_name: info.charity_name,
+            user: request.session.auth.dwolla.user,
+            error: err
+          }));
+
+      },
+      function(err)
+      {
+        next(err);
+      });
+    dal.close();
 
   }
 
@@ -75,7 +92,7 @@ exports.confirm_amount =  function(request, response)
     response.send(mustache.to_html(loadTemplate('confirm_amount'),
       {
         amount: amount,
-        charity_name: request.session.charity_id,
+        charity_name: request.session.charity.charity_name,
         user: request.session.auth.dwolla.user,
         fee: fee,
         total: total
@@ -86,7 +103,7 @@ exports.confirm_amount =  function(request, response)
 /**
  * This is the main payment API, this is called via ajax request to send money
  */
-exports.send_payment = function(request, response)
+exports.send_payment = function(request, response, next)
   {
     var vals = request.body;
     var result = {};
@@ -95,11 +112,25 @@ exports.send_payment = function(request, response)
       {
         user_token: request.session.auth.dwolla.accessToken,
         pin: vals.pin,
-        destination_id: "812-708-2911",
+        destination_id: request.session.charity.dwolla_id,
         amount: request.session.amount,
         success_callback:
           function(result)
           {
+            dal.open();
+            dal.logTransaction(
+              {
+                donor_id: 0,
+                charity_id: request.session.charity.id,
+                amount: request.session.amount,
+                klearchoice_fee: 0,
+                processor_fee: 0,
+                confirmation_number: result.Response,
+                status: "success",
+                message: result.Message
+              });
+            dal.close();
+
             response.json(
               {
                 status: "success"
@@ -108,6 +139,20 @@ exports.send_payment = function(request, response)
         error_callback:
           function(error)
           {
+            dal.open();
+            dal.logTransaction(
+              {
+                donor_id: 0,
+                charity_id: request.session.charity.id,
+                amount: request.session.amount,
+                klearchoice_fee: 0,
+                processor_fee: 0,
+                confirmation_number: '',
+                status: "error",
+                message: error
+              });
+            dal.close();
+
             response.json(
               {
                 status: "error",
