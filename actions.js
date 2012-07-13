@@ -3,6 +3,8 @@ var console = require("console");
 var server = require("./server");
 var payment = require("./payment.js");
 var fs = require("fs");
+var Config = require("./config");
+var conf = new Config();
 
 var app = server.app;
 
@@ -34,7 +36,8 @@ exports.authenticate_complete = function(request, response)
     response.send(mustache.to_html(loadTemplate('authenticate_complete'),
       {
         charity_id: request.session.charity_id,
-        user: request.session.auth.dwolla.user
+        user: request.session.auth.dwolla.user,
+        error: err
       }));
 
   }

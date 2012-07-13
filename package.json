@@ -16,7 +16,8 @@
     "express": "~2.5.10",
     "mustache": "~0.4.0",
     "everyauth": "~0.2.32",
-    "connect-redis": "~1.4.0"
+    "connect-redis": "~1.4.0",
+    "node-mysql": "~2.0.0-alpha3"
   },
   "devDependencies": {},
   "optionalDependencies": {}
