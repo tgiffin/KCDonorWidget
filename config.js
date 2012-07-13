@@ -31,7 +31,7 @@ module.exports = function()
     }
     case 'production':
     {
-      log.mode("warn");
+      log.mode("standard");
       //log.mode("warn");
       return {
         env: "production",
