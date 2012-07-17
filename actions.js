@@ -12,11 +12,16 @@ var app = server.app;
 /**
  * This is the starting page
  */
-exports.donor_widget = function(request, response)
+exports.donor_widget = function(request, response, next)
   {
     //console.log("donor widget: charity_id:" + request.params['charity_id']);
     //console.log(request);
     var charity_id = request.session.charity_id = request.query['charity_id']
+    if(!charity_id)
+    {
+      next(new Error("Missing charity id"));
+      return;
+    }
 
     response.send(mustache.to_html(loadTemplate('donor_widget'),
       {
@@ -28,7 +33,7 @@ exports.donor_widget = function(request, response)
 /**
  * Once oauth is complete, we display this page
  */
-exports.authenticate_complete = function(request, response,next)
+exports.authenticate_complete = function(request, response,next) 
   {
     var err = request.session.error;
     if(err)
@@ -36,11 +41,19 @@ exports.authenticate_complete = function(request, response,next)
       request.session.error = null;
     }
 
+    if(!request.session.charity_id)
+    {
+      next(new Error("Missing charity id in session"));
+      return;
+    }
+
     dal.open();
     var info;
     dal.getCharity(request.session.charity_id,
-      function(row)
+      function(err,row)
       {
+        if(err) { next(err); return; }
+
         request.session.charity = info = row;
 
         response.send(mustache.to_html(loadTemplate('authenticate_complete'),
@@ -50,10 +63,6 @@ exports.authenticate_complete = function(request, response,next)
             error: err
           }));
 
-      },
-      function(err)
-      {
-        next(err);
       });
     dal.close();
 
@@ -88,7 +97,7 @@ exports.confirm_amount =  function(request, response)
     }
 
     var fee = .45;
-    var total = amount + fee;
+    var total = request.session.total = amount + fee;
     response.send(mustache.to_html(loadTemplate('confirm_amount'),
       {
         amount: amount,
@@ -113,7 +122,7 @@ exports.send_payment = function(request, response, next)
         user_token: request.session.auth.dwolla.accessToken,
         pin: vals.pin,
         destination_id: request.session.charity.dwolla_id,
-        amount: request.session.amount,
+        amount: request.session.total,
         success_callback:
           function(result)
           {
@@ -128,6 +137,11 @@ exports.send_payment = function(request, response, next)
                 confirmation_number: result.Response,
                 status: "success",
                 message: result.Message
+              },
+              function(err,result)
+              {
+                if(err)
+                  next(err);
               });
             dal.close();
 
@@ -150,7 +164,13 @@ exports.send_payment = function(request, response, next)
                 confirmation_number: '',
                 status: "error",
                 message: error
+              },
+              function(err,result)
+              {
+                if(err)
+                  next(err);
               });
+
             dal.close();
 
             response.json(

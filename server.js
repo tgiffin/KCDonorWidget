@@ -76,7 +76,7 @@ everyauth.dwolla
       return {id: dwollaUserMetadata.Id, dwolla: dwollaUserMetadata};
 
     })
-  .redirectPath("/authenticate_complete.html");
+  .redirectPath("/authenticate_complete.html"); 
 
 //set up express
 app.use(express.static(__dirname + '/static'));
@@ -87,7 +87,6 @@ app.use(express.session({store: session_store, secret:"let's agree to disagree a
 app.use(everyauth.middleware());
 app.use(authenticate);
 app.use(app.router);
-app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 app.set("views",__dirname + "/templates/");
 
 /* Request Handlers */
@@ -98,6 +97,8 @@ routes.forEach(
     console.log("Registering route: " + item.verb + " - " + item.path + " = " + util.inspect(item.action));
     app[item.verb](item.path,item.action);
   });
+//ensure error handler is last item in middleware stack
+app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
 
 console.log("Starting klearchoice server on " + conf.port + "...");

@@ -33,7 +33,7 @@ module.exports = {
     connection.end();
   },
 
-  getCharity: function(charity_id, callback, error_callback)
+  getCharity: function(charity_id, callback)
   {
     connection.query("select id, charity_name, dwolla_id from charity where id=?",[charity_id],
       function(err, rows)
@@ -41,16 +41,12 @@ module.exports = {
         if(err)
         {
           log.error("Error retrieving charity information from database. Charity id: " + charity_id + ". Err: " + err);
-          if(error_callback) error_callback(err);
         }
-        else
-        {
-          callback(rows[0]);
-        }
+        callback(err,rows[0]);
       });
   },
 
-  logTransaction: function(transaction, error_callback)
+  logTransaction: function(transaction, callback)
   {
     connection.query("insert into transactions set ?", transaction,
       function(err,result)
@@ -58,7 +54,7 @@ module.exports = {
         if(err)
         {
           log.error("Error inserting transaction: " + util.inspect(transaction) + " err: " + err);
-          if(error_callback) error_callback(err);
+          if(callback) callback(err,result);
         }
       });
   }
