@@ -1,7 +1,7 @@
 var mustache = require("mustache"); //templating engine
 var console = require("console");
 var server = require("./server");
-var payment = require("./payment"); //payment processor
+var payment = require("./payment").dwolla; //payment processor
 var dal = require("./dal"); //data access layer
 var fs = require("fs");
 var Config = require("./config");
@@ -117,7 +117,7 @@ exports.confirm_amount =  function(request, response)
       return;
     }
 
-    var fee = payment.dwolla.klearchoice_fee + payment.dwolla.processor_fee;
+    var fee = payment.klearchoice_fee + payment.processor_fee;
     var total = request.session.total = amount + fee;
     response.send(mustache.to_html(loadTemplate('confirm_amount'),
       {
@@ -138,7 +138,7 @@ exports.send_payment = function(request, response, next)
     var vals = request.body;
     var result = {};
 
-    payment.dwolla.send(
+    payment.send(
       {
         user_token: request.session.auth.dwolla.accessToken,
         pin: vals.pin,
@@ -177,7 +177,7 @@ exports.send_payment = function(request, response, next)
             dal.open();
             dal.log_transaction(
               {
-                donor_id: request.session.auth.dwolla.id,
+                donor_id: request.session.donor_id,
                 charity_id: request.session.charity.id,
                 amount: request.session.amount,
                 klearchoice_fee: payment.klearchoice_fee, 
