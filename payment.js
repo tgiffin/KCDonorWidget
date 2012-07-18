@@ -6,6 +6,8 @@ var log = conf.logger;
 
 exports.dwolla = 
 {
+  klearchoice_fee: .20,
+  processor_fee: .25,
   send: function(params)
   {
     var success_callback = params.success_callback;

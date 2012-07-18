@@ -33,7 +33,7 @@ module.exports = {
     connection.end();
   },
 
-  getCharity: function(charity_id, callback)
+  get_charity: function(charity_id, callback)
   {
     connection.query("select id, charity_name, dwolla_id from charity where id=?",[charity_id],
       function(err, rows)
@@ -46,7 +46,7 @@ module.exports = {
       });
   },
 
-  logTransaction: function(transaction, callback)
+  log_transaction: function(transaction, callback)
   {
     connection.query("insert into transactions set ?", transaction,
       function(err,result)
@@ -57,6 +57,34 @@ module.exports = {
           if(callback) callback(err,result);
         }
       });
+  },
+
+  get_donor_id: function(user,callback)
+  {
+    var id = user.processor_id;
+    if(!id) { callback(new Error("Missing user id")); return; }
+
+    connection.query("select * from donor where processor_id=?",[id],
+      function(err,result)
+      {
+        if(err) { callback(err); return; }
+
+        if(result.length < 1)  
+        {
+          //we don't have a record, need to insert
+          connection.query("insert into donor set ?",
+            user,
+            function(err,result)
+            {
+              return callback(err, result.insertId);
+            });
+          return;
+        }
+
+        return callback(null, result[0].id);
+
+      });
   }
+
 
 }

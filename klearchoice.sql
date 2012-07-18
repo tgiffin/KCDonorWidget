@@ -57,20 +57,14 @@ CREATE TABLE `donor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
   `email` varchar(200) DEFAULT NULL,
-  `dwolla_id` varchar(45) DEFAULT NULL,
+  `city` varchar(200) DEFAULT NULL,
+  `state` varchar(45) DEFAULT NULL,
+  `processor_id` varchar(45) DEFAULT NULL,
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `donor`
---
-
-LOCK TABLES `donor` WRITE;
-/*!40000 ALTER TABLE `donor` DISABLE KEYS */;
-/*!40000 ALTER TABLE `donor` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `transactions`
@@ -89,19 +83,12 @@ CREATE TABLE `transactions` (
   `confirmation_number` varchar(100) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
   `message` varchar(200) DEFAULT NULL,
-  `create_date` varchar(45) DEFAULT NULL,
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `transactions`
---
 
-LOCK TABLES `transactions` WRITE;
-/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -112,4 +99,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-07-13 13:21:17
+-- Dump completed on 2012-07-18 16:17:08

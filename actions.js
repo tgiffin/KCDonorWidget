@@ -39,6 +39,13 @@ exports.authenticate_complete = function(request, response,next)
     if(err)
     {
       request.session.error = null;
+      response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+        {
+          charity_name: info.charity_name,
+          user: request.session.auth.dwolla.user,
+          error: err
+        }));
+      return;
     }
 
     if(!request.session.charity_id)
@@ -49,22 +56,36 @@ exports.authenticate_complete = function(request, response,next)
 
     dal.open();
     var info;
-    dal.getCharity(request.session.charity_id,
-      function(err,row)
+    dal.get_donor_id(
       {
-        if(err) { next(err); return; }
+        processor_id: request.session.auth.dwolla.user.Id,
+        name: request.session.auth.dwolla.user.Name,
+        email: '',
+        city: request.session.auth.dwolla.user.City,
+        state: request.session.auth.dwolla.user.State
+      },
+      function(err,donor_id)
+      {
+        if(err) {dal.close(); return next(err); }
 
-        request.session.charity = info = row;
+        request.session.donor_id=donor_id;
 
-        response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+        dal.get_charity(request.session.charity_id,
+          function(err,row)
           {
-            charity_name: info.charity_name,
-            user: request.session.auth.dwolla.user,
-            error: err
-          }));
+            dal.close();
+            if(err) {next(err); return; }
 
+            request.session.charity = info = row;
+
+            response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+              {
+                charity_name: info.charity_name,
+                user: request.session.auth.dwolla.user,
+                error: err
+              }));
+          });
       });
-    dal.close();
 
   }
 
@@ -96,7 +117,7 @@ exports.confirm_amount =  function(request, response)
       return;
     }
 
-    var fee = .45;
+    var fee = payment.dwolla.klearchoice_fee + payment.dwolla.processor_fee;
     var total = request.session.total = amount + fee;
     response.send(mustache.to_html(loadTemplate('confirm_amount'),
       {
@@ -127,13 +148,13 @@ exports.send_payment = function(request, response, next)
           function(result)
           {
             dal.open();
-            dal.logTransaction(
+            dal.log_transaction(
               {
-                donor_id: 0,
+                donor_id: request.session.donor_id,
                 charity_id: request.session.charity.id,
                 amount: request.session.amount,
-                klearchoice_fee: 0,
-                processor_fee: 0,
+                klearchoice_fee: payment.klearchoice_fee, 
+                processor_fee: payment.processor_fee,
                 confirmation_number: result.Response,
                 status: "success",
                 message: result.Message
@@ -154,13 +175,13 @@ exports.send_payment = function(request, response, next)
           function(error)
           {
             dal.open();
-            dal.logTransaction(
+            dal.log_transaction(
               {
-                donor_id: 0,
+                donor_id: request.session.auth.dwolla.id,
                 charity_id: request.session.charity.id,
                 amount: request.session.amount,
-                klearchoice_fee: 0,
-                processor_fee: 0,
+                klearchoice_fee: payment.klearchoice_fee, 
+                processor_fee: payment.processor_fee,
                 confirmation_number: '',
                 status: "error",
                 message: error
