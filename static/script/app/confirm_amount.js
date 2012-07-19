@@ -35,23 +35,27 @@
                 }
 
             }); //end ajax call
+          return false; //prevent default event
         }); //end payment button click
 
         $("#close_popup").click(
           function()
           {
             $("#error_popup").closePopup();
+            return false; 
           });
 
         $("#whats_this_link").click(
           function()
           {
             $("#whats_this_popup").popup();
+            return false;
           });
         $("#close_whats_this").click(
           function()
           {
             $("#whats_this_popup").closePopup();
+            return false;
           });
         
     }); //end document ready

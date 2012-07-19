@@ -18,7 +18,8 @@ module.exports = {
     connection.connect(
       function(err)
       {
-        log.error("CRITICAL ERROR: Unable to connect to database:" + util.inspect(err));
+        if(err)
+          log.error("CRITICAL ERROR: Unable to connect to database:" + util.inspect(err));
       }
     );
     connection.on("error",

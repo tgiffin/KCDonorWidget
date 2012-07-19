@@ -25,6 +25,7 @@
     function()
     {
       $("#donate_form").submit();
+      return false;
     });
 
   //format the input box for currency
