@@ -19,14 +19,30 @@ exports.donor_widget = function(request, response, next)
     var charity_id = request.session.charity_id = request.query['charity_id']
     if(!charity_id)
     {
-      next(new Error("Missing charity id"));
+      response.redirect(conf.url + "/invalid_configuration.html");
       return;
     }
-
-    response.send(mustache.to_html(loadTemplate('donor_widget'),
+    dal.get_charity(request.session.charity_id,
+      function(err,row)
       {
-        charity_id: charity_id
-      }));
+        dal.close();
+        if(err) {next(err); return; }
+
+        if(!row)
+        {
+          response.redirect(conf.url + "/invalid_configuration.html");
+          return;
+        }
+
+        request.session.charity = info = row;
+
+        response.send(mustache.to_html(loadTemplate('donor_widget'),
+        {
+          charity_id: charity_id
+        }));
+
+      });
+
 
   }
 
@@ -48,14 +64,13 @@ exports.authenticate_complete = function(request, response,next)
       return;
     }
 
-    if(!request.session.charity_id)
+    if(!request.session.charity_name)
     {
-      next(new Error("Missing charity id in session"));
+      next(new Error("Missing charity in session"));
       return;
     }
 
     dal.open();
-    var info;
     dal.get_donor_id(
       {
         processor_id: request.session.auth.dwolla.user.Id,
@@ -70,21 +85,12 @@ exports.authenticate_complete = function(request, response,next)
 
         request.session.donor_id=donor_id;
 
-        dal.get_charity(request.session.charity_id,
-          function(err,row)
+        response.send(mustache.to_html(loadTemplate('authenticate_complete'),
           {
-            dal.close();
-            if(err) {next(err); return; }
+            charity_name: request.session.charity_name,
+            user: request.session.auth.dwolla.user
+          }));
 
-            request.session.charity = info = row;
-
-            response.send(mustache.to_html(loadTemplate('authenticate_complete'),
-              {
-                charity_name: info.charity_name,
-                user: request.session.auth.dwolla.user,
-                error: err
-              }));
-          });
       });
 
   }

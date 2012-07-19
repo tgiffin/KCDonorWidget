@@ -42,6 +42,10 @@ module.exports = {
         {
           log.error("Error retrieving charity information from database. Charity id: " + charity_id + ". Err: " + err);
         }
+        /*if(rows.length < 1)
+        {
+          return callback(new Error("Unable to locate charity for id: " + charity_id),null);
+        }*/
         callback(err,rows[0]);
       });
   },
