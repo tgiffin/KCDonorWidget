@@ -16,12 +16,20 @@ exports.donor_widget = function(request, response, next)
   {
     //console.log("donor widget: charity_id:" + request.params['charity_id']);
     //console.log(request);
-    var charity_id = request.session.charity_id = request.query['charity_id']
+    try
+    {
+      var charity_id = request.session.charity_id = parseInt(escapeHtml(request.query['charity_id']));
+    }
+    catch(err)
+    {
+      charity_id=null;
+    }
     if(!charity_id)
     {
-      response.redirect(conf.url + "/invalid_configuration.html");
+      response.redirect(conf.hostname + "/invalid_configuration.html");
       return;
     }
+    dal.open();
     dal.get_charity(request.session.charity_id,
       function(err,row)
       {
@@ -30,7 +38,7 @@ exports.donor_widget = function(request, response, next)
 
         if(!row)
         {
-          response.redirect(conf.url + "/invalid_configuration.html");
+          response.redirect(conf.hostname + "/invalid_configuration.html");
           return;
         }
 
@@ -46,6 +54,7 @@ exports.donor_widget = function(request, response, next)
 
   }
 
+
 /**
  * Once oauth is complete, we display this page
  */
@@ -57,14 +66,14 @@ exports.authenticate_complete = function(request, response,next)
       request.session.error = null;
       response.send(mustache.to_html(loadTemplate('authenticate_complete'),
         {
-          charity_name: info.charity_name,
+          charity_name: request.session.charity.charity_name,
           user: request.session.auth.dwolla.user,
-          error: err
+          error: err.message
         }));
       return;
     }
 
-    if(!request.session.charity_name)
+    if(!request.session.charity)
     {
       next(new Error("Missing charity in session"));
       return;
@@ -87,7 +96,7 @@ exports.authenticate_complete = function(request, response,next)
 
         response.send(mustache.to_html(loadTemplate('authenticate_complete'),
           {
-            charity_name: request.session.charity_name,
+            charity_name: request.session.charity.charity_name,
             user: request.session.auth.dwolla.user
           }));
 
@@ -119,7 +128,7 @@ exports.confirm_amount =  function(request, response)
     if(result.status=='error')
     {
       request.session.error = result;
-      response.redirect(conf.url + "/authenticate_complete.html");
+      response.redirect(conf.hostname + "/authenticate_complete.html");
       return;
     }
 
@@ -232,5 +241,16 @@ function loadTemplate(template) {
     return fs.readFileSync(app.set('views') + template+ '.html')+ '';
 }
 
+/** 
+ * Utility for scrubbing input, escaping all html to prevent injection/xss
+ */
+function escapeHtml(unsafe) {
+  return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+}
 
 

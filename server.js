@@ -45,7 +45,7 @@ function authenticate(request, response, next)
   }
 
   log.debug("Authentication failed, redirecting...");
-  response.redirect(conf.hostname + "/donor_widget.html");
+  response.redirect(conf.hostname + "/donor_widget.html?charity_id=" + request.session.charity_id);
   response.end();
 }
 
