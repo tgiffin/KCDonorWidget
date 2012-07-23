@@ -30,5 +30,10 @@ module.exports = [
     verb: 'get',
     path: '/thank_you.html',
     action: actions.thank_you
+  },
+  {
+    verb: 'get',
+    path: '/register.html',
+    action: actions.register
   }
 ];

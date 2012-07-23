@@ -1,0 +1,142 @@
+#container
+{
+  width: 1024px;
+  margin: 0 auto;
+  height: 700px;
+  margin-top: 80px;
+  overflow: hidden;
+  position: relative;
+}
+
+#steps {
+  position: absolute;
+  width: 3074px;
+}
+
+#city {
+  margin-right: 5px;
+  width: 130px;
+}
+#state {
+  margin-right: 5px;
+  width: 20px;
+}
+#zip {
+  margin-right: 0px;
+  width: 40px;
+}
+
+#address_wrapper {
+  width: 600px;
+}
+#city_wrapper {
+  width: 300px;
+}
+#state_wrapper {
+  width: 140px;
+}
+#zip_wrapper {
+  width: 140px;
+}
+#container h1 {
+  font-size: 1.3em;
+}
+#container h2 {
+  font-size: 1.1em;
+}
+
+.registration_form {
+  margin: 0 auto;
+  width: 700px;
+  padding: 14px;
+}
+
+.registration_form label{
+  display:block;
+  font-weight:bold;
+  text-align:right;
+  width:140px;
+  float:left;
+}
+.registration_form .small{
+  color:#666666;
+  display:block;
+  font-size:11px;
+  font-weight:normal;
+  text-align:right;
+  width:140px;
+}
+.registration_form input{
+  float:left;
+  font-size:12px;
+  padding:4px 2px;
+  border:solid 2px #676767;
+  background-color: #DeDeDe;
+  width:200px;
+  margin:2px 0 20px 10px;
+  margin-right: 300px;
+  color: #0F0F0F;
+}
+.registration_form textarea{
+  float:left;
+  font-size:12px;
+  padding:4px 2px;
+  margin:2px 0 20px 10px;
+  border:solid 2px #676767;
+  background-color: #DeDeDe;
+  color: #0F0F0F;
+}
+
+.next_button {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+.back_button {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+}
+
+.step_container {
+  position: relative;
+  width: 900px;
+  margin-left:62px;
+  margin-right:62px; 
+  height: 500px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #595959;
+  padding: 10px;
+  float: left;
+}
+
+.rounded_corners {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+}
+
+.rounded_corners_medium {
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -khtml-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.rounded_corners_large {
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  -khtml-border-radius: 20px;
+  border-radius: 10px;
+}
+
+.hcenter {
+  margin: 0 auto;
+}
+
+.address_item {
+  float: left;
+}
+

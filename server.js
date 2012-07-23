@@ -32,6 +32,7 @@ function authenticate(request, response, next)
   var exceptions = [
                       '/favicon.ico',
                       '/donor_widget.html',
+                      '/register.html',
                       '/test/'
                   ]
   var pathname = urllib.parse(request.url).pathname;

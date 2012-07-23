@@ -230,6 +230,13 @@ exports.thank_you = function(request, response)
       }));
 }
 
+exports.register = function(request, response)
+{
+    response.send(mustache.to_html(loadTemplate('register'),
+      {
+      }));
+}
+
 
 
 /* Utility functions */

@@ -19,7 +19,7 @@ exports.dwolla =
         //oauth_token: params.user_token,
         pin: params.pin,
         destinationId: params.destination_id,
-        amount: 1 // params.amount + params.fee,
+        amount: params.amount,
         //assumeCosts: true,
         //notes: "Charitable donation facilitated by KlearChoice Inc"
       });
