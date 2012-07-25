@@ -6,7 +6,7 @@
     <script src="/script/app/app.js" type="text/javascript"></script>
   </head>
   <body>
-    <div>
+    <div id="donation_wrapper">
       <p>Thanks, we've received your authorization to send money to {{charity_name}}.</p>
       <p>How much would you like to donate today?</p>
       <form id="donate_form" action="/confirm_amount" method="POST">
@@ -15,6 +15,10 @@
       <p class="error">{{error}}</p>
       <a href="#" class="button grey" id="cancel_button">Cancel</a>
       <a href="#" class="button" id="donate_button">Donate now!</a>
+    </div>
+    <div id="summary_wrapper">
+    </div>
+    <div id="pin_wrapper">
     </div>
     
     <span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=0MNNAmxZ9z1cojfKjDy9PSpy1qZDMbyoTVXCEgLoak8Tj3uaMvG31a"></script></span>

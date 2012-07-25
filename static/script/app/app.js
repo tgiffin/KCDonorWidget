@@ -2,7 +2,8 @@
 //main script router. defines scripts to load for each page
 scripts = {
   "global"                               : [
-                                            "/script/lib/jquery-1.7.2.min.js"
+                                            "/script/lib/jquery-1.7.2.min.js",
+                                            null //all scripts block until jquery is loaded
                                           ],
   "/authenticate_complete.html"         : [
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",

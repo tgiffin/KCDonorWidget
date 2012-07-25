@@ -50,7 +50,17 @@ function authenticate(request, response, next)
   response.end();
 }
 
-console.log("Creating server instance...");
+/**
+ * Send P3P response to allow cookies on IE inside iframe
+ */
+function P3P(request, response, next)
+{
+  response.header('P3P','CP="Klear Choice respects your privacy. For more information or concerns, email us at privacy@klearchoice.com"');
+  next();
+}
+
+
+console.log("Creating server instance..."); 
 if(conf.options)
 {
   var app = express.createServer(conf.options);
@@ -80,6 +90,7 @@ everyauth.dwolla
   .redirectPath("/authenticate_complete.html"); 
 
 //set up express
+app.use(P3P); //send P3P headers on all requests, even static
 app.use(express.static(__dirname + '/static'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
