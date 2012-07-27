@@ -35,5 +35,10 @@ module.exports = [
     verb: 'get',
     path: '/register.html',
     action: actions.register
+  },
+  {
+    verb: 'post',
+    path: '/register_charity',
+    action: actions.register_charity
   }
 ];

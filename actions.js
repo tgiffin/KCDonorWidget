@@ -237,6 +237,11 @@ exports.register = function(request, response)
       }));
 }
 
+exports.register_charity = function(request, response)
+{
+  response.json(request.body);
+}
+
 
 
 /* Utility functions */

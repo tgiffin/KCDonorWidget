@@ -17,6 +17,7 @@ scripts = {
   "/register.html"                      : [
                                             "/script/lib/greensock/TweenMax.js",
                                             null, //block until TweenMax is loaded
+                                            "/script/lib/jquery.popup.js",
                                             "/script/app/register.js"
                                           ]
 

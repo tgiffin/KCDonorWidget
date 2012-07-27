@@ -10,7 +10,7 @@
 
 #steps {
   position: absolute;
-  width: 3074px;
+  width: 3200px;
 }
 
 #city {
@@ -25,7 +25,7 @@
   margin-right: 0px;
   width: 40px;
 }
-
+/* address section */
 #address_wrapper {
   width: 600px;
 }
@@ -38,11 +38,66 @@
 #zip_wrapper {
   width: 140px;
 }
+
+/* password section */
+#password_wrapper {
+  width: 800px;
+}
+#password_input_wrapper {
+  width: 390px;
+  float: left;
+}
+#confirm_password_input_wrapper {
+  width: 390px;
+  float: left;
+}
+#password {
+  width: 200px;
+  margin-right: 15px;
+}
+#confirm_password {
+  width: 200px;
+  margin-right: 15px;
+}
+
 #container h1 {
   font-size: 1.3em;
 }
 #container h2 {
   font-size: 1.1em;
+}
+
+#self_register_popup {
+  display: none;
+}
+
+#dwolla_id_form {
+  display: none;
+}
+
+#validation_errors {
+  position: absolute;
+  display: none;
+  width: 300px;
+  background-color: white;
+  border: solid 1px black;
+}
+
+#error_list {
+  color: #874540;
+}
+
+#close_errors {
+  float: right;
+  margin-right: 15px;
+  margin-bottom: 15px;
+}
+
+#auto_register_form {
+  width: 780px;
+  display: none;
+  position: absolute;
+  margin-bottom: 60px;
 }
 
 .registration_form {
@@ -101,8 +156,8 @@
 .step_container {
   position: relative;
   width: 900px;
-  margin-left:62px;
-  margin-right:62px; 
+  margin-left:48px;
+  margin-right:48px; 
   height: 500px;
   border-width: 2px;
   border-style: solid;

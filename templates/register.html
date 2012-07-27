@@ -21,12 +21,13 @@
           <label>Charity name
             <span class="small">The name of the charity</span>
           </label>
-          <input type="text" name="dealership" id="dealership" />
+          <input type="text" name="charity_name" id="charity_name" />
 
           <label>Email
             <span class="small">Your email address</span>
           </label>
           <input type="text" name="email" id="email" />
+
 
           <label>Phone
             <span class="small">So we can get in touch with you</span>
@@ -65,60 +66,51 @@
            Next 
           </div>
         </div> <!-- end registration form -->
+        <div id="validation_errors">
+          <ul id="error_list">
+          </ul>
+          <a href="#" id="close_errors" class="button">Ok</a>
+        </div>
       </div> <!-- end step 1 -->
       <div id="step2" class="rounded_corners_medium step_container">
         <h1>Step 2 of 3</h1>
-        <h2>Thanks for signing up!</h2>
-        <p>We have some information to gather in a few simple steps, and then you'll be ready to start collecting donations on your web site!</p>
-        <div class="registration_form">
-
-          <label>Name
-            <span class="small">Your full name</span>
-          </label>
-          <input type="text" name="full_name" id="full_name" />
-
-          <label>Charity name
-            <span class="small">The name of the charity</span>
-          </label>
-          <input type="text" name="dealership" id="dealership" />
-
-          <label>Email
-            <span class="small">Your email address</span>
-          </label>
-          <input type="text" name="email" id="email" />
-
-          <label>Phone
-            <span class="small">So we can get in touch with you</span>
-          </label>
-          <input type="text" name="phone" id="phone" />
-
-          <label>Address
-            <span class="small">Full street address</span>
-          </label>
-          <input type="text" name="address" id="address" />
-
-          <div id="address_wrapper">
-            <div id="city_wrapper" class="address_item">
-              <label>City
-                <span class="small">The city where the charity is located</span>
+        <h2>Thanks!</h2>
+        <p>Now that we have your basic information, we'd like to get you registered with Dwolla, the affordable payment processor we use to save you money.</p>
+        <p>There are two ways we can do this. We can register your account for you, using the information you've provided us, or you can go to http://dwolla.com and sign up yourself.</p>
+        <p>If you decide you'd like to sign up on Dwolla yourself, we'll just need to get your Dwolla ID from you afterwards. We need this to make sure that the donations are sent to your account correctly.</p>
+        <p>Which would you like to do?</p>
+        <ul>
+          <li><a href="#" id="auto_register">Register my account for me, I don't like to bother with this stuff</a></li>
+          <li><a href="#" id="self_register">Send me to Dwolla's site so I can sign up myself</a></li>
+        </ul>
+        <div id="self_register_popup">
+          <p>Ok, we'll open up Dwolla's registration page on a new tab on your browser. When you've completed the registration on Dwolla's site, make sure you copy your Dwolla ID and come back to this page to paste it in.</p>
+          <a href="#" id="open_dwolla_registration" class="button">Ok</a>
+        </div>
+        <div id="auto_register_form" class="registration_form">
+          <p>What password would you like to use on Dwolla? Please note: Klear Choice will never store this information, it is only used for the purposes of registering your accout for you</p>
+          <div id="password_wrapper">
+            <div id="password_input_wrapper">
+              <label>Password
+                <span class="small">The password you'd like to use for Dwolla</span>
               </label>
-              <input type="text" name="city" id="city" />
+              <input type="password" name="password" id="password" />
             </div>
 
-            <div id="state_wrapper" class="address_item">
-              <label style="width:80px">State
-                <span class="small" style="width:80px">The two letter abbr. for your state (ex. "TX")</span>
+            <div id="confirm_password_input_wrapper">
+              <label>Confirm password
+                <span class="small">Please type your password in again as a confirmation</span>
               </label>
-              <input type="text" name="state" id="state" />
+              <input type="password" name="confirm_password" id="confirm_password" />
             </div>
+          </div>
+        </div>
+        <div class="registration_form" id="dwolla_id_form">
+          <label>Dwolla ID
+            <span class="small">This is your Dwolla ID, you can copy this from your account page on Dwolla's web site</span>
+          </label>
+          <input type="text" name="dwolla_id" id="dwolla_id" />
 
-            <div id="zip_wrapper" class="address_item">
-              <label style="width:80px">Zip
-                <span class="small" style="width:80px">Your postal code</span>
-              </label>
-              <input type="text" name="zip" id="zip" />
-            </div>
-          </div> <!-- end address_wrapper -->
         </div> <!-- end registration form -->
         <div id="step2_back" class="button back_button">
           Back
@@ -127,6 +119,19 @@
          Next 
         </div>
       </div> <!-- end step 2 -->
+      <div id="step3" class="rounded_corners_medium step_container">
+        <h1>Step 3 of 3</h1>
+        <h2>All done!</h2>
+        <p>That's it, we're all done. You can now begin accepting donations on your website, and saving money by using Klear Choice</p>
+        <p>To start acception donations, just have your web page develop add the script below to the HEAD section of your web page. It's that simple!</p>
+        <div id="snippet">
+          
+        </div>
+
+        <div id="step3_back" class="button back_button">
+          Back
+        </div>
+      </div> <!-- end step 3 -->
     </div> <!-- end steps -->
   </div> <!-- end container -->
   

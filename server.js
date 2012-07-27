@@ -33,6 +33,7 @@ function authenticate(request, response, next)
                       '/favicon.ico',
                       '/donor_widget.html',
                       '/register.html',
+                      '/register_charity',
                       '/test/'
                   ]
   var pathname = urllib.parse(request.url).pathname;
