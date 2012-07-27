@@ -2,6 +2,7 @@ var https = require('https');
 var console = require('console');
 var util = require('util');
 var conf = require("./config")();
+var qs = require("querystring");
 var log = conf.logger;
 
 exports.dwolla = 
@@ -112,23 +113,13 @@ exports.dwolla =
    */
   register: function(charity_info, callback)
   {
-    var path = conf.dwolla_path;
-    var app_id = conf.dwolla_app_id;
-    var app_secret = conf.dwolla_app_secret;
+    var path = conf.dwolla_register_path;
+    charity_info.client_id = conf.dwolla_app_id;
+    charity_info.client_secret = conf.dwolla_app_secret;
+    //path += "?" + qs.stringify({client_id: conf.dwolla_app_id, client_secret: conf.dwolla_app_secret});
+    charity_info.type = "NonProfit";
 
-    var body = JSON.stringify(
-      {
-        client_id: conf.dwolla_app_id,
-        client_secret: conf.dwolla_app_secret,
-        email: charity_info.email,
-        password: charity_info.password,
-        type: "NonProfit",
-        pin: params.pin,
-        destinationId: params.destination_id,
-        amount: params.amount
-        //assumeCosts: true,
-        //notes: "Charitable donation facilitated by KlearChoice Inc"
-      });
+    var body = JSON.stringify(charity_info);
 
     var req = https.request(
       {
@@ -178,7 +169,7 @@ exports.dwolla =
       if(p.Success==false)
       {
         callback(new Error("Error registering charity"),p);
-        return;
+        return; 
       }
 
       if(p.Success==true)

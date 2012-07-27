@@ -64,6 +64,22 @@ module.exports = {
       });
   },
 
+  save_charity: function(charity_info, callback)
+  {
+    connection.query("insert into charity ser ?", charity_info,
+      function(err, result)
+      {
+        if(err)
+        {
+          log.error("Error inserting charity: " + util.inspect(charity_info) + " error: " + err);
+          if(callback) callback(err, result);
+        }
+
+        if(callback) callback(err, result.insertId);
+          
+      });
+  },
+
   get_donor_id: function(user,callback)
   {
     var id = user.processor_id;

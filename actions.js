@@ -113,11 +113,11 @@ exports.confirm_amount =  function(request, response)
     //console.log(util.inspect(request));
     var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
     //validate amount
-    if(amount < 10)
+    /*if(amount < 10)
     {
       result.status='error',
       result.message='The minimum donation amount is $10. Please enter an amount that is at least $10.'
-    }
+    }*/
 
     if(amount > 5000)
     {
@@ -248,13 +248,68 @@ exports.register_charity = function(request, response)
       password: charity_info.password,
       pin: charity_info.pin,
       firstName: charity_info.first_name,
-      lastName: charity_info.last_name
+      lastName: charity_info.last_name,
+      address: charity_info.address,
+      city: charity_info.city,
+      state: charity_info.state,
+      zip: charity_info.zip,
+      phone: charity_info.phone,
+      dateOfBirth: "01-01-1970",
+      organization: charity_info.charity_name,
+      acceptTerms: charity_info.accept_terms
     },
     function(err,result)
     {
-      response.json(request.body);
-    });
-}
+      if(err)
+      {
+        response.json(
+          {
+            success: false,
+            message: err.message + " :" + (result ? (result.Message  || "") : ""),
+            errors: result.Response
+          });
+        return;
+      }
+
+      //save charity to db
+      dal.open();
+      dal.save_charity(
+        {
+          charity_name: charity_info.charity_name,
+          address1: charity_info.address,
+          address2: '',
+          city: charity_info.city,
+          state: charity_info.state,
+          zip: charity_info.zip,
+          dwolla_id: result.Response.Id,
+          first_name: charity_info.first_name,
+          last_name: charity_info.last_name,
+          email: charity_info.email,
+          phone: charity_info.phone
+        },
+        function(err, charity_id)
+        {
+          dal.close(); 
+          if(err)
+          {
+            response.json(
+              {
+                success: false,
+                message: "Your registration with Dwolla was successfull, but there was an internal problem saving your account information with Klear Choice. We hope to have this issue resolved soon, but until we do, please use the manual registration method and enter your Dwolla ID."
+              });
+
+            return;
+          }
+
+          response.json(
+            {
+              success: true,
+              message: "Success",
+              charity_id: charity_id
+            });
+        }); //end dal.save_charity()
+    }); //end payment.register()
+} //end register_charity
 
 
 

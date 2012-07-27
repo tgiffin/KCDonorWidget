@@ -68,6 +68,18 @@
   background-color: white;
   border: 1px solid black;
 }
+
+#terms_wrapper {
+  position: absolute;
+  top: 170px;
+  left: 320px;
+}
+
+#accept_terms {
+  margin-right: 10px;
+  width: 20px;
+}
+
 #register_now {
   float: right;
   margin-right: 15px;

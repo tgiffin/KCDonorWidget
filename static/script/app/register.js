@@ -78,6 +78,7 @@
           charity_info.password = $("#password").val();
           charity_info.confirm_password = $("#confirm_password").val();
           charity_info.pin = $("#pin").val();
+          charity_info.accept_terms = $("#accept_terms").prop("checked");
 
           if(validate_password())
             $.ajax(
@@ -95,7 +96,9 @@
                     }
                     else
                     {
-                      $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.Message + "</li>");
+                      $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.message + "</li>");
+                      if(data.errors)
+                        data.errors.forEach( function(item) {$("#error_list").append("<li>" + item + "</li>");});
                       $("#validation_errors").popup();
                     }
                   }
@@ -106,6 +109,7 @@
       /**
        * Various cancelers and closers
        */
+
       //close the error popup
       $("#close_errors").on("click", function() { $("#validation_errors").closePopup(); });
 
@@ -191,6 +195,17 @@
           errors.push("Password must contain at least one lower case letter");
         if(!(/[0-9]/.test(charity_info.password)))
           errors.push("Password must contain at least one number");
+
+        if(!charity_info.pin)
+          errors.push("Pin is required");
+        if(!(/^[0-9]/.test(charity_info.pin)))
+          errors.push("Pin must be numeric digits only");
+        if(charity_info.pin.length != 4)
+          errors.push("Pin must be 4 numeric digits");
+
+        if(!charity_info.accept_terms)
+          errors.push("You must accept the Dwolla Terms of Service to proceed");
+
 
         if(errors.length > 0)
         {
