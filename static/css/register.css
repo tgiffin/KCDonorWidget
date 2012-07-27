@@ -25,6 +25,26 @@
   margin-right: 0px;
   width: 40px;
 }
+/* name section */
+#name_wrapper {
+  width: 780px;
+}
+#first_name_wrapper {
+  width: 390px;
+  float: left;
+}
+#last_name_wrapper {
+  width: 390px;
+  float: left;
+}
+#first_name {
+  width: 200px;
+  margin-right: 15px;
+}
+#last_name {
+  width: 200px;
+  margin-right: 0px;
+}
 /* address section */
 #address_wrapper {
   width: 600px;
@@ -39,25 +59,46 @@
   width: 140px;
 }
 
-/* password section */
+/* auto register form section */
+#auto_register_form {
+  width: 600px;
+  display: none;
+  margin-bottom: 60px;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+}
+#register_now {
+  float: right;
+  margin-right: 15px;
+}
+#cancel_register {
+  float: right;
+  margin-right: 15px;
+}
 #password_wrapper {
-  width: 800px;
+  width: 500px;
+
 }
 #password_input_wrapper {
   width: 390px;
   float: left;
 }
 #confirm_password_input_wrapper {
-  width: 390px;
+  width: 590px;
   float: left;
 }
 #password {
-  width: 200px;
+  width: 120px;
   margin-right: 15px;
 }
 #confirm_password {
-  width: 200px;
-  margin-right: 15px;
+  width: 120px;
+  margin-right: 0px;
+}
+#pin {
+  width: 60px;
+  margin-right: 0px;
 }
 
 #container h1 {
@@ -68,7 +109,18 @@
 }
 
 #self_register_popup {
+  width: 400px;
+  border: 1px solid black;
+  background-color: white;
+  position: absolute;
   display: none;
+  padding: 10px;
+}
+
+#open_dwolla_registration,
+#cancel_open_dwolla_registration {
+  float: right;
+  margin-right: 15px;
 }
 
 #dwolla_id_form {
@@ -93,12 +145,6 @@
   margin-bottom: 15px;
 }
 
-#auto_register_form {
-  width: 780px;
-  display: none;
-  position: absolute;
-  margin-bottom: 60px;
-}
 
 .registration_form {
   margin: 0 auto;

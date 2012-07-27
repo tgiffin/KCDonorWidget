@@ -239,7 +239,21 @@ exports.register = function(request, response)
 
 exports.register_charity = function(request, response)
 {
-  response.json(request.body);
+  var charity_info = {};
+  //sanitize
+  for(key in request.body) { charity_info[key] = escapeHtml(request.body[key]); }
+  payment.register(
+    {
+      email: charity_info.email,
+      password: charity_info.password,
+      pin: charity_info.pin,
+      firstName: charity_info.first_name,
+      lastName: charity_info.last_name
+    },
+    function(err,result)
+    {
+      response.json(request.body);
+    });
 }
 
 

@@ -47,30 +47,6 @@
           }
           else
           {
-            charity_info.password = $("#password").val();
-            charity_info.confirm_password = $("#confirm_password").val();
-            if(validate_password())
-              $.ajax(
-                {
-                  url: "/register_charity",
-                  type: "POST",
-                  data: charity_info,
-                  success:
-                    function(data)
-                    {
-                      if(data.Success==true)
-                      {
-                        charity_info.id = data.id;
-                        show_next();
-                      }
-                      else
-                      {
-                        $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.Message + "</li>");
-                        $("#validation_errors").popup();
-                      }
-                    }
-                }
-              ); //end register charity ajax
             }
         }); //end handle step 2 click
 
@@ -81,6 +57,7 @@
           self_register=true;
           $("#auto_register_form").fadeOut();
           $("#dwolla_id_form").fadeIn();
+          $("#self_register_popup").popup();
         });
       
       //handle auto-register click
@@ -89,12 +66,54 @@
         {
           self_register=false;
           $("#dwolla_id_form").fadeOut();
-          $("#auto_register_form").fadeIn();
+          $("#auto_register_form").popup();
         });
 
+      /**
+       * Handle auto registration
+       */
+      $("#register_now").on("click",
+        function()
+        {
+          charity_info.password = $("#password").val();
+          charity_info.confirm_password = $("#confirm_password").val();
+          charity_info.pin = $("#pin").val();
 
+          if(validate_password())
+            $.ajax(
+              {
+                url: "/register_charity",
+                type: "POST",
+                data: charity_info,
+                success:
+                  function(data)
+                  {
+                    if(data.Success==true)
+                    {
+                      charity_info.id = data.id;
+                      show_next();
+                    }
+                    else
+                    {
+                      $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.Message + "</li>");
+                      $("#validation_errors").popup();
+                    }
+                  }
+              }
+            ); //end register charity ajax
+        });
+
+      /**
+       * Various cancelers and closers
+       */
       //close the error popup
       $("#close_errors").on("click", function() { $("#validation_errors").closePopup(); });
+
+      //close the auto register popup
+      $("#cancel_register").on("click",function() { $("#auto_register_form").closePopup(); });
+
+      //close the self register popup
+      $("#cancel_open_dwolla_registration").on("click",function() { $("#self_register_popup").closePopup(); });
 
 
       /**
@@ -119,8 +138,10 @@
       {
         var errors = [];
         var i=0;
-        if(!charity_info.full_name)
-          errors.push("Name is a required field");
+        if(!charity_info.first_name)
+          errors.push("First name is a required field");
+        if(!charity_info.last_name)
+          errors.push("Last name is a required field");
         if(!charity_info.charity_name)
           errors.push("Charity name is required");
         if(!charity_info.email)

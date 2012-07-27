@@ -13,10 +13,20 @@
         <p>We have some information to gather in a few simple steps, and then you'll be ready to start collecting donations on your web site!</p>
         <div id='registration_form' class="registration_form">
 
-          <label>Name
-            <span class="small">Your full name</span>
-          </label>
-          <input type="text" name="full_name" id="full_name" />
+          <div id="name_wrapper">
+            <div id="first_name_wrapper">
+              <label>First name
+                <span class="small">Your first name</span>
+              </label>
+              <input type="text" name="first_name" id="first_name" />
+            </div>
+            <div id="last_name_wrapper">
+              <label style="width:80px">Last name
+                <span style="width:80px" class="small">Your last name</span>
+              </label>
+              <input type="text" name="last_name" id="last_name" />
+            </div>
+          </div>
 
           <label>Charity name
             <span class="small">The name of the charity</span>
@@ -86,9 +96,10 @@
         <div id="self_register_popup">
           <p>Ok, we'll open up Dwolla's registration page on a new tab on your browser. When you've completed the registration on Dwolla's site, make sure you copy your Dwolla ID and come back to this page to paste it in.</p>
           <a href="#" id="open_dwolla_registration" class="button">Ok</a>
+          <a href="#" id="cancel_open_dwolla_registration" class="button grey">Cancel</a>
         </div>
         <div id="auto_register_form" class="registration_form">
-          <p>What password would you like to use on Dwolla? Please note: Klear Choice will never store this information, it is only used for the purposes of registering your accout for you</p>
+          <p>What password and PIN would you like to use on Dwolla? Please note: Klear Choice will never store this information, it is only used for the purposes of registering your accout for you</p>
           <div id="password_wrapper">
             <div id="password_input_wrapper">
               <label>Password
@@ -103,7 +114,15 @@
               </label>
               <input type="password" name="confirm_password" id="confirm_password" />
             </div>
+
+            <label>PIN
+              <span class="small">The PIN to use with your dwolla account</span>
+            </label>
+            <input type="password" name="pin" id="pin" />
+            
           </div>
+          <a href="#" id="register_now" class="button">Register now</a>
+          <a href="#" id="cancel_register" class="button grey">Cancel</a>
         </div>
         <div class="registration_form" id="dwolla_id_form">
           <label>Dwolla ID
