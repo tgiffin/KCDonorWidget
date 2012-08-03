@@ -66,13 +66,14 @@ module.exports = {
 
   save_charity: function(charity_info, callback)
   {
-    connection.query("insert into charity ser ?", charity_info,
+    connection.query("insert into charity set ?", charity_info,
       function(err, result)
       {
         if(err)
         {
           log.error("Error inserting charity: " + util.inspect(charity_info) + " error: " + err);
           if(callback) callback(err, result);
+          return;
         }
 
         if(callback) callback(err, result.insertId);

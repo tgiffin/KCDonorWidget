@@ -75,12 +75,15 @@
       $("#register_now").on("click",
         function()
         {
+          var spinner;
           charity_info.password = $("#password").val();
           charity_info.confirm_password = $("#confirm_password").val();
           charity_info.pin = $("#pin").val();
           charity_info.accept_terms = $("#accept_terms").prop("checked");
 
           if(validate_password())
+          {
+            spinner = new Spinner().spin($("#register_now")[0]);
             $.ajax(
               {
                 url: "/register_charity",
@@ -89,9 +92,11 @@
                 success:
                   function(data)
                   {
-                    if(data.Success==true)
+                    spinner.stop();
+                    if(data.success)
                     {
                       charity_info.id = data.id;
+                      $("#auto_register_form").closePopup();
                       show_next();
                     }
                     else
@@ -101,9 +106,17 @@
                         data.errors.forEach( function(item) {$("#error_list").append("<li>" + item + "</li>");});
                       $("#validation_errors").popup();
                     }
+                  },
+                  error:
+                  function()
+                  {
+                    spinner.stop();
+                    $("#error_list").empty().append("<li>Unknown error, please try again later </li>");
+                    $("#validation_errors").popup();
                   }
-              }
-            ); //end register charity ajax
+                }
+              ); //end register charity ajax
+            } //end if validate
         });
 
       /**
