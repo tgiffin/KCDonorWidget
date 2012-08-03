@@ -288,7 +288,29 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       config();
       createDialog();
       createWidget();
+      handleMessages();
     });
+
+  /**
+   * Set up and handle cross document messaging
+   */
+  function handleMessages()
+  {
+    $(window).on("message",
+      function(evt)
+      {
+        var data = evt.originalEvent.data;
+        if(!data.klearchoice) return;
+        switch(data.action)
+        {
+          case "close":
+            $dialog.closePopup();
+            break;
+          default:
+            break;
+        }
+      });
+  }
 
   /**
    * Gather options and set local configuration

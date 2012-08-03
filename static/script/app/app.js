@@ -14,6 +14,11 @@ scripts = {
                                             "/script/lib/jquery.popup.js",
                                             "/script/app/confirm_amount.js"
                                           ],
+
+  "/thank_you.html"                     : [
+                                            "/script/app/thank_you.js"
+                                          ],
+
   "/register.html"                      : [
                                             "/script/lib/greensock/TweenMax.js",
                                             null, //block until TweenMax is loaded

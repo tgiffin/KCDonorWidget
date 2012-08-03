@@ -160,6 +160,10 @@
           errors.push("State is a required field");
         if(!charity_info.zip)
           errors.push("Zip is a required field");
+        if(!charity_info.ein)
+          errors.push("EIN is a required field");
+        if(!charity_info.dob)
+          errors.push("Birth date is a required field");
 
         if(errors.length > 0)
         {

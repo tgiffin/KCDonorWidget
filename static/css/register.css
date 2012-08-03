@@ -45,6 +45,48 @@
   width: 200px;
   margin-right: 0px;
 }
+/* charity name section */
+#charity_wrapper {
+  width: 780px;
+}
+#charity_name_wrapper {
+  width:390px;
+  float: left;
+}
+#ein_wrapper {
+  width:390px;
+  float: left;
+}
+#charity_name {
+  width: 200px;
+  margin-right: 15px;
+}
+#ein{
+  width: 200px;
+  margin-right: 0px;
+}
+
+/* email section */
+#email_section_wrapper {
+  width: 780px;
+}
+#email_wrapper {
+  width:390px;
+  float: left;
+}
+#dob_wrapper {
+  width:390px;
+  float: left;
+}
+#email{
+  width: 200px;
+  margin-right: 15px;
+}
+#dob{
+  width: 200px;
+  margin-right: 0px;
+}
+
 /* address section */
 #address_wrapper {
   width: 600px;

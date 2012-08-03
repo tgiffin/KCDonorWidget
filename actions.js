@@ -6,6 +6,7 @@ var dal = require("./dal"); //data access layer
 var fs = require("fs");
 var Config = require("./config");
 var conf = new Config();
+var accounting = require("./accounting");
 
 var app = server.app;
 
@@ -136,11 +137,11 @@ exports.confirm_amount =  function(request, response)
     var total = request.session.total = amount + fee;
     response.send(mustache.to_html(loadTemplate('confirm_amount'),
       {
-        amount: amount,
+        amount: accounting.formatMoney(amount),
         charity_name: request.session.charity.charity_name,
         user: request.session.auth.dwolla.user,
-        fee: fee,
-        total: total
+        fee: accounting.formatMoney(fee),
+        total: accounting.formatMoney(total)
       }));
 
   }
@@ -254,8 +255,9 @@ exports.register_charity = function(request, response)
       state: charity_info.state,
       zip: charity_info.zip,
       phone: charity_info.phone,
-      dateOfBirth: "01-01-1970",
+      dateOfBirth: charity_info.dob,
       organization: charity_info.charity_name,
+      ein: charity_info.ein,
       acceptTerms: charity_info.accept_terms
     },
     function(err,result)

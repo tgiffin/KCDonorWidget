@@ -28,6 +28,13 @@
       return false;
     });
 
+  //close popup
+  $("#cancel_button").click(
+    function()
+    {
+      parent.postMessage({klearchoice: true, action: "close"},"*");
+    });
+
   //format the input box for currency
   $("#amount").keyup(
     function()
