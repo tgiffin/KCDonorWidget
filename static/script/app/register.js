@@ -83,6 +83,7 @@
 
           if(validate_password())
           {
+
             spinner = new Spinner().spin($("#register_now")[0]);
             $.ajax(
               {

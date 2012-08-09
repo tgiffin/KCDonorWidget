@@ -4,6 +4,9 @@
   $(document).ready(
     function()
     {
+      
+      parent.postMessage({klearchoice: true, action: "resize", width: 600, height: 500},"*");
+
       $("#donate_now_button").click(
         function()
         {

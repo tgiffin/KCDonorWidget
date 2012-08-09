@@ -20,6 +20,12 @@
 (function($)
 {
 
+  $(document).ready(
+    function()
+    {
+      parent.postMessage({klearchoice: true, action: "resize", width: 500, height: 400},"*");
+    });
+
   //validate and submit form
   $("#donate_button").click(
     function()

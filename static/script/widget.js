@@ -231,6 +231,32 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       return this;
     };
 
+    /**
+     * Resize the popup, maintaining it's current position. Defaults to 500ms animation, pass duration: 0 in options for instant resize
+     */
+    $.fn.resizePopup = function(options)
+    {
+      var $self = this;
+      var newWidth = options.width || 200;
+      var newHeight = options.height || 200;
+      var currentWidth = $self.width();
+      var currentHeight = $self.height();
+
+    	//if we're missing the background prop, this isn't a valid element. Just bail.
+    	if(!$self[0].popupBackground) return this;
+
+      $self.animate({
+                      height: newHeight,
+                      width: newWidth,
+                      top: "+=" + (currentHeight - newHeight)/2,
+                      left: "+=" + (currentWidth - newWidth)/2
+                    },
+                    {
+                      duration: options.duration || 500
+                    });
+
+    }
+
 
 
 
@@ -304,8 +330,16 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         switch(data.action)
         {
           case "close":
+          {
             $dialog.closePopup();
             break;
+          }
+          case "resize":
+          {
+            $dialog.resizePopup(data);
+            break;
+          }
+            
           default:
             break;
         }

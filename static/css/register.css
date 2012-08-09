@@ -4,7 +4,7 @@
   margin: 0 auto;
   height: 700px;
   margin-top: 80px;
-  overflow: hidden;
+  /*overflow: hidden;*/
   position: relative;
 }
 
@@ -263,7 +263,7 @@
   border-style: solid;
   border-color: #595959;
   padding: 10px;
-  float: left;
+  /*float: left;*/
 }
 
 .rounded_corners {

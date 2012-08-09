@@ -202,6 +202,32 @@
       return this;
     };
 
+    /**
+     * Resize the popup, maintaining it's current position. Defaults to 500ms animation, pass duration: 0 in options for instant resize
+     */
+    $.fn.resizePopup = function(options)
+    {
+      var $self = this;
+      var newWidth = options.width || 200;
+      var newHeight = options.height || 200;
+      var currentWidth = $self.width();
+      var currentHeight = $self.height();
+
+    	//if we're missing the background prop, this isn't a valid element. Just bail.
+    	if(!$self[0].popupBackground) return this;
+
+      $self.animate({
+                      height: newHeight,
+                      width: newWidth,
+                      top: "+=" + (currentHeight - newHeight)/2,
+                      left: "+=" + (currentWidth - newWidth)/2
+                    },
+                    {
+                      duration: options.duration || 500
+                    });
+
+    }
+
 
 
 
