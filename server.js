@@ -10,7 +10,7 @@ var log = conf.logger;
 var session_store = null;
 
 log.name("DonorWidget");
-if(conf.env == "development")
+if(conf.env == "development") 
 {
   var session_store = new express.session.MemoryStore();
 }
@@ -29,7 +29,7 @@ function authenticate(request, response, next)
 {
   //console.log("authenticate...");
   log.debug("authenticate request: " + request.url);
-  var exceptions = [
+  var exceptions = [ 
                       '/favicon.ico',
                       '/donor_widget.html',
                       '/register.html',
@@ -38,6 +38,7 @@ function authenticate(request, response, next)
                       '/test/'
                   ]
   var pathname = urllib.parse(request.url).pathname;
+
   if(exceptions.indexOf(pathname) >= 0) {next(); return; }
   log.debug("request not in exception list, authenticating: " + request.url);
 

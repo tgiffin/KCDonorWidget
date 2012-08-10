@@ -6,7 +6,9 @@ var dal = require("./dal"); //data access layer
 var fs = require("fs");
 var Config = require("./config");
 var conf = new Config();
-var accounting = require("./accounting");
+var log = conf.logger;
+var accounting = require("./lib/accounting");
+var URI = require("./lib/URI/URI");
 
 var app = server.app;
 
@@ -17,25 +19,17 @@ exports.donor_widget = function(request, response, next)
   {
     //console.log("donor widget: charity_id:" + request.params['charity_id']);
     //console.log(request);
-    try
-    {
-      var charity_id = request.session.charity_id = parseInt(escapeHtml(request.query['charity_id']));
-    }
-    catch(err)
-    {
-      charity_id=null;
-    }
-    if(!charity_id)
-    {
-      response.redirect(conf.hostname + "/invalid_configuration.html");
-      return;
-    }
+    //var charity_id = request.session.charity_id = parseInt(escapeHtml(request.query['charity_id']));
+    var referer = request.headers['referer'];
+    var parsedURI = URI.parse(referer);
+    log.debug("referer: " + referer + " hostname: " + parsedURI.hostname);
     dal.open();
-    dal.get_charity(request.session.charity_id,
-      function(err,row)
+    dal.get_charity_by_domain(parsedURI.hostname,
+      function(err, row)
       {
         dal.close();
-        if(err) {next(err); return; }
+
+        if(err) { next(err); return; }
 
         if(!row)
         {
@@ -47,11 +41,9 @@ exports.donor_widget = function(request, response, next)
 
         response.send(mustache.to_html(loadTemplate('donor_widget'),
         {
-          charity_id: charity_id
+          charity_id: row.id
         }));
-
       });
-
 
   }
 

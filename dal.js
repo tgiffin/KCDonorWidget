@@ -51,6 +51,19 @@ module.exports = {
       });
   },
 
+  get_charity_by_domain: function(domain, callback)
+  {
+    connection.query("select id, charity_name, dwolla_id from charity where domain=?",[domain],
+      function(err,rows)
+      {
+        if(err)
+        {
+          log.error("Error retrieving charity information from database. Domain: " + domain + ". Err: " + err);
+        }
+        callback(err,rows[0]);
+      });
+  },
+
   log_transaction: function(transaction, callback)
   {
     connection.query("insert into transactions set ?", transaction,

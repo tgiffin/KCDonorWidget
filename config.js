@@ -1,6 +1,6 @@
 var console = require("console");
 var fs = require("fs");
-var log = require("./logly");
+var log = require("./lib/logly");
 
 module.exports = function()
 {
