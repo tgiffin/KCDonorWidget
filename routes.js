@@ -40,5 +40,10 @@ module.exports = [
     verb: 'post',
     path: '/register_charity',
     action: actions.register_charity
+  },
+  {
+    verb: 'post',
+    path: '/save_charity',
+    action: actions.save_charity
   }
 ];

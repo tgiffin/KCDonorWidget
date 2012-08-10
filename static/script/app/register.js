@@ -18,7 +18,7 @@
           show_next();
         });
 
-      //handle step 2 click
+      //handle step 2 click, deal with self-register
       $("#step2_next").on("click",
         function()
         {
@@ -30,19 +30,37 @@
           }
           if(self_register)
           {
-            if(validate_dwolla_id())
-              $.ajax(
-                {
-                  url: "/save_charity",
-                  type: "POST",
-                  data: charity_info,
-                  success:
-                    function(data)
+            if(!validate_dwolla_id()) return;
+
+            charity_info.dwolla_id=$("#dwolla_id").val();
+            
+            $.ajax(
+              {
+                url: "/save_charity",
+                type: "POST",
+                data: charity_info,
+                success:
+                  function(data)
+                  {
+                    if(data.success)
                     {
-                      charity_info.id=data.id;
+                      charity_info.id=data.charity_id;
+                      $("#charity_id").html(charity_info.id);
                       show_next();
                     }
-                });
+                    else
+                    {
+                      $("#error_list").empty().append("<li>There was an internal problem saving your information, please try again later</li>");
+                      $("#validation_errors").popup();
+                    }
+                  },
+                error:
+                  function(data)
+                  {
+                    $("#error_list").empty().append("<li>There was a problem saving your information, please try again later</li>");
+                    $("#validation_errors").popup();
+                  }
+              }); //end save_charity ajax call
 
           }
           else
@@ -57,7 +75,7 @@
           self_register=true;
           $("#auto_register_form").fadeOut();
           $("#dwolla_id_form").fadeIn();
-          $("#self_register_popup").popup();
+          //$("#self_register_popup").popup();
         });
       
       //handle auto-register click
@@ -96,8 +114,9 @@
                     spinner.stop();
                     if(data.success)
                     {
-                      charity_info.id = data.id;
+                      charity_info.id = data.charity_id;
                       $("#auto_register_form").closePopup();
+                      $("#charity_id").html(charity_info.id);
                       show_next();
                     }
                     else
@@ -119,6 +138,10 @@
               ); //end register charity ajax
             } //end if validate
         });
+
+      /**
+       * Handle self-registration
+       */
 
       /**
        * Various cancelers and closers
@@ -178,6 +201,14 @@
           errors.push("EIN is a required field");
         if(!charity_info.dob)
           errors.push("Birth date is a required field");
+        if(!charity_info.domain)
+          errors.push("Domain is a required field");
+
+        var parsedURI = URI.parse(charity_info.domain);
+        if(!parsedURI.hostname)
+          errors.push("Please enter a valid domain format");
+
+        charity_info.domain = parsedURI.hostname;
 
         if(errors.length > 0)
         {
@@ -224,6 +255,34 @@
         if(!charity_info.accept_terms)
           errors.push("You must accept the Dwolla Terms of Service to proceed");
 
+
+        if(errors.length > 0)
+        {
+          $("#error_list").empty();
+          for(i=0;i<errors.length;i++)
+            $("#error_list").append("<li>" + errors[i] + "</li>");
+
+          $("#validation_errors").popup();
+          return false;
+        }
+
+        return true;
+      }
+
+      /**
+       * Validate the dwolla ID, ensure it exists and is a valid format
+       */
+      function validate_dwolla_id()
+      {
+        var errors = [];
+        //for now, we'll just make sure it is there, it has more than 5 chars, and has some dashes in it
+        var id = $("#dwolla_id").val();
+        if(!id)
+          errors.push("Your Dwolla ID is required to continue");
+        if(id.length < 5)
+          errors.push("Please enter a properly formatted Dwolla ID");
+        if(id.indexOf("-") <= 0)
+          errors.push("Please enter a properly formatted Dwolla ID, including dashes");
 
         if(errors.length > 0)
         {

@@ -59,10 +59,20 @@
           </div>
 
 
-          <label>Phone
-            <span class="small">So we can get in touch with you</span>
-          </label>
-          <input type="text" name="phone" id="phone" />
+          <div id="phone_section_wrapper">
+            <div id="phone_wrapper">
+              <label>Phone
+                <span class="small">So we can get in touch with you</span>
+              </label>
+              <input type="text" name="phone" id="phone" />
+            </div>
+            <div id="domain_wrapper">
+              <label style="width:80px">Website
+                <span style="width:80px" class="small">This is your website URL (http://www.example.com)</span>
+              </label>
+              <input type="text" name="domain" id="domain" />
+            </div>
+          </div>
 
           <label>Address
             <span class="small">Full street address</span>
@@ -106,12 +116,12 @@
         <h1>Step 2 of 3</h1>
         <h2>Thanks!</h2>
         <p>Now that we have your basic information, we'd like to get you registered with Dwolla, the affordable payment processor we use to save you money.</p>
-        <p>There are two ways we can do this. We can register your account for you, using the information you've provided us, or you can go to http://dwolla.com and sign up yourself.</p>
-        <p>If you decide you'd like to sign up on Dwolla yourself, we'll just need to get your Dwolla ID from you afterwards. We need this to make sure that the donations are sent to your account correctly.</p>
+        <p>If you don't already have a Dwolla account, we'll set one up for you!</p>
+        <p>If you already have a Dwolla account, just let us know what your Dwolla ID is and we'll configure everything on our side.</p>
         <p>Which would you like to do?</p>
         <ul>
-          <li><a href="#" id="auto_register">Register my account for me, I don't like to bother with this stuff</a></li>
-          <li><a href="#" id="self_register">Send me to Dwolla's site so I can sign up myself</a></li>
+          <li><a href="#" id="auto_register">I don't have a Dwolla account, please set one up for me</a></li>
+          <li><a href="#" id="self_register">I already have a Dwolla account, and I have my ID ready</a></li>
         </ul>
         <div id="self_register_popup">
           <p>Ok, we'll open up Dwolla's registration page on a new tab on your browser. When you've completed the registration on Dwolla's site, make sure you copy your Dwolla ID and come back to this page to paste it in.</p>
@@ -168,12 +178,12 @@
         <p>That's it, we're all done. You can now begin accepting donations on your website, and saving money by using Klear Choice</p>
         <p>To start acception donations, just have your web page develop add the script below to the HEAD section of your web page. It's that simple!</p>
         <div id="snippet">
-          
+          &lt;script id="klearchoice_script" src="https://app.klearchoice.com/script/widget.js" type="text/javascript" charity_id="<span id="charity_id"></span>" env="production"&gt;&lt;script&gt;
         </div>
 
-        <div id="step3_back" class="button back_button">
+        <!--<div id="step3_back" class="button back_button">
           Back
-        </div>
+        </div>-->
       </div> <!-- end step 3 -->
     </div> <!-- end steps -->
   </div> <!-- end container -->

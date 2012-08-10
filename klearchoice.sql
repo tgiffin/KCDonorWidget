@@ -35,9 +35,12 @@ CREATE TABLE `charity` (
   `last_name` varchar(100) DEFAULT NULL,
   `email` varchar(200) DEFAULT NULL,
   `phone` varchar(45) DEFAULT NULL,
+  `domain` varchar(255) DEFAULT NULL,
+  `dob` varchar(20) DEFAULT NULL,
+  `ein` varchar(20) DEFAULT NULL,
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +49,7 @@ CREATE TABLE `charity` (
 
 LOCK TABLES `charity` WRITE;
 /*!40000 ALTER TABLE `charity` DISABLE KEYS */;
-INSERT INTO `charity` VALUES (1,'Test Charity','111 Test Address Rd',NULL,'Grapevine','TX','76051','812-708-2911',NULL,NULL,NULL,NULL,'2012-07-13 18:20:30');
+INSERT INTO `charity` VALUES (1,'Test Charity','111 Test Address Rd',NULL,'Grapevine','TX','76051','812-708-2911',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2012-07-13 18:20:30');
 /*!40000 ALTER TABLE `charity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -75,7 +78,6 @@ CREATE TABLE `donor` (
 
 LOCK TABLES `donor` WRITE;
 /*!40000 ALTER TABLE `donor` DISABLE KEYS */;
-INSERT INTO `donor` VALUES (1,'Clayton Gulick','','Grapevine','TX','812-631-7173','2012-07-18 21:13:29');
 /*!40000 ALTER TABLE `donor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -98,7 +100,7 @@ CREATE TABLE `transactions` (
   `message` varchar(200) DEFAULT NULL,
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,4 +121,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-07-27 12:10:16
+-- Dump completed on 2012-08-09 16:51:37

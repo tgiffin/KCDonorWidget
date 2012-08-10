@@ -24,6 +24,7 @@ scripts = {
                                             null, //block until TweenMax is loaded
                                             "/script/lib/jquery.popup.js",
                                             "/script/lib/spin.js",
+                                            "/script/lib/URI.js",
                                             null, //block until libs are loaded
                                             "/script/app/register.js"
                                           ]

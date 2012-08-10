@@ -22,7 +22,7 @@ module.exports = function()
         //dwolla_path: "/oauth/rest/testapi/send",
         dwolla_path: "/oauth/rest/transactions/send",
         //dwolla_register_path: "/oauth/rest/testapi/register",
-        dwolla_register_path: "/oauth/rest/register/",
+        dwolla_register_path: "/oauth/rest/testapi/register/",
         dwolla_app_id: "1JUZIa33HXhhyyDhX3PpT6XDk8vp3B0NtO0lQe7rbxKiOhYTGI",
         dwolla_app_secret: "pTqTyg6VCVMO6UlgXnarzqndt3mJLDJdJNiI4dLSwDo3rIoi3/",
         options: {

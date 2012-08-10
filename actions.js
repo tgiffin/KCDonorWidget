@@ -241,6 +241,20 @@ exports.register = function(request, response)
 exports.register_charity = function(request, response)
 {
   var charity_info = {};
+
+  //dwolla's test environment is non-functional for registration, so we have to simulate a success for testing
+  if(conf.env == "development")
+  {
+     response.json(
+            {
+              success: true,
+              message: "Success",
+              charity_id: 123
+            });
+      return;
+  }
+
+
   //sanitize
   for(key in request.body) { charity_info[key] = escapeHtml(request.body[key]); }
   payment.register(
@@ -287,7 +301,10 @@ exports.register_charity = function(request, response)
           first_name: charity_info.first_name,
           last_name: charity_info.last_name,
           email: charity_info.email,
-          phone: charity_info.phone
+          phone: charity_info.phone,
+          domain: charity_info.domain,
+          dob: charity_info.dob,
+          ein: charity_info.ein
         },
         function(err, charity_id)
         {
@@ -308,11 +325,58 @@ exports.register_charity = function(request, response)
               success: true,
               message: "Success",
               charity_id: charity_id
-            });
-        }); //end dal.save_charity()
-    }); //end payment.register()
+          });
+      }); //end dal.save_charity()
+  }); //end payment.register()
 } //end register_charity
 
+exports.save_charity = function(request, response)
+{
+  var charity_info = {};
+  //sanitize
+  for(key in request.body) { charity_info[key] = escapeHtml(request.body[key]); }
+
+  //save charity to db
+  dal.open();
+  dal.save_charity(
+    {
+      charity_name: charity_info.charity_name,
+      address1: charity_info.address,
+      address2: '',
+      city: charity_info.city,
+      state: charity_info.state,
+      zip: charity_info.zip,
+      dwolla_id: charity_info.dwolla_id,
+      first_name: charity_info.first_name,
+      last_name: charity_info.last_name,
+      email: charity_info.email,
+      phone: charity_info.phone,
+      domain: charity_info.domain,
+      dob: charity_info.dob,
+      ein: charity_info.ein
+    },
+    function(err, charity_id)
+    {
+      dal.close(); 
+      if(err)
+      {
+        response.json(
+          {
+            success: false,
+            message: "There was an internal problem saving your account information with Klear Choice. We hope to have this issue resolved soon."
+          });
+
+        return;
+      }
+
+      response.json(
+        {
+          success: true,
+          message: "Success",
+          charity_id: charity_id
+        });
+    }); //end dal.save_charity()
+}
 
 
 /* Utility functions */

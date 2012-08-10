@@ -34,6 +34,7 @@ function authenticate(request, response, next)
                       '/donor_widget.html',
                       '/register.html',
                       '/register_charity',
+                      '/save_charity',
                       '/test/'
                   ]
   var pathname = urllib.parse(request.url).pathname;
