@@ -106,11 +106,11 @@ exports.confirm_amount =  function(request, response)
     //console.log(util.inspect(request));
     var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
     //validate amount
-    /*if(amount < 10)
+    if(amount < 10)
     {
       result.status='error',
       result.message='The minimum donation amount is $10. Please enter an amount that is at least $10.'
-    }*/
+    }
 
     if(amount > 5000)
     {
