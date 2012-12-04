@@ -1,9 +1,218 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: "futura-pt", Futura, "Trebuchet MS", Arial, sans-serif;
+	font-size: 80%;
+    color: #555;
+}
+
+
+a {
+	text-decoration: none;
+	color: #555;
+}
+
+a:hover {
+	color: rgb(197, 108, 79);
+}
+
+
+input {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 20px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input[type="text"] {
+  width: 380px;
+  height: 25px;
+
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+
+  vertical-align: middle;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border linear .2s, box-shadow linear .2s;
+  -moz-transition: border linear .2s, box-shadow linear .2s;
+  -o-transition: border linear .2s, box-shadow linear .2s;
+  transition: border linear .2s, box-shadow linear .2s;
+  border: 1px solid #cccccc;
+
+  display: inline-block;
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #555555;
+
+  box-shadow: rgba(0,0,0, 0.08) 0px 0px 8px;
+	-moz-box-shadow: rgba(0,0,0, 0.08) 0px 0px 8px;
+	-webkit-box-shadow: rgba(0,0,0, 0.08) 0px 0px 8px;
+
+	background: -webkit-gradient(linear, left top, left 15, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+
+}
+
+input:hover, textarea:hover,
+input:focus, textarea:focus { 
+	border-color: #C9C9C9; 
+	-webkit-box-shadow: rgba(0, 0, 0, 0.19) 0px 0px 8px;
+}
+
+input[type="text"]:focus {
+  border-color: rgba(82, 168, 236, 0.8);
+  outline: 0;
+  outline: thin dotted \9;
+  /* IE6-9 */
+
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+}
+
+/* - Header - */
+
+.top_bar {
+	width: 100%;
+	position: fixed;
+	left: 0;
+	outline: 0px dashed black;
+	top: 0;
+	height: 110px;
+	background-color: rgb(210, 230, 239);
+	box-shadow: 0 4px 25px -2px rgba(50, 50, 50, 0.25);
+}
+
+.header_wrap {
+	width: 1024px;
+	margin: 0 auto;
+	outline: 0px dashed black;
+	height: 100%;
+}
+
+.header_data {
+	width: 960px;
+	margin: 0 auto;
+	height: 100%;
+	outline: 0px dashed black;
+}
+
+.logo {
+	float: left;
+	z-index: 100;
+}
+
+.logo img {
+	width: 165px;
+	outline: 0px dashed black;
+}
+
+.pageNav {
+	font-size: 110%;
+	float: left;
+	margin-top: 60px;
+	margin-left: 50px;
+	outline: 0px dashed black;
+	z-index: 100;
+}
+
+nav ul {
+	padding-left: 0;
+}
+
+.pageNav li {
+	list-style: none;
+	display: inline;
+	margin-right: 15px;
+}
+
+.tagline {
+	float: right;
+	font-size: 105%;
+	margin-top: 110px;
+}
+
+/* title / heading */
+.title {
+	color: rgb(197, 108, 79);
+	font-size: 24px;
+}
+
+.heading {
+	font-size: 130%;
+}
+
+.heading_reg {
+  font-size: 18px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* content section */
+.content_wrap {
+	width: 1024px;
+	margin: 0 auto;
+	margin-top: 145px;
+	outline: 0px dashed black;
+}
+
+.content_data {
+	width: 960px;
+	margin: 0 auto;
+	outline: 0px dashed black;
+	height: 100%;
+	bottom: 50px;
+}
+
+
+.form_footer {
+  outline: 1px dashed black;
+}
+
+/* step navigaiont */
+
+.nav {
+  margin-bottom: 0px;
+  margin-left: 0;
+  list-style: none;
+}
+
+.nav-process:before,
+.nav-process:after {
+  display: table;
+  line-height: 0;
+  content: "";
+}
+
+.nav-process:after {
+  clear: both;
+}
+
+.nav-process > li {
+  float: left;
+  list-style: none;
+  margin-right: 15px;
+  display: inline-table;
+  margin-bottom: 10px;
+}
+
+.nav-process > li:hover {
+
+}
+
+
+
+/* main container area */
+
 #container
 {
   width: 1024px;
   margin: 0 auto;
-  height: 700px;
-  margin-top: 80px;
+  height: 500px;
+  margin-top: 10px;
   overflow: hidden;
   position: relative;
 }
@@ -248,17 +457,6 @@
   text-align:right;
   width:140px;
 }
-.registration_form input{
-  float:left;
-  font-size:12px;
-  padding:4px 2px;
-  border:solid 2px #676767;
-  background-color: #DeDeDe;
-  width:200px;
-  margin:2px 0 20px 10px;
-  margin-right: 300px;
-  color: #0F0F0F;
-}
 .registration_form textarea{
   float:left;
   font-size:12px;
@@ -286,9 +484,6 @@
   margin-left:48px;
   margin-right:48px; 
   height: 500px;
-  border-width: 2px;
-  border-style: solid;
-  border-color: #595959;
   padding: 10px;
   float: left;
 }
