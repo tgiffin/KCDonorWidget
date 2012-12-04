@@ -9,6 +9,7 @@ module.exports = function()
   {
     case 'development':
     {
+      console.log("development");
       log.mode("debug");
       return {
         env: "development",
@@ -34,6 +35,7 @@ module.exports = function()
     }
     case 'production':
     {
+      console.log("production");
       log.mode("standard");
       //log.mode("warn");
       return {
