@@ -23,6 +23,7 @@ scripts = {
                                             "/script/lib/greensock/TweenMax.js",
                                             null, //block until TweenMax is loaded
                                             "/script/lib/jquery.popup.js",
+                                            "/script/lib/jquery.html5-placeholder-shim.js",
                                             "/script/lib/spin.js",
                                             "/script/lib/URI.js",
                                             null, //block until libs are loaded

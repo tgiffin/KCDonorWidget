@@ -12,8 +12,8 @@
         function()
         {
           get_charity_values();
-          if(!validate())
-            return;
+          /*if(!validate())
+            return;*/
 
           show_next();
         });
@@ -167,7 +167,7 @@
           1, //duration
           {
             css: { left: "-=1024" },
-            ease: Bounce.easeOut
+            ease: Back.easeOut
           });
       }
 
@@ -319,7 +319,7 @@
             1, //duration
             {
               css: { left: "+=1024" },
-              ease: Bounce.easeOut
+              ease: Back.easeOut
             });
         });
 

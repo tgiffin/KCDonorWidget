@@ -2,41 +2,67 @@
 <html>
   <head>
     <script src="/script/app/app.js" type="text/javascript"></script>
+                                            
+    <link rel="stylesheet" href="/css/klear_choice.css" type="text/css" />
     <link rel="stylesheet" href="/css/register.css" type="text/css" />
-    <link rel="stylesheet" href="/css/donor_widget.css" type="text/css" /> <!-- reuse some styling from the widget app too -->
   </head>
   <body>
+    <img id="giving_logo" src="images/online_giving_logo_dark.png"></img>
     <div class="top_bar">
       <div class="header_wrap">
-        <div class="header_data">
-          <header>
-            <div class="logo"><a href="/"> <img src="images/logo.png"> </a></div><!-- - /logo - -->
-            <div>
-              <ul class="pageNav">
-                <li><a href="features" id="featuresNav">Features</a></li>
-                <li><a href="resources" id="resourcesNav">Resources</a></li>
-                <li><a href="support" id="supportNav">Support</a></li>
-                <li><a href="register" id="registerNav">Register</a></li>
-              </ul>
-            </div>
-            <p class="tagline">100% given = 100% recived</p>
-          </header>
-        </div>
-      </div><!-- - /header_wrap - -->
-    </div> <!-- /top_bar -->
+        <div class="header_data"><header>
+          <div class="logo"><a href="/">
+              <img src="images/logo.png" />
+          </a></div><!-- - /logo - -->
+          <nav><div id="pageNav"> 
+            <div class="navWrap">
+              <div href="#" class="hover">
+                <a href="features" id="featuresNav">
+                  <div id="featuresDot" class="dot"></div>
+                  Features
+                </a>
+              </div><!-- - /hover - -->
+            </div><!-- - /navWrap - -->
+            <div class="navWrap">
+              <div href="#" class="hover">
+                <a href="resources" id="resourcesNav">
+                  <div id="resourcesDot" class="dot"></div>
+                  Resources
+                </a>
+              </div><!-- - /hover - -->
+            </div><!-- - /navWrap - --> 
+            <div class="navWrap">
+              <div href="#" class="hover">
+                <a href="support" id="supportNav">
+                  <div id="supportDot" class="dot"></div>
+                  Support
+                </a>
+              </div><!-- - /hover - -->
+            </div><!-- - /navWrap - -->
+            <div class="navWrap">
+              <div href="#" class="hover">
+                <a href="https://app.klearchoice.com/register.html" id="registerNav">
+                  <div id="registerDot" class="dot"></div>
+                  Register
+                </a>
+              </div><!-- - /hover - -->
+            </div><!-- - /navWrap - -->
+          </div></nav><!-- - /pageNav - -->
+          </header></div>
+        </div><!-- - /header_wrap - -->
+      </div> <!-- /top_bar -->
 
 
     <div class="content_wrap">
       <div class="content_data">
+        <h1>Register with KlearChoice On-Line Giving</h1>
+        <p>All fields are required. Click <a href="#">here</a> for a full list of information required to complete the On-Line Giving Registration.</p>
+        <h2>Easy Two Step Registation</h2>
 
-        <p class="title">Register your organization today</p>
-        <p>Look here for a list of what you'll need for registration.</p>
-        <p class="heading_reg">Easy 4-Step Registation</p>
-
-        <div class="process">
+        <!--<div class="process">
           <ul class="nav nav-process">
             <li>
-              <a href="">Step 1 - Registar Information</a>
+              <a href="">Step 1 - Registar and Church Information</a>
             </li>
             <li>
               <a href="">Step 2 - Organization Information</a>
@@ -46,31 +72,47 @@
             </li>
             <li>
               <a href="">Step 4 - Get Your Code</a>
-            </li>
+              </li>
           </ul>
-        </div>
+        </div>-->
 
         <div id="container">
           <div id="steps">
             <div id="step1" class="step_container">
-              <div id='registration_form' class="registration_form">
-                <input type="text" placeholder="First name" name="first_name" id="first_name" />
-                <input type="text" placeholder="Last name" name="last_name" id="last_name" />
-                <input type="text" name="charity_name" id="charity_name" />
-                <input type="text" name="ein" id="ein" />
-                <input type="text" name="email" id="email" />
-                <input type="text" name="dob" id="dob" />
-                <input type="text" name="phone" id="phone" />
-                <input type="text" name="domain" id="domain" />
-                <input type="text" name="address" id="address" />
-                <input type="text" name="city" id="city" />
-                <input type="text" name="state" id="state" />
-                <input type="text" name="zip" id="zip" />
+              <h3>Step 1 - Registrar and Church Information</h3>
+              <div id='registration_form large_line_height' class="registration_form">
+                <h4>Registrar Information</h4>
+                <input type="text" class="col1" placeholder="Registrar's First Name" name="first_name" id="first_name" />
+                <input type="text" class="col2" placeholder="Registrar's Last Name" name="last_name" id="last_name" />
+                <input type="text" class="col1" placeholder="Registrar's Email" name="email" id="email" />
+                <input type="text" class="col2" placeholder="Registrar's Title at the Church" name="title" id="title" />
+                <input type="text" class="col1" placeholder="Registrar's Date of Birth" name="dob" id="dob" />
+                <span id="gender_wrapper"> Gender: 
+                  &nbsp; F<input type="radio" name="gender" value="F"/> 
+                  M<input type="radio" name="gender" value="M"/>
+                </span>
+                <h4>Church Information</h4>
+                <input type="text" class="col1" placeholder="Church Legal Name" name="church_name" id="church_name" />
+                <input type="text" class="col2" placeholder="Church's Phone" name="phone" id="phone" />
+                <input type="text" class="col1" placeholder="Physical Address" name="address" id="address" />
+                <span class="col2">
+                  <input type="text" class="city" placeholder="City" name="city" id="city" />
+                  <input type="text" class="state" placeholder="State" name="state" id="state" />
+                  <input type="text" class="zip" placeholder="Zip" name="zip" id="zip" />
+                </span>
+                <input type="text" class="col1" placeholder="Mailing Address (leave blank if same as physical address)" name="mailing_address" id="address" />
+                <span class="col2">
+                  <input type="text" class="city" placeholder="City" name="maililng_city" id="maililng_city" />
+                  <input type="text" class="state" placeholder="State" name="maililng_state" id="maililng_state" />
+                  <input type="text" class="zip" placeholder="Zip" name="maililng_zip" id="maililng_zip" />
+                </span>
+                <input type="text" class="col1" placeholder="Website Address" name="domain" id="domain" />
+                <input type="text" class="col2" placeholder="Church's Board Type - Elders, Deacons, or Trustees" name="board_type" id="board_type" />
 
-                <div id="step1_next" class="button next_button">
-                  Next 
-                </div>
               </div> <!-- end registration form -->
+              <button id="step1_next" class="orange next_button">
+                Next 
+              </button>
               <div id="validation_errors">
                 <ul id="error_list">
                 </ul>
@@ -78,69 +120,40 @@
               </div>
             </div> <!-- end step 1 -->
             <div id="step2" class="rounded_corners_medium step_container">
-              <h1>Step 2 of 3</h1>
-              <h2>Thanks!</h2>
-              <p>Now that we have your basic information, we'd like to get you registered with Dwolla, the affordable payment processor we use to save you money.</p>
-              <p>If you don't already have a Dwolla account, we'll set one up for you!</p>
-              <p>If you already have a Dwolla account, just let us know what your Dwolla ID is and we'll configure everything on our side.</p>
-              <p>Which would you like to do?</p>
-              <ul>
-                <li><a href="#" id="auto_register">I don't have a Dwolla account, please set one up for me</a></li>
-                <li><a href="#" id="self_register">I already have a Dwolla account, and I have my ID ready</a></li>
-              </ul>
-              <div id="self_register_popup">
-                <p>Ok, we'll open up Dwolla's registration page on a new tab on your browser. When you've completed the registration on Dwolla's site, make sure you copy your Dwolla ID and come back to this page to paste it in.</p>
-                <a href="#" id="open_dwolla_registration" class="button">Ok</a>
-                <a href="#" id="cancel_open_dwolla_registration" class="button grey">Cancel</a>
-              </div>
-              <div id="auto_register_form" class="registration_form">
-                <p>What password and PIN would you like to use on Dwolla? Please note: Klear Choice will never store this information, it is only used for the purposes of registering your accout for you</p>
-                <div id="password_wrapper">
-                  <div id="password_input_wrapper">
-                    <label>Password
-                      <span class="small">The password you'd like to use for Dwolla</span>
-                    </label>
-                    <input type="password" name="password" id="password" />
-                  </div>
-
-                  <div id="confirm_password_input_wrapper">
-                    <label>Confirm password
-                      <span class="small">Please type your password in again as a confirmation</span>
-                    </label>
-                    <input type="password" name="confirm_password" id="confirm_password" />
-                  </div>
-
-                  <label>PIN
-                    <span class="small">The PIN to use with your dwolla account</span>
-                  </label>
-                  <input type="password" name="pin" id="pin" />
-
+              <h3>Step 2 - Select The On-Line Giving Partner</h3>
+              <div class="registration_form">
+                <h4 class="orange">Register with our trusted On-Line Giving processing provider.</h4>
+                <p>We do the research and partner with only the safest and most secure pocessing providers. When you register with KlearChoice, you know you've made the right choice.</p>
+                <input type="radio" name="provider" id="create_dwolla_account"/>Create a Dwolla account
+                <input type="radio" name="provider" id="existing_dwolla_account"/>Already have a Dwolla account?
+                <input type="radio" name="provider" id="other_account"/>Other
+                <div id="auto_register_form" class="registration_form">
+                  <input type="password" class="col1" placeholder="Dwolla password" name="password" id="password" />
+                  <input type="password" class="col2" placeholder="Confirm Dwolla password" name="confirm_password" id="confirm_password" />
+                  <input type="password" class="col1" placeholder="Dwolla PIN" name="pin" id="pin" />
+                  <input type="password" class="col2" placeholder="Confirm Dwolla PIN" name="confirm_pin" id="pin" />
+                  <input type="text" class="col1" placeholder="Federal Employer Idenitification Number (EIN)" name="ein" id="ein" />
                 </div>
+                <div class="registration_form" id="dwolla_id_form" >
+                  <input type="text" class="col1" placeholder="Dwolla account ID" name="dwolla_id" id="dwolla_id" />
+                </div> <!-- end registration form -->
+                <h4 id="terms_heading" class="orange">KlearChoice and Dwolla Terms of Service</h4>
                 <div id="terms_wrapper">
                   <input type="checkbox" id="accept_terms" name="accept_terms" />
-                  I accept the <a href="https://www.dwolla.com/tos" target="_blank">Dwolla Terms of Service</a>
+                  Yes, we agree to the <a href="">KlearChoice</a> and <a href="https://www.dwolla.com/tos" target="_blank">Dwolla</a> Terms of Service
+                  <br/>
+                  <input type="checkbox" id="accept_terms" name="accept_terms" />
+                  I am authorized as the registrar for this church.
                 </div>
-                <a href="#" id="register_now" class="button">Register now</a>
-                <a href="#" id="cancel_register" class="button grey">Cancel</a>
-              </div>
-              <div class="registration_form" id="dwolla_id_form" >
-                <label>Dwolla ID
-                  <span class="small">This is your Dwolla ID, you can copy this from your account page on Dwolla's web site</span>
-                </label>
-                <input type="text" name="dwolla_id" id="dwolla_id" />
-
-              </div> <!-- end registration form -->
-              <div id="step2_back" class="button back_button">
-                Back
-              </div>
-              <div id="step2_next" class="button next_button">
-                Next 
+                <div id="step2_buttons">
+                  <button id="step2_back" type="button" class="grey back_button">Go Back</a>
+                  <button id="register_now" type="button" class="orange">
+                    Create My Account
+                  </button>
+                </div>
               </div>
             </div> <!-- end step 2 -->
             <div id="step3" class="rounded_corners_medium step_container">
-
-            </div> <!-- end step 3 -->
-            <div id="step4" class="step_container">
               <p>Congratulations! Your church is now registered to accept on-line donations without costly credit card fees.</p>
               <div id="snippet">
                 &lt;script id="klearchoice_script" src="https://app.klearchoice.com/script/widget.js" type="text/javascript" &gt;&lt;script&gt;
@@ -150,9 +163,6 @@
               <p>Please provide your web master's name and email.</p>
               <input placeholder="Web Master's Name" type="text" id="web_master_name" name="web_master_name"/>
 
-              <!--<div id="step3_back" class="button back_button">
-                Back
-              </div>-->
             </div> <!-- end step 3 -->
           </div> <!-- end steps -->
         </div> <!-- end container -->
