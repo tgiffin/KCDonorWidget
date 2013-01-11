@@ -7,8 +7,8 @@
       var charity_info = {};
       var existing_account = null;
 
-      show_next(); 
-      setTimeout(show_next, 1100);
+      //show_next(); 
+      //setTimeout(show_next, 1100);
 
       //event handler for next button on step 1
       $("#step1_next").on("click",

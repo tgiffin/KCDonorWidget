@@ -34,11 +34,12 @@ CREATE TABLE `charity` (
   `mailing_address2` varchar(200) DEFAULT NULL,
   `mailing_city` varchar(45) DEFAULT NULL,
   `mailing_state` varchar(45) DEFAULT NULL,
-  `mailling_zip` varchar(10) DEFAULT NULL,
+  `mailing_zip` varchar(10) DEFAULT NULL,
   `dwolla_id` varchar(45) DEFAULT NULL,
   `first_name` varchar(45) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `title` varchar(200) DEFAULT NULL,
+  `gender` varchar(1) DEFAULT NULL,
   `email` varchar(200) DEFAULT NULL,
   `phone` varchar(45) DEFAULT NULL,
   `domain` varchar(255) DEFAULT NULL,
@@ -47,7 +48,7 @@ CREATE TABLE `charity` (
   `board_type` varchar(200) DEFAULT NULL,
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +57,7 @@ CREATE TABLE `charity` (
 
 LOCK TABLES `charity` WRITE;
 /*!40000 ALTER TABLE `charity` DISABLE KEYS */;
-INSERT INTO `charity` VALUES (1,'Test Charity','111 Test Address Rd',NULL,'Grapevine','TX','76051',NULL,NULL,NULL,NULL,NULL,'812-708-2911',NULL,NULL,NULL,NULL,NULL,'localhost',NULL,NULL,NULL,'2012-07-13 18:20:30'),(2,'asdf','asdf','','asdf','as','76051',NULL,NULL,NULL,NULL,NULL,'812-621-2558','asdf','asdf',NULL,'asdfasdfa@asdf.com','111-111-1111',NULL,NULL,NULL,NULL,'2012-08-03 16:15:16'),(3,'asdf','asdf','','asdf','as','76051',NULL,NULL,NULL,NULL,NULL,'812-562-3958','asdf','asdf',NULL,'asdfasdfaaa@asdf.com','111-111-1111',NULL,NULL,NULL,NULL,'2012-08-03 16:24:10'),(4,'Test Name','Some test dr','','asdf','tx','76051',NULL,NULL,NULL,NULL,NULL,'812-662-0306','Some','Test',NULL,'asdfaa@asdf.com','123-123-1234',NULL,NULL,NULL,NULL,'2012-08-03 16:25:37'),(5,'asf','asdf','','asdf','as','12345',NULL,NULL,NULL,NULL,NULL,NULL,'asdf','asf',NULL,'asf','asdf',NULL,'asdf','asdf',NULL,'2012-08-10 15:47:34'),(6,'asf','asdf','','asdf','as','12345',NULL,NULL,NULL,NULL,NULL,NULL,'asdf','asf',NULL,'asf','asdf',NULL,'asdf','asdf',NULL,'2012-08-10 15:47:44'),(7,'asdf','asdf','','asdf','as','12344',NULL,NULL,NULL,NULL,NULL,'111-111','asdf','asdf',NULL,'asdf','asdf','test.com','asdf','asdf',NULL,'2012-08-10 16:24:40'),(8,'Test Charity','123 Test Drive','','Grapevine','TX','76051',NULL,NULL,NULL,NULL,NULL,'111-1111','test','test',NULL,'test@test.com','111-111-1111','app.klearchoice.com','02/02/1970','111-111-1111',NULL,'2012-08-10 17:46:47');
+INSERT INTO `charity` VALUES (1,'Test Charity','111 Test Address Rd',NULL,'Grapevine','TX','76051',NULL,NULL,NULL,NULL,NULL,'812-708-2911',NULL,NULL,NULL,NULL,NULL,NULL,'localhost',NULL,NULL,NULL,'2012-07-13 18:20:30');
 /*!40000 ALTER TABLE `charity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -83,6 +84,11 @@ CREATE TABLE `donor` (
 -- Dumping data for table `donor`
 --
 
+LOCK TABLES `donor` WRITE;
+/*!40000 ALTER TABLE `donor` DISABLE KEYS */;
+INSERT INTO `donor` VALUES (1,'Clayton Gulick','','Grapevine','TX','812-631-7173','2012-07-18 21:13:29');
+/*!40000 ALTER TABLE `donor` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `transactions`
@@ -110,6 +116,11 @@ CREATE TABLE `transactions` (
 -- Dumping data for table `transactions`
 --
 
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+INSERT INTO `transactions` VALUES (1,0,1,12.00,0.00,0.00,'','error','Unknown response received from payment gateway. Please try again later.',NULL),(2,0,1,12.00,0.00,0.00,'','error','Unknown response received from payment gateway. Please try again later.',NULL),(3,0,1,12.00,0.00,0.00,'','error','Invalid account PIN',NULL),(4,0,1,12.00,0.00,0.00,'','error','Insufficient funds.',NULL),(5,0,1,123.00,0.00,0.00,'','error','Invalid account PIN',NULL),(6,0,1,123.00,0.00,0.00,'','error','Insufficient funds.',NULL),(7,0,1,12.00,0.00,0.00,'','error','Invalid account PIN','2012-07-18 20:14:33'),(8,NULL,1,12.00,NULL,NULL,'','error','Invalid account PIN','2012-07-18 21:13:35'),(9,NULL,1,12.00,NULL,NULL,'','error','Insufficient funds.','2012-07-18 21:30:58'),(10,1,1,12.00,NULL,NULL,'','error','Insufficient funds.','2012-07-18 21:33:51'),(11,1,1,12.00,0.20,0.25,'','error','Insufficient funds.','2012-07-18 21:35:21'),(12,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-07-19 19:58:04'),(13,1,1,12.00,0.20,0.25,'','error','Insufficient funds.','2012-07-19 19:58:09'),(14,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-07-19 20:20:52'),(15,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-07-19 20:32:36'),(16,1,1,12.00,0.20,0.25,'','error','There was a problem communicating with the payment gateway. Please try again later.','2012-07-23 18:00:10'),(17,1,1,12.00,0.20,0.25,'','error','Insufficient funds.','2012-07-23 18:08:42'),(18,1,1,12.00,0.20,0.25,'','error','Insufficient funds.','2012-07-23 18:09:22'),(19,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-07-23 22:53:34'),(20,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-07-25 21:44:54'),(21,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-02 23:54:04'),(22,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-06 20:55:51'),(23,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-09 16:38:25'),(24,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-09 19:22:55'),(25,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-09 19:23:05'),(26,1,1,12.00,0.20,0.25,'','error','Invalid account PIN','2012-08-10 17:41:51'),(27,1,1,12.00,0.20,0.25,'','error','Insufficient funds.','2012-12-04 00:42:54');
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -120,4 +131,4 @@ CREATE TABLE `transactions` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-01-10 20:19:24
+-- Dump completed on 2013-01-11 13:03:48
