@@ -35,6 +35,12 @@ h4
   margin-bottom: 5px;
 }
 
+code
+{
+  font-weight: bold;
+  font-size: .8em;
+}
+
 #giving_logo
 {
   position: absolute;
@@ -100,7 +106,7 @@ h4
 
 /* Step 2 elements */
 
-#auto_register_form, #dwolla_id_form {
+#create_account_form, #dwolla_id_form, #other_provider_form {
   display: none;
 }
 
@@ -132,7 +138,7 @@ h4
 .next_button {
   position: absolute;
   right: 170px;
-  bottom: 90px;
+  bottom: 45px;
   z-index: 2;
 }
 .back_button {

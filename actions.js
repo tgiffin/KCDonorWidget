@@ -289,14 +289,22 @@ exports.register_charity = function(request, response)
           city: charity_info.city,
           state: charity_info.state,
           zip: charity_info.zip,
+          mailing_address1: charity_info.mailing_address,
+          mailing_address2: '',
+          mailing_city: charity_info.mailing_city,
+          mailing_state: charity_info.mailing_state,
+          mailing_zip: charity_info.mailing_zip,
           dwolla_id: result.Response.Id,
           first_name: charity_info.first_name,
           last_name: charity_info.last_name,
+          title: charity_info.title,
+          gender: charity_info.gender,
+          board_type: charity_info.board_type,
           email: charity_info.email,
           phone: charity_info.phone,
           domain: charity_info.domain,
           dob: charity_info.dob,
-          ein: charity_info.ein
+          ein: '' //not storing ein, for legal purposes 
         },
         function(err, charity_id)
         {
@@ -338,14 +346,22 @@ exports.save_charity = function(request, response)
       city: charity_info.city,
       state: charity_info.state,
       zip: charity_info.zip,
+      mailing_address1: charity_info.mailing_address,
+      mailing_address2: '',
+      mailing_city: charity_info.mailing_city,
+      mailing_state: charity_info.mailing_state,
+      mailing_zip: charity_info.mailing_zip,
       dwolla_id: charity_info.dwolla_id,
       first_name: charity_info.first_name,
       last_name: charity_info.last_name,
+      title: charity_info.title,
+      gender: charity_info.gender,
+      board_type: charity_info.board_type,
       email: charity_info.email,
       phone: charity_info.phone,
       domain: charity_info.domain,
       dob: charity_info.dob,
-      ein: charity_info.ein
+      ein: '' //not storing ein, for legal purposes 
     },
     function(err, charity_id)
     {

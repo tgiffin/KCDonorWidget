@@ -80,34 +80,38 @@
           <div id="steps">
             <div id="step1" class="step_container">
               <h3>Step 1 - Registrar and Church Information</h3>
-              <div id='registration_form large_line_height' class="registration_form">
+              <div id='registration_form' class="registration_form large_line_height">
                 <h4>Registrar Information</h4>
-                <input type="text" class="col1" placeholder="Registrar's First Name" name="first_name" id="first_name" />
-                <input type="text" class="col2" placeholder="Registrar's Last Name" name="last_name" id="last_name" />
-                <input type="text" class="col1" placeholder="Registrar's Email" name="email" id="email" />
-                <input type="text" class="col2" placeholder="Registrar's Title at the Church" name="title" id="title" />
-                <input type="text" class="col1" placeholder="Registrar's Date of Birth" name="dob" id="dob" />
-                <span id="gender_wrapper"> Gender: 
-                  &nbsp; F<input type="radio" name="gender" value="F"/> 
-                  M<input type="radio" name="gender" value="M"/>
-                </span>
+                <div class="large_line_height">
+                  <input type="text" class="col1" placeholder="Registrar's First Name" name="first_name" id="first_name" />
+                  <input type="text" class="col2" placeholder="Registrar's Last Name" name="last_name" id="last_name" />
+                  <input type="text" class="col1" placeholder="Registrar's Email" name="email" id="email" />
+                  <input type="text" class="col2" placeholder="Registrar's Title at the Church" name="title" id="title" />
+                  <input type="text" class="col1" placeholder="Registrar's Date of Birth" name="dob" id="dob" />
+                  <span id="gender_wrapper"> Gender: 
+                    &nbsp; F<input type="radio" name="gender" exclude="true" value="F"/> 
+                    M<input type="radio" name="gender" exclude="true" value="M"/>
+                  </span>
+                </div>
                 <h4>Church Information</h4>
-                <input type="text" class="col1" placeholder="Church Legal Name" name="church_name" id="church_name" />
-                <input type="text" class="col2" placeholder="Church's Phone" name="phone" id="phone" />
-                <input type="text" class="col1" placeholder="Physical Address" name="address" id="address" />
-                <span class="col2">
-                  <input type="text" class="city" placeholder="City" name="city" id="city" />
-                  <input type="text" class="state" placeholder="State" name="state" id="state" />
-                  <input type="text" class="zip" placeholder="Zip" name="zip" id="zip" />
-                </span>
-                <input type="text" class="col1" placeholder="Mailing Address (leave blank if same as physical address)" name="mailing_address" id="address" />
-                <span class="col2">
-                  <input type="text" class="city" placeholder="City" name="maililng_city" id="maililng_city" />
-                  <input type="text" class="state" placeholder="State" name="maililng_state" id="maililng_state" />
-                  <input type="text" class="zip" placeholder="Zip" name="maililng_zip" id="maililng_zip" />
-                </span>
-                <input type="text" class="col1" placeholder="Website Address" name="domain" id="domain" />
-                <input type="text" class="col2" placeholder="Church's Board Type - Elders, Deacons, or Trustees" name="board_type" id="board_type" />
+                <div class="large_line_height">
+                  <input type="text" class="col1" placeholder="Church Legal Name" name="charity_name" id="charity_name" />
+                  <input type="text" class="col2" placeholder="Church's Phone" name="phone" id="phone" />
+                  <input type="text" class="col1" placeholder="Physical Address" name="address" id="address" />
+                  <span class="col2">
+                    <input type="text" class="city" placeholder="City" name="city" id="city" />
+                    <input type="text" class="state" placeholder="State" name="state" id="state" />
+                    <input type="text" class="zip" placeholder="Zip" name="zip" id="zip" />
+                  </span>
+                  <input type="text" class="col1" placeholder="Mailing Address (leave blank if same as physical address)" name="mailing_address" id="mailing_address" />
+                  <span class="col2">
+                    <input type="text" class="city" placeholder="City" name="mailing_city" id="mailing_city" />
+                    <input type="text" class="state" placeholder="State" name="mailing_state" id="mailing_state" />
+                    <input type="text" class="zip" placeholder="Zip" name="mailing_zip" id="mailing_zip" />
+                  </span>
+                  <input type="text" class="col1" placeholder="Website Address (example: http://mychurch.com)" name="domain" id="domain" />
+                  <input type="text" class="col2" placeholder="Church's Board Type - Elders, Deacons, or Trustees" name="board_type" id="board_type" />
+                </div>
 
               </div> <!-- end registration form -->
               <button id="step1_next" class="orange next_button">
@@ -116,7 +120,7 @@
               <div id="validation_errors">
                 <ul id="error_list">
                 </ul>
-                <a href="#" id="close_errors" class="button">Ok</a>
+                <button type="button" id="close_errors" class="button">Ok</button>
               </div>
             </div> <!-- end step 1 -->
             <div id="step2" class="rounded_corners_medium step_container">
@@ -124,25 +128,31 @@
               <div class="registration_form">
                 <h4 class="orange">Register with our trusted On-Line Giving processing provider.</h4>
                 <p>We do the research and partner with only the safest and most secure pocessing providers. When you register with KlearChoice, you know you've made the right choice.</p>
-                <input type="radio" name="provider" id="create_dwolla_account"/>Create a Dwolla account
-                <input type="radio" name="provider" id="existing_dwolla_account"/>Already have a Dwolla account?
-                <input type="radio" name="provider" id="other_account"/>Other
-                <div id="auto_register_form" class="registration_form">
+                <input type="radio" name="provider" exclude="true" id="create_dwolla_account"/>Create a Dwolla account
+                <input type="radio" name="provider" exclude="true" id="existing_dwolla_account"/>Already have a Dwolla account?
+                <input type="radio" name="provider" exclude="true" id="other_account"/>Other
+                <div id="create_account_form" class="registration_form large_line_height">
                   <input type="password" class="col1" placeholder="Dwolla password" name="password" id="password" />
-                  <input type="password" class="col2" placeholder="Confirm Dwolla password" name="confirm_password" id="confirm_password" />
+                  <input type="password" class="col2" placeholder="Confirm Dwolla password" exclude="true" name="confirm_password" id="confirm_password" />
                   <input type="password" class="col1" placeholder="Dwolla PIN" name="pin" id="pin" />
-                  <input type="password" class="col2" placeholder="Confirm Dwolla PIN" name="confirm_pin" id="pin" />
+                  <input type="password" class="col2" placeholder="Confirm Dwolla PIN" exclude="true" name="confirm_pin" id="confirm_pin" />
                   <input type="text" class="col1" placeholder="Federal Employer Idenitification Number (EIN)" name="ein" id="ein" />
                 </div>
                 <div class="registration_form" id="dwolla_id_form" >
                   <input type="text" class="col1" placeholder="Dwolla account ID" name="dwolla_id" id="dwolla_id" />
-                </div> <!-- end registration form -->
+                </div> 
+                <div class="registration_form" id="other_provider_form" >
+                  <p>KlearChoice is constantly improving and adding additional options to make your online giving process safe, secure and simple.</p>
+                  <p>For now, we only support Dwolla as a payment provider - this is to ensure that your organization receives the maximum
+                  benefit from donations you receive.</p>
+                  <p>Check back soon for new ways to accept payments for your organization!</p>
+                </div> 
                 <h4 id="terms_heading" class="orange">KlearChoice and Dwolla Terms of Service</h4>
                 <div id="terms_wrapper">
                   <input type="checkbox" id="accept_terms" name="accept_terms" />
                   Yes, we agree to the <a href="">KlearChoice</a> and <a href="https://www.dwolla.com/tos" target="_blank">Dwolla</a> Terms of Service
                   <br/>
-                  <input type="checkbox" id="accept_terms" name="accept_terms" />
+                  <input type="checkbox" id="authorized_registrar" name="authorized_registrar" />
                   I am authorized as the registrar for this church.
                 </div>
                 <div id="step2_buttons">
@@ -154,14 +164,21 @@
               </div>
             </div> <!-- end step 2 -->
             <div id="step3" class="rounded_corners_medium step_container">
-              <p>Congratulations! Your church is now registered to accept on-line donations without costly credit card fees.</p>
-              <div id="snippet">
-                &lt;script id="klearchoice_script" src="https://app.klearchoice.com/script/widget.js" type="text/javascript" &gt;&lt;script&gt;
-              </div>
-              <p>Have your web administrator copy and paste this code onto your website.</p>
+              <h3>Congratulations!</h3>
+              <p>Your church is now registered to accept on-line donations without costly credit card fees.</p>
+              <p>Have your web administrator copy and paste the following code onto your website:</p>
+              <pre id="snippet">
+                <code>
+  &lt;script id="klearchoice_script" src="https://app.klearchoice.com/script/widget.js" type="text/javascript"&gt;&lt;script&gt;
+                </code>
+              </pre>
               <p>Or, send an email to your ogranization's web master with instructions from us.</p>
-              <p>Please provide your web master's name and email.</p>
+              <p>Please provide your web master's name and email:</p>
               <input placeholder="Web Master's Name" type="text" id="web_master_name" name="web_master_name"/>
+              <input placeholder="Web Master's Email" type="text" id="web_master_email" name="web_master_email"/>
+              <button id="email_webmaster" type="button" class="orange">
+                Send Email
+              </button>
 
             </div> <!-- end step 3 -->
           </div> <!-- end steps -->

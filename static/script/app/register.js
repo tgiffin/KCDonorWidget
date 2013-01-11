@@ -5,143 +5,154 @@
     {
 
       var charity_info = {};
-      var self_register = null;
+      var existing_account = null;
+
+      show_next(); 
+      setTimeout(show_next, 1100);
 
       //event handler for next button on step 1
       $("#step1_next").on("click",
         function()
         {
           get_charity_values();
-          /*if(!validate())
-            return;*/
+          if(!validate())
+            return;
 
           show_next();
         });
 
       //handle step 2 click, deal with self-register
-      $("#step2_next").on("click",
+      $("#register_now").on("click",
         function()
         {
-          if(self_register===null)
+          if(existing_account===null)
           {
-            $("#error_list").empty().append("<li>Please select whether you'd like us to register your account for you.</li>");
+            $("#error_list").empty().append("<li>Please select an option, should we create a Dwolla account for you, or do you already have a Dwolla account?</li>");
             $("#validation_errors").popup();
             return;
           }
-          if(self_register)
-          {
-            if(!validate_dwolla_id()) return;
 
-            charity_info.dwolla_id=$("#dwolla_id").val();
-            
-            $.ajax(
-              {
-                url: "/save_charity",
-                type: "POST",
-                data: charity_info,
-                success:
-                  function(data)
-                  {
-                    if(data.success)
-                    {
-                      charity_info.id=data.charity_id;
-                      $("#charity_id").html(charity_info.id);
-                      show_next();
-                    }
-                    else
-                    {
-                      $("#error_list").empty().append("<li>There was an internal problem saving your information, please try again later</li>");
-                      $("#validation_errors").popup();
-                    }
-                  },
-                error:
-                  function(data)
-                  {
-                    $("#error_list").empty().append("<li>There was a problem saving your information, please try again later</li>");
-                    $("#validation_errors").popup();
-                  }
-              }); //end save_charity ajax call
-
-          }
+          if(existing_account)
+            save_existing_account();
           else
-          {
-            }
+            create_account();
+            
         }); //end handle step 2 click
 
-      //handle self-register click
-      $("#self_register").on("click",
+      //handle exisiting dwolla account click
+      $("#existing_dwolla_account").on("click",
         function()
         {
-          self_register=true;
-          $("#auto_register_form").fadeOut();
-          $("#dwolla_id_form").fadeIn();
-          //$("#self_register_popup").popup();
+          existing_account=true;
+          $("#create_account_form").slideUp();
+          $("#other_provider_form").slideUp();
+          $("#dwolla_id_form").slideDown();
         });
       
-      //handle auto-register click
-      $("#auto_register").on("click",
+      //handle create_dwolla_account click
+      $("#create_dwolla_account").on("click",
         function()
         {
-          self_register=false;
-          $("#dwolla_id_form").fadeOut();
-          $("#auto_register_form").popup();
+          existing_account=false;
+          $("#dwolla_id_form").slideUp();
+          $("#other_provider_form").slideUp();
+          $("#create_account_form").slideDown();
         });
+
+      $("#other_account").on("click",
+        function()
+        {
+          $("#dwolla_id_form").slideUp();
+          $("#create_account_form").slideUp();
+          $("#other_provider_form").slideDown();
+        });
+
+      /**
+       * Handle an existing Dwolla account. Just save the charity information in our database
+       */
+      function save_existing_account()
+      {
+        if(!validate_dwolla_id()) return;
+
+        charity_info.dwolla_id=$("#dwolla_id").val();
+
+        $.ajax(
+          {
+            url: "/save_charity",
+            type: "POST",
+            data: charity_info,
+            success:
+            function(data)
+            {
+              if(data.success)
+              {
+                charity_info.id=data.charity_id;
+                $("#charity_id").html(charity_info.id);
+                show_next();
+              }
+              else
+              {
+                $("#error_list").empty().append("<li>There was an internal problem saving your information, please try again later</li>");
+                $("#validation_errors").popup();
+              }
+            },
+            error:
+            function(data)
+            {
+              $("#error_list").empty().append("<li>There was a problem saving your information, please try again later</li>");
+              $("#validation_errors").popup();
+            }
+          }); //end save_charity ajax call
+      }
 
       /**
        * Handle auto registration
        */
-      $("#register_now").on("click",
-        function()
-        {
-          var spinner;
-          charity_info.password = $("#password").val();
-          charity_info.confirm_password = $("#confirm_password").val();
-          charity_info.pin = $("#pin").val();
-          charity_info.accept_terms = $("#accept_terms").prop("checked");
+      function create_account()
+      {
+        var spinner;
+        charity_info.password = $("#password").val();
+        charity_info.confirm_password = $("#confirm_password").val();
+        charity_info.pin = $("#pin").val();
+        charity_info.ein = $("#ein").val();
+        charity_info.accept_terms = $("#accept_terms").prop("checked");
 
-          if(validate_password())
+        if(!validate_step2()) return;
+
+        spinner = new Spinner().spin($("#register_now")[0]);
+        $.ajax(
           {
-
-            spinner = new Spinner().spin($("#register_now")[0]);
-            $.ajax(
+            url: "/register_charity",
+            type: "POST",
+            data: charity_info,
+            success:
+            function(data)
+            {
+              spinner.stop();
+              if(data.success)
               {
-                url: "/register_charity",
-                type: "POST",
-                data: charity_info,
-                success:
-                  function(data)
-                  {
-                    spinner.stop();
-                    if(data.success)
-                    {
-                      charity_info.id = data.charity_id;
-                      $("#auto_register_form").closePopup();
-                      $("#charity_id").html(charity_info.id);
-                      show_next();
-                    }
-                    else
-                    {
-                      $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.message + "</li>");
-                      if(data.errors)
-                        data.errors.forEach( function(item) {$("#error_list").append("<li>" + item + "</li>");});
-                      $("#validation_errors").popup();
-                    }
-                  },
-                  error:
-                  function()
-                  {
-                    spinner.stop();
-                    $("#error_list").empty().append("<li>Unknown error, please try again later </li>");
-                    $("#validation_errors").popup();
-                  }
-                }
-              ); //end register charity ajax
-            } //end if validate
-        });
-
-      /**
-       * Handle self-registration
-       */
+                charity_info.id = data.charity_id;
+                $("#charity_id").html(charity_info.id);
+                show_next();
+              }
+              else
+              {
+                $("#error_list").empty().append("<li>Error recevied from Dwolla: " + data.message + "</li>");
+                if(data.errors)
+                  data.errors.forEach( function(item) {$("#error_list").append("<li>" + item + "</li>");});
+                $("#validation_errors").popup();
+              }
+            },
+            error:
+            function()
+            {
+              spinner.stop();
+              $("#error_list").empty().append("<li>Unknown error, please try again later </li>");
+              $("#validation_errors").popup();
+            }
+          }
+        ); //end register charity ajax
+      }
 
       /**
        * Various cancelers and closers
@@ -149,12 +160,6 @@
 
       //close the error popup
       $("#close_errors").on("click", function() { $("#validation_errors").closePopup(); });
-
-      //close the auto register popup
-      $("#cancel_register").on("click",function() { $("#auto_register_form").closePopup(); });
-
-      //close the self register popup
-      $("#cancel_open_dwolla_registration").on("click",function() { $("#self_register_popup").closePopup(); });
 
 
       /**
@@ -184,7 +189,7 @@
         if(!charity_info.last_name)
           errors.push("Last name is a required field");
         if(!charity_info.charity_name)
-          errors.push("Charity name is required");
+          errors.push("Church legal name is required");
         if(!charity_info.email)
           errors.push("Email is a required field");
         if(!charity_info.phone)
@@ -197,12 +202,16 @@
           errors.push("State is a required field");
         if(!charity_info.zip)
           errors.push("Zip is a required field");
-        if(!charity_info.ein)
-          errors.push("EIN is a required field");
         if(!charity_info.dob)
           errors.push("Birth date is a required field");
         if(!charity_info.domain)
-          errors.push("Domain is a required field");
+          errors.push("Website address is a required field");
+        if(!charity_info.board_type)
+          errors.push("Church board type is a required field");
+        if(!charity_info.title)
+          errors.push("Title is a required field");
+        if(!charity_info.gender)
+          errors.push("Gender is a required field");
 
         var parsedURI = URI.parse(charity_info.domain);
         if(!parsedURI.hostname)
@@ -226,7 +235,7 @@
       /**
        * Validate the password to be used on the dwolla account
        */
-      function validate_password()
+      function validate_step2()
       {
         var errors = [];
         if(!charity_info.password)
@@ -245,15 +254,23 @@
         if(!(/[0-9]/.test(charity_info.password)))
           errors.push("Password must contain at least one number");
 
+        if(!charity_info.ein)
+          errors.push("EIN is a required field");
+
         if(!charity_info.pin)
-          errors.push("Pin is required");
+          errors.push("PIN is required");
+        if(!(charity_info.pin == $("#confirm_pin").val()))
+          errors.push("PINs must match");
         if(!(/^[0-9]/.test(charity_info.pin)))
-          errors.push("Pin must be numeric digits only");
+          errors.push("PIN must be numeric digits only");
         if(charity_info.pin.length != 4)
-          errors.push("Pin must be 4 numeric digits");
+          errors.push("PIN must be 4 numeric digits");
 
         if(!charity_info.accept_terms)
           errors.push("You must accept the Dwolla Terms of Service to proceed");
+
+        if(!$("#authorized_registrar").prop("checked"))
+          errors.push("You must be authorized as the registrar for the church to proceed");
 
 
         if(errors.length > 0)
@@ -306,8 +323,10 @@
         $("#registration_form input").each(
           function()
           {
-            charity_info[$(this).attr("id")]=$(this).val();
+            if(!$(this).attr("exclude"))
+              charity_info[$(this).attr("id")]=$(this).val();
           });
+        charity_info.gender = $("input[name=gender]:checked").val();
       }
 
       //all back buttons should be permanently enabled 
