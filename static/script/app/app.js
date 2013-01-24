@@ -5,6 +5,9 @@ scripts = {
                                             "/script/lib/jquery-1.7.2.min.js",
                                             null //all scripts block until jquery is loaded
                                           ],
+  "/donor_widget.html"                  : [
+                                            "/script/app/donor_widget.js"
+                                          ],
   "/authenticate_complete.html"         : [
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",
                                             null,

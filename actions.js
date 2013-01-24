@@ -41,7 +41,7 @@ exports.donor_widget = function(request, response, next)
 
         response.send(mustache.to_html(loadTemplate('donor_widget'),
         {
-          charity_id: row.id
+          charity_name: row.charity_name
         }));
       });
 
@@ -230,6 +230,48 @@ exports.register = function(request, response)
       }));
 }
 
+/**
+ * Service calls
+ */
+
+/**
+ * Lookup donor information based on email address, return JSON formated donor
+ */
+exports.get_donor = function(request, response)
+{
+  var donor_email = escapeHtml(request.body["donor_email"]);
+  dal.open();
+  dal.get_donor({email: donor_email},
+    function(err, donor)
+    {
+      dal.close();
+      if(err)
+      {
+        reponse.json(
+          {
+            success: false,
+            message: "There was a problem retrieving email information, please try again later. If this problem persists, please contact technical support with the following information: " + err.message
+          }
+        );
+        return;
+      }
+
+      console.log("donor_id: " + request.session.donor_id);
+      request.session.donor_id=donor.id;
+
+      response.json(
+        {
+          success: true,
+          message: "",
+          donor_id: donor.id,
+          new_donor: donor.processor_id ? false : true 
+        });
+    });
+}
+
+/**
+ * Register the charity with Dwolla, then save it to the database
+ */
 exports.register_charity = function(request, response)
 {
   var charity_info = {};
@@ -276,7 +318,7 @@ exports.register_charity = function(request, response)
             message: err.message + " :" + (result ? (result.Message  || "") : ""),
             errors: result.Response
           });
-        return;
+          return;
       }
 
       //save charity to db
@@ -317,7 +359,7 @@ exports.register_charity = function(request, response)
                 message: "Your registration with Dwolla was successfull, but there was an internal problem saving your account information with Klear Choice. We hope to have this issue resolved soon, but until we do, please use the manual registration method and enter your Dwolla ID."
               });
 
-            return;
+              return;
           }
 
           response.json(
@@ -325,11 +367,15 @@ exports.register_charity = function(request, response)
               success: true,
               message: "Success",
               charity_id: charity_id
-          });
-      }); //end dal.save_charity()
-  }); //end payment.register()
+            });
+        }); //end dal.save_charity()
+    }); //end payment.register()
 } //end register_charity
 
+/**
+ * Save charity information to the database. 
+ *TODO: make this work for updating charity info instead of just inserts
+ */
 exports.save_charity = function(request, response)
 {
   var charity_info = {};

@@ -6,6 +6,9 @@ var connection;
 
 module.exports = {
 
+  /**
+   * Open connection to the database
+   */
   open: function()
   {
     connection = mysql.createConnection(
@@ -29,11 +32,17 @@ module.exports = {
       });
   },
 
+  /**
+   * Close database connection
+   */
   close: function()
   {
     connection.end();
   },
 
+  /**
+   * Get charity info for the given id
+   */
   get_charity: function(charity_id, callback)
   {
     connection.query("select id, charity_name, dwolla_id from charity where id=?",[charity_id],
@@ -51,6 +60,9 @@ module.exports = {
       });
   },
 
+  /**
+   * Lookup charity by website address. This is used to verify the charity by the http referrer
+   */
   get_charity_by_domain: function(domain, callback)
   {
     connection.query("select id, charity_name, dwolla_id from charity where domain=?",[domain],
@@ -64,6 +76,9 @@ module.exports = {
       });
   },
 
+  /**
+   * Insert a row into the transaction log. This happend any time a donation is made
+   */
   log_transaction: function(transaction, callback)
   {
     connection.query("insert into transactions set ?", transaction,
@@ -77,29 +92,56 @@ module.exports = {
       });
   },
 
+  /**
+   * Saves charity information. If charity_info.id is truthy, the charity information will be updated,
+   * otherwise a new record will be created
+   */
   save_charity: function(charity_info, callback)
   {
-    connection.query("insert into charity set ?", charity_info,
-      function(err, result)
-      {
-        if(err)
+    if(charity_info.id)
+    {
+      connection.query("update charity set ? where id=?", [charity_info,charity_info.id],
+        function(err, result)
         {
-          log.error("Error inserting charity: " + util.inspect(charity_info) + " error: " + err);
-          if(callback) callback(err, result);
-          return;
-        }
+          if(err)
+          {
+            log.error("Error updating charity: " + util.inspect(charity_info) + " error: " + err);
+            if(callback) callback(err, result);
+            return;
+          }
 
-        if(callback) callback(err, result.insertId);
-          
-      });
+          if(callback) callback(err, charity_info.id);
+        });
+    }
+    else
+    {
+      connection.query("insert into charity set ?", charity_info,
+        function(err, result)
+        {
+          if(err)
+          {
+            log.error("Error inserting charity: " + util.inspect(charity_info) + " error: " + err);
+            if(callback) callback(err, result);
+            return;
+          }
+
+          if(callback) callback(err, result.insertId);
+            
+        });
+    }
   },
 
-  get_donor_id: function(user,callback)
+  /**
+   * Retrieve the donor based on the specified email address.
+   * If a donor with the given email address doesn't exist, a new 
+   * donor will be created with the given email
+   */
+  get_donor: function(donor,callback)
   {
-    var id = user.processor_id;
-    if(!id) { callback(new Error("Missing user id")); return; }
+    var email = donor.email;
+    if(!email) { callback(new Error("Missing email")); return; }
 
-    connection.query("select * from donor where processor_id=?",[id],
+    connection.query("select * from donor where email=?",[email],
       function(err,result)
       {
         if(err) { callback(err); return; }
@@ -108,15 +150,16 @@ module.exports = {
         {
           //we don't have a record, need to insert
           connection.query("insert into donor set ?",
-            user,
+            donor,
             function(err,result)
             {
-              return callback(err, result.insertId);
+              donor.id = result.insertId;
+              return callback(err, donor);
             });
           return;
         }
 
-        return callback(null, result[0].id);
+        return callback(null, result[0]);
 
       });
   }

@@ -387,7 +387,6 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
   {
 
     var debug = options["debug"];
-    var charity_id = options["charity_id"];
     var placement = options["placement"] || "right";
     var tab_style = options["tab_style"];
 
@@ -488,7 +487,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       .mouseout( function() { $close_button.css('background-image',"url('" + options.url + "images/closeButton.png')"); });
     $header.append($close_button);
     $dialog.append($header);
-    var $iframe = $("<iframe src='" + options.url + "donor_widget.html?charity_id=" + options.charity_id + "'></iframe>");
+    var $iframe = $("<iframe src='" + options.url + "donor_widget.html'></iframe>");
     $iframe.css({'height':'95%', 'width':'100%', 'border':'none'});
     $dialog.append($iframe);
 

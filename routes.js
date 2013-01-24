@@ -36,6 +36,10 @@ module.exports = [
     path: '/register.html',
     action: actions.register
   },
+
+  /**
+   * API routes
+   */
   {
     verb: 'post',
     path: '/register_charity',
@@ -45,5 +49,10 @@ module.exports = [
     verb: 'post',
     path: '/save_charity',
     action: actions.save_charity
+  },
+  {
+    verb: 'post',
+    path: '/get_donor',
+    action: actions.get_donor
   }
 ];
