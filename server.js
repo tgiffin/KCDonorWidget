@@ -82,7 +82,7 @@ exports.app = app;
 everyauth.dwolla
   .appId(conf.dwolla_app_id)
   .appSecret(conf.dwolla_app_secret)
-  .scope('accountinfofull|send')
+  .scope('accountinfofull|send|balance')
   .myHostname(conf.hostname)
   .findOrCreateUser(
     function(session,accessToken,accessTokenExtra,dwollaUserMetadata)
@@ -91,7 +91,7 @@ everyauth.dwolla
       return {id: dwollaUserMetadata.Id, dwolla: dwollaUserMetadata};
 
     })
-  .redirectPath("/authenticate_complete.html"); 
+  .redirectPath("/donor_widget_confirm.html"); 
 
 //set up express
 app.use(P3P); //send P3P headers on all requests, even static

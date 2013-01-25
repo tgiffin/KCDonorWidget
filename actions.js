@@ -33,7 +33,7 @@ exports.donor_widget = function(request, response, next)
 
         if(!row)
         {
-          response.redirect(conf.hostname + "/invalid_configuration.html");
+          response.redirect(conf.hostname + "/html/invalid_configuration.html");
           return;
         }
 
@@ -51,19 +51,12 @@ exports.donor_widget = function(request, response, next)
 /**
  * Once oauth is complete, we display this page
  */
-exports.authenticate_complete = function(request, response,next) 
+exports.donor_widget_amount = function(request, response,next) 
   {
     var err = request.session.error;
     if(err)
     {
       request.session.error = null;
-      response.send(mustache.to_html(loadTemplate('authenticate_complete'),
-        {
-          charity_name: request.session.charity.charity_name,
-          user: request.session.auth.dwolla.user,
-          error: err.message
-        }));
-      return;
     }
 
     if(!request.session.charity)
@@ -98,10 +91,10 @@ exports.authenticate_complete = function(request, response,next)
   }
 
 /**
- * Confirmation page, gather PIN (for dwolla)
+ * Validate the amount the user is requesting to donate
  */
-exports.confirm_amount =  function(request, response)
-  {
+exports.donor_widget_validate_amount = function(request, response)
+{
     var result = {};
     //console.log(util.inspect(request));
     var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
@@ -120,10 +113,26 @@ exports.confirm_amount =  function(request, response)
 
     if(result.status=='error')
     {
-      request.session.error = result;
-      response.redirect(conf.hostname + "/authenticate_complete.html");
+      response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+        {
+          charity_name: request.session.charity.charity_name,
+          user: request.session.user || '',
+          //user: request.session.auth.dwolla.user,
+          error: err.message
+        }));
       return;
+      //response.redirect(conf.hostname + "/authenticate_complete.html");
     }
+
+    response.redirect(conf.hostname + "/auth/dwolla");
+}
+
+/**
+ * Confirmation page, gather PIN (for dwolla)
+ */
+exports.confirm_amount =  function(request, response)
+  {
+
 
     var fee = payment.klearchoice_fee + payment.processor_fee;
     var total = request.session.total = amount + fee;

@@ -13,22 +13,22 @@ module.exports = [
   },
   {
     verb: 'get',
-    path: '/authenticate_complete.html',
-    action: actions.authenticate_complete
+    path: '/donor_widget_amount.html',
+    action: actions.donor_widget_amount
   },
   {
     verb: 'post',
-    path: '/confirm_amount',
+    path: '/donor_widget_amount.html',
+    action: actions.donor_widget_validate_amount
+  },
+  {
+    verb: 'post',
+    path: '/donor_widget_confirm.html',
     action: actions.confirm_amount
   },
   {
-    verb: 'post',
-    path: '/send_payment',
-    action: actions.send_payment
-  },
-  {
     verb: 'get',
-    path: '/thank_you.html',
+    path: '/donor_widget_thank_you.html',
     action: actions.thank_you
   },
   {
@@ -40,6 +40,11 @@ module.exports = [
   /**
    * API routes
    */
+  {
+    verb: 'post',
+    path: '/send_payment',
+    action: actions.send_payment
+  },
   {
     verb: 'post',
     path: '/register_charity',

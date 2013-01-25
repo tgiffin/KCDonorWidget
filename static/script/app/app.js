@@ -1,25 +1,25 @@
 
 //main script router. defines scripts to load for each page
 scripts = {
-  "global"                               : [
+  "global"                              : [
                                             "/script/lib/jquery-1.7.2.min.js",
                                             null //all scripts block until jquery is loaded
                                           ],
   "/donor_widget.html"                  : [
                                             "/script/app/donor_widget.js"
                                           ],
-  "/authenticate_complete.html"         : [
+  "/donor_widget_amount.html"           : [
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",
                                             null,
-                                            "/script/app/authenticate_complete.js"
+                                            "/script/app/donor_widget_amount.js"
                                           ],
-  "/confirm_amount"                     : [
+  "/donor_widget_confirm_amount.html"   : [
                                             "/script/lib/jquery.popup.js",
-                                            "/script/app/confirm_amount.js"
+                                            "/script/app/donor_widget_confirm_amount.js"
                                           ],
 
-  "/thank_you.html"                     : [
-                                            "/script/app/thank_you.js"
+  "/donor_widget_thank_you.html"        : [
+                                            "/script/app/donor_widget_thank_you.js"
                                           ],
 
   "/register.html"                      : [
