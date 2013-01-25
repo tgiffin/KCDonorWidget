@@ -22,9 +22,14 @@ module.exports = [
     action: actions.donor_widget_validate_amount
   },
   {
-    verb: 'post',
+    verb: 'get',
     path: '/donor_widget_confirm.html',
     action: actions.confirm_amount
+  },
+  {
+    verb: 'post',
+    path: '/donor_widget_confirm.html',
+    action: actions.send_payment
   },
   {
     verb: 'get',

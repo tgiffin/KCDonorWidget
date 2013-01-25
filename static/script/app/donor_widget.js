@@ -58,14 +58,14 @@
     $("#new_dwolla_button").on("click",
       function()
       {
-        window.location.href="/html/new_dwolla_user.html";
+        window.location.href="/html/donor_widget_new_dwolla_user.html";
       });
 
     //handle existing dwolla user click
     $("#existing_dwolla_button").on("click",
       function()
       {
-        window.location.href="/auth/dwolla";
+        window.location.href="/donor_widget_amount.html";
       });
 
 

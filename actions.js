@@ -49,7 +49,8 @@ exports.donor_widget = function(request, response, next)
 
 
 /**
- * Once oauth is complete, we display this page
+ * Gather the donation amount
+ * This is a GET for donor_widget_amount.html
  */
 exports.donor_widget_amount = function(request, response,next) 
   {
@@ -65,66 +66,55 @@ exports.donor_widget_amount = function(request, response,next)
       return;
     }
 
-    dal.open();
-    dal.get_donor_id(
-      {
-        processor_id: request.session.auth.dwolla.user.Id,
-        name: request.session.auth.dwolla.user.Name,
-        email: '',
-        city: request.session.auth.dwolla.user.City,
-        state: request.session.auth.dwolla.user.State
-      },
-      function(err,donor_id)
-      {
-        if(err) {dal.close(); return next(err); }
+    if(!request.session.donor) //this is filled in the get_donor ajax call
+    {
+      next(new Error("Missing donor in session"));
+      return;
+    }
 
-        request.session.donor_id=donor_id;
-
-        response.send(mustache.to_html(loadTemplate('authenticate_complete'),
-          {
-            charity_name: request.session.charity.charity_name,
-            user: request.session.auth.dwolla.user
-          }));
-
-      });
+    response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
+    {
+      charity_name: request.session.charity.charity_name,
+      donor: request.session.donor
+      //user: request.session.auth.dwolla.user
+    }));
 
   }
 
 /**
  * Validate the amount the user is requesting to donate
+ * This is a POST from donor_widget_amount.html
  */
 exports.donor_widget_validate_amount = function(request, response)
 {
-    var result = {};
-    //console.log(util.inspect(request));
     var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
+    var error = null;
     //validate amount
     if(amount < 10)
     {
-      result.status='error',
-      result.message='The minimum donation amount is $10. Please enter an amount that is at least $10.'
+      error='The minimum donation amount is $10. Please enter an amount that is at least $10.'
     }
 
     if(amount > 5000)
     {
-      result.status='error',
-      result.message='The maximum amount for a donation is $5,000. Please enter an amount below $5,000.'
+      error='The maximum amount for a donation is $5,000. Please enter an amount below $5,000.'
     }
 
-    if(result.status=='error')
+    if(error)
     {
-      response.send(mustache.to_html(loadTemplate('authenticate_complete'),
+      response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
         {
           charity_name: request.session.charity.charity_name,
-          user: request.session.user || '',
-          //user: request.session.auth.dwolla.user,
-          error: err.message
+          donor: request.session.donor,
+          error: error
         }));
       return;
-      //response.redirect(conf.hostname + "/authenticate_complete.html");
     }
 
-    response.redirect(conf.hostname + "/auth/dwolla");
+    if(request.session.auth && request.session.auth.dwolla && request.session.auth.dwolla.user)
+      response.redirect("/donor_widget_confirm.html");
+    else
+      response.redirect(conf.hostname + "/auth/dwolla");
 }
 
 /**
@@ -132,13 +122,11 @@ exports.donor_widget_validate_amount = function(request, response)
  */
 exports.confirm_amount =  function(request, response)
   {
-
-
     var fee = payment.klearchoice_fee + payment.processor_fee;
-    var total = request.session.total = amount + fee;
-    response.send(mustache.to_html(loadTemplate('confirm_amount'),
+    var total = request.session.total = request.session.amount + fee;
+    response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
       {
-        amount: accounting.formatMoney(amount),
+        amount: accounting.formatMoney(request.session.amount),
         charity_name: request.session.charity.charity_name,
         user: request.session.auth.dwolla.user,
         fee: accounting.formatMoney(fee),
@@ -266,13 +254,12 @@ exports.get_donor = function(request, response)
       }
 
       console.log("donor_id: " + request.session.donor_id);
-      request.session.donor_id=donor.id;
+      request.session.donor=donor;
 
       response.json(
         {
           success: true,
           message: "",
-          donor_id: donor.id,
           new_donor: donor.processor_id ? false : true 
         });
     });

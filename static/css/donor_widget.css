@@ -52,6 +52,14 @@ h5
   text-align: center;
 }
 
+.error {
+  color: red;
+}
+
+.input_label {
+  color: #C0C0C0;
+}
+
 #header_logo
 {
   background-image: url('/images/empowered_by_logo.jpg');
@@ -70,6 +78,13 @@ h5
   position: absolute;
   top:50%;
   left: 55%;
+}
+
+#charity_name {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.1em;
 }
 .orange:hover {
   background: #A94310;
@@ -184,4 +199,8 @@ h5
 /**
  * donor_widget_amount.html
  */
-
+#amount_wrapper {
+  text-align: left;
+  width: 75%;
+  margin-left: 12%;
+}

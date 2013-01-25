@@ -336,7 +336,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
           }
           case "resize":
           {
-            $dialog.resizePopup(data);
+            //$dialog.resizePopup(data);
             break;
           }
             
