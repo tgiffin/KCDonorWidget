@@ -124,6 +124,27 @@ exports.confirm_amount =  function(request, response)
   {
     var fee = payment.klearchoice_fee + payment.processor_fee;
     var total = request.session.total = request.session.amount + fee;
+    var donor = request.session.donor;
+
+    //save the dwolla user info in our database
+    donor.name = request.session.auth.dwolla.user.Name;
+    donor.processor_id = request.session.auth.dwolla.user.Id;
+    donor.city = request.session.auth.dwolla.user.City;
+    donor.state = request.session.auth.dwolla.user.State;
+    delete donor.create_date; //don't update the create date
+    dal.open();
+    dal.update_donor(donor,
+      function(err)
+      {
+        dal.close();
+        if(err)
+        {
+          request.next(err);
+          return;
+        }
+      });
+    
+    //load the template
     response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
       {
         amount: accounting.formatMoney(request.session.amount),

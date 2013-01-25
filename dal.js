@@ -162,6 +162,19 @@ module.exports = {
         return callback(null, result[0]);
 
       });
+  },
+
+  /**
+   * Update the donor information
+   */
+  update_donor: function(donor,callback)
+  {
+    connection.query("update donor set ? where id=?",
+      [donor,donor.id],
+      function(err,result)
+      {
+        callback(err);
+      });
   }
 
 

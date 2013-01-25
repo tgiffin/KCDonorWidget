@@ -36,7 +36,7 @@
             }
             else
             {
-              window.location.href='/auth/dwolla';
+              window.location.href='/donor_widget_amount.html';
             }
           },
           error:
