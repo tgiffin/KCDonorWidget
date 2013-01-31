@@ -83,7 +83,7 @@ exports.app = app;
 everyauth.dwolla
   .appId(conf.dwolla_app_id)
   .appSecret(conf.dwolla_app_secret)
-  .scope('accountinfofull|send|balance')
+  .scope('accountinfofull|send|balance|funding')
   .myHostname(conf.hostname)
   .findOrCreateUser(
     function(session,accessToken,accessTokenExtra,dwollaUserMetadata)

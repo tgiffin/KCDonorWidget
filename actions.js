@@ -142,18 +142,87 @@ exports.confirm_amount =  function(request, response)
           request.next(err);
           return;
         }
-      });
-    
-    //load the template
-    response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
-      {
-        amount: accounting.formatMoney(request.session.amount),
-        charity_name: request.session.charity.charity_name,
-        user: request.session.auth.dwolla.user,
-        fee: accounting.formatMoney(fee),
-        total: accounting.formatMoney(total)
-      }));
 
+        //get the user's balance
+        payment.check_balance(
+          {
+            user_token: request.session.auth.dwolla.accessToken
+          },
+          function(err, result)
+          {
+
+            if(err)
+            {
+              request.next(err);
+              return;
+            }
+
+            var balance = result.Response;
+
+            if(balance < request.session.amount)
+            {
+              //there's not enough money in the Dwolla account, we need to enumerate funding sources
+              payment.get_funding_sources(
+              {
+                user_token: request.session.auth.dwolla.accessToken,
+              },
+              function(err, result)
+              {
+                if(err)
+                {
+                  request.next(err);
+                  return;
+                }
+                var sources = result.Response;
+                /* sources look like an array of:
+                  {
+                      "Id": "c58bb9f7f1d51d5547e1987a2833f4fa",
+                      "Name": "Donations Collection Fund - Savings",
+                      "Type": "Savings",
+                      "Verified": "true",
+                      "ProcessingType": "ACH"
+                  },
+                 */ 
+                //if there are no alternate funding sources, and the balance is less than $10, redirect to the insufficient funds dialog
+                if((balance < 10) && sources.length == 0)
+                {
+                  response.send(mustache.to_html(loadTemplate('donor_widget_insufficient_funds'),{}));
+                  return;
+                }
+
+                var show_sources = true;
+                if(sources.length == 0) show_sources = false;
+
+                //load the template, send in funding sources
+                response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
+                {
+                  amount: accounting.formatMoney(request.session.amount),
+                  charity_name: request.session.charity.charity_name,
+                  user: request.session.auth.dwolla.user,
+                  fee: accounting.formatMoney(fee),
+                  total: accounting.formatMoney(total),
+                  show_sources: show_sources, 
+                  sources: sources
+                })); //end send template html
+              });
+
+            }
+            else
+            {
+              //load the template, don't list funding sources
+              response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
+              {
+                amount: accounting.formatMoney(request.session.amount),
+                charity_name: request.session.charity.charity_name,
+                user: request.session.auth.dwolla.user,
+                fee: accounting.formatMoney(fee),
+                total: accounting.formatMoney(total)
+              })); //end send template html
+            }
+
+          }); //end check balance
+
+      }); //end update_donor
   }
 
 /**
@@ -169,67 +238,53 @@ exports.send_payment = function(request, response, next)
         user_token: request.session.auth.dwolla.accessToken,
         pin: vals.pin,
         destination_id: request.session.charity.dwolla_id,
-        amount: request.session.total,
-        success_callback:
-          function(result)
+        amount: request.session.total
+      },
+      function(err,result)
+      {
+        var log_info = 
+            {
+              donor_id: request.session.donor_id,
+              charity_id: request.session.charity.id,
+              amount: request.session.amount,
+              klearchoice_fee: payment.klearchoice_fee, 
+              processor_fee: payment.processor_fee,
+              confirmation_number: '',
+            };
+        if(err)
+        {
+          log_info.status = "error";
+          log_info.message = err;
+        }
+        else
+        {
+          log_info.confirmation_number = result.Response;
+          log_info.status = "success";
+          log_info.message = result.Message;
+        }
+        dal.open();
+        dal.log_transaction(
+          log_info,
+          function(err,result)
           {
-            dal.open();
-            dal.log_transaction(
-              {
-                donor_id: request.session.donor_id,
-                charity_id: request.session.charity.id,
-                amount: request.session.amount,
-                klearchoice_fee: payment.klearchoice_fee, 
-                processor_fee: payment.processor_fee,
-                confirmation_number: result.Response,
-                status: "success",
-                message: result.Message
-              },
-              function(err,result)
-              {
-                if(err)
-                  next(err);
-              });
-            dal.close();
+            if(err)
+              next(err);
+          });
+        dal.close();
 
-            response.json(
-              {
-                status: "success"
-              });
-          },
-        error_callback:
-          function(error)
-          {
-            dal.open();
-            dal.log_transaction(
-              {
-                donor_id: request.session.donor_id,
-                charity_id: request.session.charity.id,
-                amount: request.session.amount,
-                klearchoice_fee: payment.klearchoice_fee, 
-                processor_fee: payment.processor_fee,
-                confirmation_number: '',
-                status: "error",
-                message: error
-              },
-              function(err,result)
-              {
-                if(err)
-                  next(err);
-              });
-
-            dal.close();
-
-            response.json(
-              {
-                status: "error",
-                message: error
-              });
-            //response.end();
-          }
-      });
-
-  }
+        if(err)
+          response.json(
+            {
+              status: "error",
+              message: error
+            });
+        else
+          response.json(
+            {
+              status: "success"
+            });
+      }); //end call payment.send
+  };
 
 /**
  * Thank You page is shown on successful transaction
