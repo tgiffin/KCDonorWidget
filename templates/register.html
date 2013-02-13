@@ -2,12 +2,13 @@
 <html>
   <head>
     <script src="/script/app/app.js" type="text/javascript"></script>
-                                            
+    <script type="text/javascript" src="//use.typekit.net/dbx2cpl.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     <link rel="stylesheet" href="/css/klear_choice.css" type="text/css" />
     <link rel="stylesheet" href="/css/register.css" type="text/css" />
   </head>
   <body>
-    <img id="giving_logo" src="images/online_giving_logo_dark.png"></img>
+    <img id="giving_logo" src="images/online_giving_logo_light.png"></img>
     <div class="top_bar">
       <div class="header_wrap">
         <div class="header_data"><header>
@@ -17,7 +18,7 @@
           <nav><div id="pageNav"> 
             <div class="navWrap">
               <div href="#" class="hover">
-                <a href="features" id="featuresNav">
+                <a href="http://klearchoice.com/features" id="featuresNav">
                   <div id="featuresDot" class="dot"></div>
                   Features
                 </a>
@@ -25,7 +26,7 @@
             </div><!-- - /navWrap - -->
             <div class="navWrap">
               <div href="#" class="hover">
-                <a href="resources" id="resourcesNav">
+                <a href="http://klearchoice.com/resources" id="resourcesNav">
                   <div id="resourcesDot" class="dot"></div>
                   Resources
                 </a>
@@ -33,7 +34,7 @@
             </div><!-- - /navWrap - --> 
             <div class="navWrap">
               <div href="#" class="hover">
-                <a href="support" id="supportNav">
+                <a href="http://klearchoice.com/support" id="supportNav">
                   <div id="supportDot" class="dot"></div>
                   Support
                 </a>
@@ -55,7 +56,7 @@
 
     <div class="content_wrap">
       <div class="content_data">
-        <h1>Register with KlearChoice On-Line Giving</h1>
+        <div class="page_title">Register with KlearChoice On-Line Giving</div>
         <p>All fields are required. Click <a href="#">here</a> for a full list of information required to complete the On-Line Giving Registration.</p>
         <h2>Easy Two Step Registation</h2>
 
@@ -82,36 +83,73 @@
               <h3>Step 1 - Registrar and Church Information</h3>
               <div id='registration_form' class="registration_form large_line_height">
                 <h4>Registrar Information</h4>
-                <div class="large_line_height">
-                  <input type="text" class="col1" placeholder="Registrar's First Name" name="first_name" id="first_name" />
-                  <input type="text" class="col2" placeholder="Registrar's Last Name" name="last_name" id="last_name" />
-                  <input type="text" class="col1" placeholder="Registrar's Email" name="email" id="email" />
-                  <input type="text" class="col2" placeholder="Registrar's Title at the Church" name="title" id="title" />
-                  <input type="text" class="col1" placeholder="Registrar's Date of Birth" name="dob" id="dob" />
-                  <span id="gender_wrapper"> Gender: 
-                    &nbsp; F<input type="radio" name="gender" exclude="true" value="F"/> 
-                    M<input type="radio" name="gender" exclude="true" value="M"/>
-                  </span>
-                </div>
-                <h4>Church Information</h4>
-                <div class="large_line_height">
-                  <input type="text" class="col1" placeholder="Church Legal Name" name="charity_name" id="charity_name" />
-                  <input type="text" class="col2" placeholder="Church's Phone" name="phone" id="phone" />
-                  <input type="text" class="col1" placeholder="Physical Address" name="address" id="address" />
-                  <span class="col2">
-                    <input type="text" class="city" placeholder="City" name="city" id="city" />
-                    <input type="text" class="state" placeholder="State" name="state" id="state" />
-                    <input type="text" class="zip" placeholder="Zip" name="zip" id="zip" />
-                  </span>
-                  <input type="text" class="col1" placeholder="Mailing Address (leave blank if same as physical address)" name="mailing_address" id="mailing_address" />
-                  <span class="col2">
-                    <input type="text" class="city" placeholder="City" name="mailing_city" id="mailing_city" />
-                    <input type="text" class="state" placeholder="State" name="mailing_state" id="mailing_state" />
-                    <input type="text" class="zip" placeholder="Zip" name="mailing_zip" id="mailing_zip" />
-                  </span>
-                  <input type="text" class="col1" placeholder="Website Address (example: http://mychurch.com)" name="domain" id="domain" />
-                  <input type="text" class="col2" placeholder="Church's Board Type - Elders, Deacons, or Trustees" name="board_type" id="board_type" />
-                </div>
+                <form id="registration">
+                  <div class="large_line_height">
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required" placeholder="Registrar's First Name" name="first_name" id="first_name" />
+                    </div>
+                    <div class="input_wrapper col2">
+                      <input type="text" class="required" placeholder="Registrar's Last Name" name="last_name" id="last_name" />
+                    </div>
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required email" placeholder="Registrar's Email" name="email" id="email" />
+                    </div>
+                    <div class="input_wrapper col2">
+                      <input type="text" class="required" placeholder="Registrar's Title at the Church" name="title" id="title" />
+                    </div>
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required date" placeholder="Registrar's Date of Birth" name="dob" id="dob" />
+                    </div>
+                    <div id="gender_wrapper" class="input_wrapper">
+                       Gender: 
+                        &nbsp; F<input type="radio" name="gender" exclude="true" value="F"/> 
+                        M<input type="radio" name="gender" exclude="true" value="M"/>
+                    </div>
+                  </div>
+                  <h4>Church Information</h4>
+                  <div class="large_line_height">
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required" placeholder="Church Legal Name" name="charity_name" id="charity_name" />
+                    </div>
+                    <div class="input_wrapper col2">
+                      <input type="text" class="required phoneUS" placeholder="Church's Phone" name="phone" id="phone" />
+                    </div>
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required" placeholder="Physical Address" name="address" id="address" />
+                    </div>
+                    <div class="col2" style="float:left">
+                      <div class="input_wrapper city">
+                        <input type="text" class="city required" placeholder="City" name="city" id="city" />
+                      </div>
+                      <div class="input_wrapper state">
+                        <input type="text" class="state required" placeholder="State" name="state" id="state" />
+                      </div>
+                      <div class="input_wrapper zip">
+                        <input type="text" class="zip required" placeholder="Zip" name="zip" id="zip" />
+                      </div>
+                    </div>
+                    <div class="input_wrapper col1">
+                      <input type="text" class="" placeholder="Mailing Address (leave blank if same as physical address)" name="mailing_address" id="mailing_address" />
+                    </div>
+                    <div class="col2" style="float:left">
+                      <div class="input_wrapper city">
+                        <input type="text" class="city" placeholder="City" name="mailing_city" id="mailing_city" />
+                      </div>
+                      <div class="input_wrapper state">
+                        <input type="text" class="state" placeholder="State" name="mailing_state" id="mailing_state" />
+                      </div>
+                      <div class="input_wrapper zip">
+                        <input type="text" class="zip" placeholder="Zip" name="mailing_zip" id="mailing_zip" />
+                      </div>
+                    </div>
+                    <div class="input_wrapper col1">
+                      <input type="text" class="required url" placeholder="Website Address (example: http://mychurch.com)" name="domain" id="domain" />
+                    </div>
+                    <div class="input_wrapper col2">
+                      <input type="text" class="required" placeholder="Church's Board Type - Elders, Deacons, or Trustees" name="board_type" id="board_type" />
+                    </div>
+                  </div>
+                </form>
 
               </div> <!-- end registration form -->
               <button id="step1_next" class="orange next_button">
@@ -126,17 +164,19 @@
             <div id="step2" class="rounded_corners_medium step_container">
               <h3>Step 2 - Select The On-Line Giving Partner</h3>
               <div class="registration_form">
-                <h4 class="orange">Register with our trusted On-Line Giving processing provider.</h4>
+                <h4>Register with our trusted On-Line Giving processing provider.</h4>
                 <p>We do the research and partner with only the safest and most secure pocessing providers. When you register with KlearChoice, you know you've made the right choice.</p>
                 <input type="radio" name="provider" exclude="true" id="create_dwolla_account"/>Create a Dwolla account
                 <input type="radio" name="provider" exclude="true" id="existing_dwolla_account"/>Already have a Dwolla account?
                 <input type="radio" name="provider" exclude="true" id="other_account"/>Other
                 <div id="create_account_form" class="registration_form large_line_height">
-                  <input type="password" class="col1" placeholder="Dwolla password" name="password" id="password" />
-                  <input type="password" class="col2" placeholder="Confirm Dwolla password" exclude="true" name="confirm_password" id="confirm_password" />
-                  <input type="password" class="col1" placeholder="Dwolla PIN" name="pin" id="pin" />
-                  <input type="password" class="col2" placeholder="Confirm Dwolla PIN" exclude="true" name="confirm_pin" id="confirm_pin" />
-                  <input type="text" class="col1" placeholder="Federal Employer Idenitification Number (EIN)" name="ein" id="ein" />
+                  <form id="create_account">
+                    <input type="password" class="col1" placeholder="Dwolla password" name="password" id="password" />
+                    <input type="password" class="col2" placeholder="Confirm Dwolla password" exclude="true" name="confirm_password" id="confirm_password" />
+                    <input type="password" class="col1" placeholder="Dwolla PIN" name="pin" id="pin" />
+                    <input type="password" class="col2" placeholder="Confirm Dwolla PIN" exclude="true" name="confirm_pin" id="confirm_pin" />
+                    <input type="text" class="col1" placeholder="Federal Employer Idenitification Number (EIN)" name="ein" id="ein" />
+                  </form>
                 </div>
                 <div class="registration_form" id="dwolla_id_form" >
                   <input type="text" class="col1" placeholder="Dwolla account ID" name="dwolla_id" id="dwolla_id" />
@@ -147,7 +187,7 @@
                   benefit from donations you receive.</p>
                   <p>Check back soon for new ways to accept payments for your organization!</p>
                 </div> 
-                <h4 id="terms_heading" class="orange">KlearChoice and Dwolla Terms of Service</h4>
+                <h4 id="terms_heading">KlearChoice and Dwolla Terms of Service</h4>
                 <div id="terms_wrapper">
                   <input type="checkbox" id="accept_terms" name="accept_terms" />
                   Yes, we agree to the <a href="">KlearChoice</a> and <a href="https://www.dwolla.com/tos" target="_blank">Dwolla</a> Terms of Service
@@ -183,6 +223,24 @@
             </div> <!-- end step 3 -->
           </div> <!-- end steps -->
         </div> <!-- end container -->
+
+        <footer>
+          <div id="footer">
+            <div class="footTop"><ul class="footerText">
+                <li id="copyright">Copyright &copy; 2013 KlearChoice Inc. All rights reserved.</li>
+                <li><ul class="footerNav">
+                  <li id="terms"><a href="http://klearchoice.com/terms">Terms of Service Agreement</a></li> | 
+                  <li id="policy"><a href="http://klearchoice.com/policy">Privacy Policy</a></li>
+                </ul></li><!-- - /footerNav - -->
+            </ul></div><!-- - /footerTop - -->
+            <p><ul class="partners">
+              <li id="dwolla"><a href="http://www.dwolla.com/" target="_blank"><img src="images/dwolla_logo.png"/></a></li>
+              <li id="truste"><a href="http://www.truste.com/" target="_blank"><img src="images/etrust.png" /></a></li>
+            </ul></p><!-- - /partners - -->
+          </div><!-- - /footer - -->
+        </footer>  
+
+
       </div> <!-- end content data -->
     </div> <!-- end content wrap -->
   </body>

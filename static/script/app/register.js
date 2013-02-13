@@ -8,7 +8,7 @@
       var existing_account = null;
 
       //show_next(); 
-      //setTimeout(show_next, 1100);
+      //setTimeout(show_next, 1100); //for debugging only
 
       //event handler for next button on step 1
       $("#step1_next").on("click",
@@ -182,54 +182,7 @@
        */
       function validate()
       {
-        var errors = [];
-        var i=0;
-        if(!charity_info.first_name)
-          errors.push("First name is a required field");
-        if(!charity_info.last_name)
-          errors.push("Last name is a required field");
-        if(!charity_info.charity_name)
-          errors.push("Church legal name is required");
-        if(!charity_info.email)
-          errors.push("Email is a required field");
-        if(!charity_info.phone)
-          errors.push("Phone is a required field");
-        if(!charity_info.address)
-          errors.push("Address is a required field");
-        if(!charity_info.city)
-          errors.push("City is a required field");
-        if(!charity_info.state)
-          errors.push("State is a required field");
-        if(!charity_info.zip)
-          errors.push("Zip is a required field");
-        if(!charity_info.dob)
-          errors.push("Birth date is a required field");
-        if(!charity_info.domain)
-          errors.push("Website address is a required field");
-        if(!charity_info.board_type)
-          errors.push("Church board type is a required field");
-        if(!charity_info.title)
-          errors.push("Title is a required field");
-        if(!charity_info.gender)
-          errors.push("Gender is a required field");
-
-        var parsedURI = URI.parse(charity_info.domain);
-        if(!parsedURI.hostname)
-          errors.push("Please enter a valid domain format");
-
-        charity_info.domain = parsedURI.hostname;
-
-        if(errors.length > 0)
-        {
-          $("#error_list").empty();
-          for(i=0;i<errors.length;i++)
-            $("#error_list").append("<li>" + errors[i] + "</li>");
-
-          $("#validation_errors").popup();
-          return false;
-        }
-
-        return true;
+        return $("#registration").valid();
       }
 
       /**

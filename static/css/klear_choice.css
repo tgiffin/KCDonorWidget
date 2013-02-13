@@ -555,21 +555,6 @@ input[type="text"]:focus {
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
 }
 
-input[class="city"] {
-  width: 145px;
-  height: 25px;
-}
-
-
-input[class="state"] {
-  width: 105px;
-  height: 25px;
-}
-
-input[class="zip"] {
-  width: 93px;
-  height: 25px;
-}
 
 textarea {
   width: 850px;
