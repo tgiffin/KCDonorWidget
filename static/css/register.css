@@ -11,6 +11,11 @@ h1
   color: #cd7249;
 }
 
+a
+{
+  text-decoration: underline;
+}
+
 
 h2
 {
@@ -34,6 +39,8 @@ h4
   font-size: 1.2em;
   color: #008fd5;
   margin-top: 5px;
+  font-family: "futura-pt", Futura, "Trebuchet MS", Arial, sans-serif;
+  font-weight: normal;
 }
 
 code
@@ -56,8 +63,8 @@ label.error
 #giving_logo
 {
   position: absolute;
-  top:600px;
-  right: 150px;
+  top:55%;
+  left: 73%;
 }
 
 #registerDot {
@@ -76,6 +83,7 @@ label.error
   margin-top: 0px;
   overflow: hidden;
   position: relative;
+  font-family: Arial;
 }
 
 #steps {
@@ -124,8 +132,15 @@ div.state, div.zip
 
 /* Step 2 elements */
 
-#create_account_form, #dwolla_id_form, #other_provider_form {
+#create_account_form, #dwolla_id_form {
+  width: 100%;
   display: none;
+}
+
+#other_provider_form
+{
+  line-height:1em;
+  font-size:.7em;
 }
 
 #terms_heading {
@@ -143,6 +158,12 @@ div.state, div.zip
 {
   width: 170px;
   margin-left: 10px;
+}
+
+.instructions
+{
+  line-height:1em;
+  font-size:.7em;
 }
 
 /* general classes */

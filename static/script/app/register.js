@@ -10,6 +10,50 @@
       //show_next(); 
       //setTimeout(show_next, 1100); //for debugging only
 
+      //init input masks
+      $("#dob").mask("99/99/9999",{placeholder:" "});
+      $("#zip").mask("99999",{placeholder:" "});
+      $("#mailing_zip").mask("99999",{placeholder:" "});
+      $("#state").mask("aa",{placeholder:" "});
+      $("#mailing_state").mask("aa",{placeholder:" "});
+      $("#phone").mask("(999) 999-9999",{placeholder:" "});
+
+      //prevent number input
+      $("#first_name, #last_name, #city, #mailing_city").on("keypress",
+        function(evt)
+        {
+          var ch = String.fromCharCode(evt.charCode);
+          if(!isNaN(parseInt(ch)))
+          {
+            evt.preventDefault();
+            return false;
+          }
+        });
+      //force number only 
+      $("#pin, #confirm_pin").on("keypress",
+        function(evt)
+        {
+          var ch = String.fromCharCode(evt.charCode);
+          if(isNaN(parseInt(ch)))
+          {
+            evt.preventDefault();
+            return false;
+          }
+        });
+      //allow numbers or dashes
+      $("#dwolla_id").on("keypress",
+        function(evt)
+        {
+          var ch = String.fromCharCode(evt.charCode);
+          if(isNaN(parseInt(ch)))
+          {
+            if(ch=="-") return true;
+
+            evt.preventDefault();
+            return false;
+          }
+        });
+
       //event handler for next button on step 1
       $("#step1_next").on("click",
         function()
@@ -45,7 +89,6 @@
         {
           existing_account=true;
           $("#create_account_form").slideUp();
-          $("#other_provider_form").slideUp();
           $("#dwolla_id_form").slideDown();
         });
       
@@ -55,17 +98,9 @@
         {
           existing_account=false;
           $("#dwolla_id_form").slideUp();
-          $("#other_provider_form").slideUp();
           $("#create_account_form").slideDown();
         });
 
-      $("#other_account").on("click",
-        function()
-        {
-          $("#dwolla_id_form").slideUp();
-          $("#create_account_form").slideUp();
-          $("#other_provider_form").slideDown();
-        });
 
       /**
        * Handle an existing Dwolla account. Just save the charity information in our database

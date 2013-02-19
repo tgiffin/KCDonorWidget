@@ -29,6 +29,7 @@ scripts = {
                                             "/script/lib/jquery.validate.js",
                                             "/script/lib/additional-methods.js", //more validations for jquery.validate
                                             "/script/lib/jquery.html5-placeholder-shim.js",
+                                            "/script/lib/jquery.maskedinput.min.js",
                                             "/script/lib/spin.js",
                                             "/script/lib/URI.js",
                                             null, //block until libs are loaded
