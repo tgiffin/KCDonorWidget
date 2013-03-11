@@ -33,7 +33,7 @@ exports.donor_widget = function(request, response, next)
 
         if(!row)
         {
-          response.redirect(conf.hostname + "/html/invalid_configuration.html");
+          response.redirect(conf.hostname + "/html/donor_widget_invalid_configuration.html");
           return;
         }
 
@@ -416,7 +416,7 @@ exports.register_charity = function(request, response)
           board_type: charity_info.board_type,
           email: charity_info.email,
           phone: charity_info.phone,
-          domain: charity_info.domain,
+          domain: URI.parse(charity_info.domain).hostname,
           dob: charity_info.dob,
           ein: '' //not storing ein, for legal purposes 
         },
@@ -477,7 +477,7 @@ exports.save_charity = function(request, response)
       board_type: charity_info.board_type,
       email: charity_info.email,
       phone: charity_info.phone,
-      domain: charity_info.domain,
+      domain: URI.parse(charity_info.domain).hostname,
       dob: charity_info.dob,
       ein: '' //not storing ein, for legal purposes 
     },
