@@ -32,6 +32,7 @@ function authenticate(request, response, next)
   var exceptions = [ 
                       '/favicon.ico',
                       '/donor_widget.html',
+                      '/html/donor_widget_invalid_configuration.html',
                       '/donor_widget_amount.html',
                       '/register.html',
                       '/register_charity',

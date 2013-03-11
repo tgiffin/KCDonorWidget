@@ -72,7 +72,15 @@ module.exports = {
         {
           log.error("Error retrieving charity information from database. Domain: " + domain + ". Err: " + err);
         }
-        callback(err,rows[0]);
+        if(!rows || (rows.length < 1))
+        {
+          callback(null,null); //there wasn't an error, but the charity wasn't found. The action will redirect to an error page
+        }
+        else
+        {
+          callback(err,rows[0]);
+        }
+
       });
   },
 
