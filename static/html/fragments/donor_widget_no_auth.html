@@ -1,0 +1,38 @@
+<div id="no_auth" class="widget_screen center">
+  <div id="login">
+    <input type="text" id="login_email" name="email" placeholder="E-mail"/>
+    <input type="password" id="password" name="password" placeholder="Password"/>
+    <button type="button" class="orange" id="login_button">Login</button>
+    <!--<span id="login_label">My Online Giving Login</span>-->
+    <span id="login_error"></span>
+  </div>
+  <div id="header">
+    <h1>
+      Welcome to {{charity_name}} On-Line Giving
+    </h1>
+    <h2>100% given = 100% received</h2>
+    <p>
+      Please provide the following secured information to make your church donation. <br/>
+      You can make a one time donation as a Guest, or <br/>
+      become a Member and get started with KlearChoice On-Line Giving
+    </p>
+  </div>
+
+  <div id="donor_fields">
+    <input type="text" id="amount" name="amount" placeholder="$Giving Amount " /><br/>
+    <input type="text" id="first_name" placeholder="First name"/>
+    <input type="text" id="last_name" placeholder="Last name"/>
+    <input type="text" id="email" placeholder="Email"/>
+    <input type="text" id="confirm_email" placeholder="Confirm email"/>
+    <input type="text" id="account_number" placeholder="Bank account number"/>
+    <select id="account_type">
+      <option value="Checking">Checking</option>
+      <option value="Savings">Savings</option>
+    </select>
+    <input type="text" id="routing_number" placeholder="Routing number"/>
+    <input type="checkbox" id="accept_guest_terms" /> I accept the <a href="#">Guest Terms of Service</a>
+  </div>
+  <p class="error">{{error}}</p>
+  <button type="button" class="orange" id="submit_amount">Submit</button>
+
+</div>
