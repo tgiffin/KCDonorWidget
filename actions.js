@@ -49,183 +49,6 @@ exports.donor_widget = function(request, response, next)
 
 
 /**
- * Gather the donation amount
- * This is a GET for donor_widget_amount.html
- */
-exports.donor_widget_amount = function(request, response,next) 
-  {
-    var err = request.session.error;
-    if(err)
-    {
-      request.session.error = null;
-    }
-
-    if(!request.session.charity)
-    {
-      next(new Error("Missing charity in session"));
-      return;
-    }
-
-    if(!request.session.donor) //this is filled in the get_donor ajax call
-    {
-      next(new Error("Missing donor in session"));
-      return;
-    }
-
-    response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
-    {
-      charity_name: request.session.charity.charity_name,
-      donor: request.session.donor
-      //user: request.session.auth.dwolla.user
-    }));
-
-  }
-
-/**
- * Validate the amount the user is requesting to donate
- * This is a POST from donor_widget_amount.html
- */
-exports.donor_widget_validate_amount = function(request, response)
-{
-    var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
-    var error = null;
-    //validate amount
-    if(amount < 10)
-    {
-      error='The minimum donation amount is $10. Please enter an amount that is at least $10.'
-    }
-
-    if(amount > 5000)
-    {
-      error='The maximum amount for a donation is $5,000. Please enter an amount below $5,000.'
-    }
-
-    if(error)
-    {
-      response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
-        {
-          charity_name: request.session.charity.charity_name,
-          donor: request.session.donor,
-          error: error
-        }));
-      return;
-    }
-
-    if(request.session.auth && request.session.auth.dwolla && request.session.auth.dwolla.user)
-      response.redirect("/donor_widget_confirm.html");
-    else
-      response.redirect(conf.hostname + "/auth/dwolla");
-}
-
-/**
- * Confirmation page, gather PIN (for dwolla)
- */
-exports.confirm_amount =  function(request, response)
-  {
-    var fee = payment.klearchoice_fee + payment.processor_fee;
-    var total = request.session.total = request.session.amount + fee;
-    var donor = request.session.donor;
-
-    //save the dwolla user info in our database
-    donor.name = request.session.auth.dwolla.user.Name;
-    donor.processor_id = request.session.auth.dwolla.user.Id;
-    donor.city = request.session.auth.dwolla.user.City;
-    donor.state = request.session.auth.dwolla.user.State;
-    delete donor.create_date; //don't update the create date
-    dal.open();
-    dal.update_donor(donor,
-      function(err)
-      {
-        dal.close();
-        if(err)
-        {
-          request.next(err);
-          return;
-        }
-
-        //get the user's balance
-        payment.check_balance(
-          {
-            user_token: request.session.auth.dwolla.accessToken
-          },
-          function(err, result)
-          {
-
-            if(err)
-            {
-              request.next(err);
-              return;
-            }
-
-            var balance = result.Response;
-
-            if(balance < request.session.amount)
-            {
-              //there's not enough money in the Dwolla account, we need to enumerate funding sources
-              payment.get_funding_sources(
-              {
-                user_token: request.session.auth.dwolla.accessToken,
-              },
-              function(err, result)
-              {
-                if(err)
-                {
-                  request.next(err);
-                  return;
-                }
-                var sources = result.Response;
-                /* sources look like an array of:
-                  {
-                      "Id": "c58bb9f7f1d51d5547e1987a2833f4fa",
-                      "Name": "Donations Collection Fund - Savings",
-                      "Type": "Savings",
-                      "Verified": "true",
-                      "ProcessingType": "ACH"
-                  },
-                 */ 
-                //if there are no alternate funding sources, and the balance is less than $10, redirect to the insufficient funds dialog
-                if((balance < 10) && sources.length == 0)
-                {
-                  response.send(mustache.to_html(loadTemplate('donor_widget_insufficient_funds'),{}));
-                  return;
-                }
-
-                var show_sources = true;
-                if(sources.length == 0) show_sources = false;
-
-                //load the template, send in funding sources
-                response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
-                {
-                  amount: accounting.formatMoney(request.session.amount),
-                  charity_name: request.session.charity.charity_name,
-                  user: request.session.auth.dwolla.user,
-                  fee: accounting.formatMoney(fee),
-                  total: accounting.formatMoney(total),
-                  show_sources: show_sources, 
-                  sources: sources
-                })); //end send template html
-              });
-
-            }
-            else
-            {
-              //load the template, don't list funding sources
-              response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
-              {
-                amount: accounting.formatMoney(request.session.amount),
-                charity_name: request.session.charity.charity_name,
-                user: request.session.auth.dwolla.user,
-                fee: accounting.formatMoney(fee),
-                total: accounting.formatMoney(total)
-              })); //end send template html
-            }
-
-          }); //end check balance
-
-      }); //end update_donor
-  }
-
-/**
  * This is the main payment API, this is called via ajax request to send money
  */
 exports.send_payment = function(request, response, next)
@@ -286,16 +109,6 @@ exports.send_payment = function(request, response, next)
       }); //end call payment.send
   };
 
-/**
- * Thank You page is shown on successful transaction
- */
-exports.thank_you = function(request, response)
-{
-    response.send(mustache.to_html(loadTemplate('thank_you'),
-      {
-      }));
-}
-
 exports.register = function(request, response)
 {
     response.send(mustache.to_html(loadTemplate('register'),
@@ -304,8 +117,71 @@ exports.register = function(request, response)
 }
 
 /**
- * Service calls
+ * API Service calls
  */
+
+
+/**
+ * Return JSON packets that indicated whether the user is currently logged in
+ */
+exports.is_auth = function(request, response)
+{
+  if(request.session.auth)
+  {
+    response.json(
+      {
+        auth: true
+      }
+    );
+  }
+  else
+  {
+    response.json(
+      {
+        auth: false
+      }
+    );
+  }
+}
+
+/**
+ * Authenticate user and store info in auth session variable
+ */
+exports.auth = function(request, response, next)
+{
+  var credentials = escapeHtml(request.body);
+  credentials = JSON.parse(credentials);
+
+  dal.open();
+  dal.get_donor_auth({email: credentials.email, password: credentials.password},
+    function(err, donor)
+    {
+      dal.close();
+      if(err)
+      {
+        next(err);
+        return;
+      }
+
+      if(donor)
+      {
+        request.session.auth = donor;
+        response.json(
+          {
+            auth: true
+          });
+      }
+      else
+      {
+        request.session.auth = null;
+        response.json(
+          {
+            auth: false
+          });
+      }
+
+    });
+}
 
 /**
  * Lookup donor information based on email address, return JSON formated donor
@@ -339,6 +215,26 @@ exports.get_donor = function(request, response)
           new_donor: donor.processor_id ? false : true 
         });
     });
+}
+
+/**
+ * Retrieve charity information. For now, the only information that is sent is the charity name
+ */
+exports.get_charity = function(request, response)
+{
+  
+  if(request.session.charity)
+    response.json(
+      {
+        status: "ok",
+        name: request.session.charity.charity_name
+      });
+  else
+    response.json(
+      {
+        status: "error",
+        message: "no charity in session"
+      });
 }
 
 /**

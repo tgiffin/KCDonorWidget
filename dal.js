@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+var crypto = require("crypto");
 var util = require("util");
 var conf = new (require("./config"))();
 var log = conf.logger;
@@ -164,6 +165,42 @@ module.exports = {
               donor.id = result.insertId;
               return callback(err, donor);
             });
+          return;
+        }
+
+        return callback(null, result[0]);
+
+      });
+  },
+
+  /**
+   * Retrieve the donor based on the specified email address and password.
+   * This is used for authentication of the user
+   */
+  get_donor_auth: function(donor,callback)
+  {
+    var email = donor.email;
+    if(!email) { callback(new Error("Missing email")); return; }
+
+    connection.query("select * from donor where email=?",[email],
+      function(err,result)
+      {
+        if(err) { callback(err); return; }
+
+        if(result.length < 1)  
+        {
+          //we don't have a record, authentication failed
+          callback(null,null);
+          return;
+        }
+
+        var sha = crypto.createHash("sha256");
+        sha.update(donor.password);
+        var b64 = sha.digest("base64");
+
+        if(b64!=result.password)
+        {
+          callback(null,null);
           return;
         }
 

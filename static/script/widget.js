@@ -182,8 +182,9 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         }
         
         //pull the dialog out of the DOM and add it back in at the document root level so absolute positioning is /actually/ absolute.
-        $self.detach();
-        $("body").append($self);
+        //this isn't needed for the widget popup
+        //$self.detach();
+        //$("body").append($self);
         
         $self.css("position","absolute");
         $self.css("top", dialogTop);
@@ -362,7 +363,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       if(options.env == 'development')
       {
-        options.url = 'https://localhost:3000/';
+        options.url = 'https://dev.klearchoice.com:3000/';
       }
       if(options.env == 'qa')
       {

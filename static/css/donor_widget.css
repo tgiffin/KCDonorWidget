@@ -10,10 +10,16 @@ body
   padding-right: 15px;
 }
 
+a
+{
+  text-decoration: underline;
+}
+
 h1
 {
-  font-size: 2em;
+  font-size: 1.7em;
   color: #cd7249;
+  margin-bottom: 0px;
 }
 
 
@@ -21,7 +27,7 @@ h2
 {
   font-size: 1.7em;
   color: black;
-  margin-top: 10px;
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 
@@ -48,25 +54,18 @@ h5
   margin-bottom: 5px;
 }
 
-.center {
-  text-align: center;
-}
-
-.error {
-  color: red;
-}
-
-.input_label {
-  color: #C0C0C0;
+#content
+{
+  margin-top: 85px;
 }
 
 #header_logo
 {
-  background-image: url('/images/empowered_by_logo.jpg');
-  background-position: right;
-  background-repeat: no-repeat;
-  width: 100%;
-  height: 80px;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  width: 160px;
+  height: 60px;
 }
 
 #giving_logo
@@ -80,12 +79,46 @@ h5
   left: 55%;
 }
 
-#charity_name {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  font-size: 1.1em;
+
+#header {
+  margin-top:-30px;
 }
+
+
+#error_popup
+{
+  display: none;
+  width: 300px;
+  /*height: 130px;*/
+  position: absolute;
+  background-color: white;
+  border: solid 1px black;
+  text-align: center;
+  padding:15px;
+}
+
+#error_message
+{
+  color: #883444;
+}
+
+#close_popup
+{
+  float: right;
+}
+
+.center {
+  text-align: center;
+}
+
+.error {
+  color: red;
+}
+
+.input_label {
+  color: #C0C0C0;
+}
+
 .orange:hover {
   background: #A94310;
   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from( #b05819), to( #A94310));
@@ -163,130 +196,89 @@ h5
 }
 
 /**
- * donor_widget.html
+ * no_auth
  */
-#header {
-  margin-top:-30px;
-}
-#new_donor {
-  display: none;
-}
-
-#submit_email {
-  margin-left: 80px;
-  margin-top: 10px;
-}
-#dwolla_buttons {
-  position:relative;
-  width: 80%;
-  left: 80px;
-}
-#new_dwolla_button {
+#login
+{
+  width: 310px;
+  height: 40px;
   position: absolute;
-  top:0px;
-  left:0px;
-  width: 200px;
-  height: 60px;
-}
-#existing_dwolla_button {
-  position: absolute;
-  top:0px;
-  left: 50%;
-  width: 200px;
-  height: 60px;
-}
-
-/**
- * donor_widget_amount.html
- */
-#amount_wrapper {
+  top: 10px;
+  left: 15px;
   text-align: left;
-  width: 75%;
-  margin-left: 12%;
+}
+#login > input
+{
+  height: 16px;
 }
 
-/**
- * donor_widget_confirm.html
- */
-#content
+#login_label
 {
-  width: 450px;
-  margin: 0px auto;
+  font-size: 12px;
 }
 
-#info_wrapper
+#login_email
 {
-  width: 300px;
-  margin: 0px auto;
+  width: 130px;
 }
 
-.label
+#password
 {
-  font-weight: bold;
-  text-align: right;
-}
-
-.value
-{
-  padding-left: 5px;
-}
-
-#pin_wrapper
-{
-  width: 200px;
-  margin: 0px auto;
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-#pin_label
-{
-  font-size: 24px;
-  font-weight: bold;
-}
-
-#pin
-{
-  font-size: 24px;
-  font-weight: bold;
-  margin-left: 15px;
   width: 60px;
 }
 
-#whats_this_link
+#login_button
 {
-  font-size: 10px;
-  margin-left: 10px;
+  height: 26px;
+  width: 70px;
 }
 
-#whats_this_popup
+
+
+#donor_fields
 {
-  display: none;
-  width: 300px;
+  width: 360px;
+  margin: 0 auto;
+  line-height: 33px;
+}
+
+#amount
+{
+  width: 160px;
+  height: 2.1em;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+  text-align: right;
+}
+#first_name, #last_name, #email, #confirm_email
+{
+  width: 160px;
+}
+
+#account_number
+{
+  width: 220px;
+}
+
+#account_type
+{
+  width: 115px;
+  height: 24px;
+}
+
+#routing_number
+{
+  width: 340px;
+}
+
+
+/**
+ * auth
+ */
+
+#charity_name {
   position: absolute;
-  border: 1px solid black;
-  background-color: white;
-  padding: 10px;
+  top: 15px;
+  left: 15px;
+  font-size: 1.1em;
 }
-
-#error_popup
-{
-  display: none;
-  width: 300px;
-  /*height: 130px;*/
-  position: absolute;
-  background-color: white;
-  border: solid 1px black;
-  text-align: center;
-  padding:15px;
-}
-
-#error_message
-{
-  color: #883444;
-}
-
-#close_popup
-{
-  float: right;
-}
-

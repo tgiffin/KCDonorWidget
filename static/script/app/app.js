@@ -6,20 +6,10 @@ scripts = {
                                             null //all scripts block until jquery is loaded
                                           ],
   "/donor_widget.html"                  : [
-                                            "/script/app/donor_widget.js"
-                                          ],
-  "/donor_widget_amount.html"           : [
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",
+                                            "/script/lib/mustache.js",
                                             null,
-                                            "/script/app/donor_widget_amount.js"
-                                          ],
-  "/donor_widget_confirm_amount.html"   : [
-                                            "/script/lib/jquery.popup.js",
-                                            "/script/app/donor_widget_confirm_amount.js"
-                                          ],
-
-  "/donor_widget_thank_you.html"        : [
-                                            "/script/app/donor_widget_thank_you.js"
+                                            "/script/app/donor_widget.js"
                                           ],
 
   "/register.html"                      : [
