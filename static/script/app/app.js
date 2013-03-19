@@ -2,13 +2,16 @@
 //main script router. defines scripts to load for each page
 scripts = {
   "global"                              : [
-                                            "/script/lib/jquery-1.7.2.min.js",
+                                            "/script/lib/jquery-1.9.1.min.js",
                                             null //all scripts block until jquery is loaded
                                           ],
   "/donor_widget.html"                  : [
+                                            "/script/lib/jquery-ui-1.10.2.custom.min.js",
                                             "/script/lib/jquery.formatCurrency-1.4.0.min.js",
                                             "/script/lib/mustache.js",
-                                            null,
+                                            "/script/lib/jquery.html5-placeholder-shim.js",
+                                            "/script/lib/spin.js",
+                                            null, //block until libs are loaded
                                             "/script/app/donor_widget.js"
                                           ],
 

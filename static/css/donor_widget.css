@@ -64,7 +64,7 @@ h5
   position: absolute;
   top: 0px;
   right: 10px;
-  width: 160px;
+  width: 145px;
   height: 60px;
 }
 
@@ -111,8 +111,10 @@ h5
   text-align: center;
 }
 
-.error {
-  color: red;
+input.error {
+  border-color: red;
+  border-style: solid;
+  border-width: 1px;
 }
 
 .input_label {
@@ -198,9 +200,14 @@ h5
 /**
  * no_auth
  */
+#instructions
+{
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
 #login
 {
-  width: 310px;
+  width: 320px;
   height: 40px;
   position: absolute;
   top: 10px;
@@ -222,22 +229,23 @@ h5
   width: 130px;
 }
 
-#password
+#login_password
 {
-  width: 60px;
+  width: 70px;
 }
 
 #login_button
 {
   height: 26px;
   width: 70px;
+  margin-left: 5px;
 }
 
 
 
 #donor_fields
 {
-  width: 360px;
+  width: 400px;
   margin: 0 auto;
   line-height: 33px;
 }
@@ -245,12 +253,12 @@ h5
 #amount
 {
   width: 160px;
-  height: 2.1em;
+  height: 28px;
   margin-bottom: 10px;
   font-size: 1.3em;
   text-align: right;
 }
-#first_name, #last_name, #email, #confirm_email
+#first_name, #last_name, #email, #confirm_email, #password, #confirm_password
 {
   width: 160px;
 }
@@ -263,13 +271,51 @@ h5
 #account_type
 {
   width: 115px;
-  height: 24px;
+  height: 30px;
 }
 
 #routing_number
 {
   width: 340px;
 }
+
+#password_wrapper
+{
+  display: none;
+}
+
+#member_terms
+{
+  display: none;
+}
+
+#check_help
+{
+  text-align: center;
+  display: none;
+}
+
+.validation
+{
+  width: 16px;
+  height: 16px;
+  background-image: url('/images/exclamation.png');
+  background-size: contain;
+  display: none;
+  /*display: inline-block;*/
+}
+
+.help_button
+{
+  width: 16px;
+  height: 16px;
+  background-image: url('/images/help.png');
+  background-size: contain;
+  display: inline-block;
+  cursor: pointer;
+}
+
+
 
 
 /**
