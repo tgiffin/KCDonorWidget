@@ -31,8 +31,101 @@
           $("#donation_form input").on("blur",
             function()
             {
-              validate();
+              if(this.validate && !this.validate()) show_error($(this).attr("id"));
+              else clear_error($(this).attr("id"));
             });
+
+          //do the password strength meter
+          $("#password").on("keyup",
+            function()
+            {
+              var strength = score_password($(this).val());
+              if(strength < 50)
+              {
+                $("#password_strength").html("Strength: <span style='color:red'>Weak</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+              }
+              else if(strength < 60)
+              {
+                $("#password_strength").html("Strength: <span style='color:orange'>Ok</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+              }
+              else if(strength < 80)
+              {
+                $("#password_strength").html("Strength: <span style='color:blue'>Good</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+              }
+              else if(strength >= 80)
+              {
+                $("#password_strength").html("Strength: <span style='color:green'>Great!</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+              }
+            });
+
+          //decorator for required values
+          function validator(fn)
+          {
+            return function()
+            {
+              if(($(this).attr("required") == "required"))
+              {
+                if(!($(this).val())) return false;
+              }
+
+              if(fn)
+                return fn.apply(this);
+
+              return true
+            }
+          }
+
+          //set up validations
+          $("#amount")[0].validate = validator(
+            function()
+            {
+              if(isNaN(parseFloat($(this).val().replace("$","")))) return false;
+              return true;
+            });
+          //just basic validator functions for these. Required validation
+          $("#first_name, #last_name, #account_number").each(
+            function(){
+              this.validate = validator();
+            });
+          $("#email")[0].validate = validator(
+            function()
+            {
+              //very basic email format validation
+              return /\S+@\S+\.\S+/.test($("#email").val());
+            }
+          );
+          $("#confirm_email")[0].validate = validator(
+            function()
+            {
+              //validate that the confirmation email matches
+              return ($("#email").val() == $("#confirm_email").val());
+            }
+          );
+          $("#routing_number")[0].validate = validator(
+            function()
+            {
+              //validate the routing number
+              return check_aba($("#routing_number").val());
+            }
+          );
+          $("#password")[0].validate = validator(
+            function()
+            {
+              if($("#create_account").is(":checked"))
+                if(score_password($("#password").val()) < 50) return false;
+              return true;
+            }
+          );
+
+          $("#confirm_password")[0].validate = validator(
+            function()
+            {
+              if($("#create_account").is(":checked"))
+                if(!($("#password").val() == $("#confirm_password").val())) return false;
+              return true;
+            }
+
+          );
 
           //validate the input
           function validate()
@@ -41,29 +134,47 @@
             $(".error").removeClass("error");
             $(".validation").hide();
 
-            //validate all required fields
-            $("[required='true']").each(
+            //validate all fields
+            $("input").each(
               function()
               {
-                if(!$(this).val()) valid = show_error($(this).attr("id")); //show error always returns false. Just using this as a shortcut to avoid lots of if{....} blocks
+                if(this.validate && !this.validate())
+                  valid = show_error($(this).attr("id"));
               });
-
-            //very basic email format validation
-            var re = /\S+@\S+\.\S+/;
-            if(!re.test($("#email").val())) valid = show_error("email");
-
-            //validate that the confirmation email matches
-            if(!($("#email").val() == $("#confirm_email").val())) valid = show_error("confirm_email");
-
-            //validate the routing number
-            if(!check_aba($("#routing_number").val())) valid = show_error("routing_number");
 
             if(!valid) return;
 
-            
-
           }
 
+          //calculate the password strength
+          function score_password(pass) {
+            var score = 0;
+            if (!pass)
+              return score;
+
+            // award every unique letter until 5 repetitions
+            var letters = new Object();
+            for (var i=0; i<pass.length; i++) {
+              letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+              score += 5.0 / letters[pass[i]];
+            }
+
+            // bonus points for mixing it up
+            var variations = {
+              digits: /\d/.test(pass),
+              lower: /[a-z]/.test(pass),
+              upper: /[A-Z]/.test(pass),
+              nonWords: /\W/.test(pass),
+            }
+
+            variationCount = 0;
+            for (var check in variations) {
+              variationCount += (variations[check] == true) ? 1 : 0;
+            }
+            score += (variationCount - 1) * 10;
+
+            return parseInt(score);
+          }
           //validate the routing number according to ABA standard
           function check_aba(s) {
 
@@ -107,6 +218,13 @@
             $("#" + id).addClass("error");
             $("[for='" + id + "']").css("display","inline-block");
             return false; //this is just to save curly brackets typing
+          }
+
+          //clear the error display
+          function clear_error(id)
+          {
+            $("#" + id).removeClass("error");
+            $("[for='" + id + "']").fadeOut();
           }
 
           //show check help dialog when help button is clicked
@@ -209,6 +327,14 @@
               {
                 if(!validate())
                   return;
+                get_values();
+                show_screen("donor_widget_confirm");
+              });
+
+            //handle login click
+            $("#login_button").on("click",
+              function()
+              {
               });
 
           

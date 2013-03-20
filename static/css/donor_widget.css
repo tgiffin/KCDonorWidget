@@ -284,6 +284,11 @@ input.error {
   display: none;
 }
 
+#password_strength
+{
+  font-size: 12px;
+}
+
 #member_terms
 {
   display: none;
