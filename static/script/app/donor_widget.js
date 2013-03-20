@@ -6,12 +6,41 @@
   {
     var locals = {};
     var screen_logic;
+    
+    //for debugging
+    locals = {
+      amount: 10,
+      first_name: "Clayton",
+      last_name: "Gulick",
+      email: "claytongulick@gmail.com",
+      confirm_email: "claytongulick@gmail.com",
+      account_number: "12345",
+      account_type: "Checking",
+      routing_number: "121042882",
+      create_account: true,
+      password: "correcthorsebatterystaple",
+      confirm_password: "correcthorsebatterystaple",
+      accept_member_terms: true
+    };
 
     //initialize logic for each screen
     screen_logic = {
       donor_widget_no_auth: 
         function()
         {
+          //a little initialization, in case this is a edit/back. The other values are loaded from the template
+          if(locals.create_account)
+          {
+            $("#create_account").attr("checked","checked");
+            $("#password_wrapper").fadeIn();
+            $("#guest_terms").hide();
+            $("#member_terms").show();
+          }
+          if(locals.accept_member_terms)
+            $("#accept_member_terms").attr("checked","checked");
+          if(locals.accept_guest_terms)
+            $("#accept_guest_terms").attr("checked","checked");
+
           //gather all the input values
           function get_values()
           {
@@ -142,8 +171,7 @@
                   valid = show_error($(this).attr("id"));
               });
 
-            if(!valid) return;
-
+            return valid;
           }
 
           //calculate the password strength
@@ -335,6 +363,18 @@
             $("#login_button").on("click",
               function()
               {
+                $.post("auth",
+                      {
+                        email: $("#login_email").val(),
+                        password: $("#login_password").val()
+                      },
+                      function(data,textStatus,jqXHR)
+                      {
+                        if(data.auth)
+                          return show_screen("donor_widget_auth");
+                        $("#login_error").html("Invalid login");
+                      }
+                  );
               });
 
           

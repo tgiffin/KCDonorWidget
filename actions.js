@@ -149,8 +149,8 @@ exports.is_auth = function(request, response)
  */
 exports.auth = function(request, response, next)
 {
-  var credentials = escapeHtml(request.body);
-  credentials = JSON.parse(credentials);
+  var credentials={};
+  for(var key in request.body) { credentials[key] = escapeHtml(request.body[key]); }
 
   dal.open();
   dal.get_donor_auth({email: credentials.email, password: credentials.password},
