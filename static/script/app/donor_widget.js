@@ -9,15 +9,15 @@
     
     //for debugging
     locals = {
-      amount: 10,
+      amount: 1,
       fee: .5,
       first_name: "Clayton",
       last_name: "Gulick",
       email: "claytongulick@gmail.com",
       confirm_email: "claytongulick@gmail.com",
-      account_number: "12345",
+      account_number: 192028539,
       account_type: "Checking",
-      routing_number: "121042882",
+      routing_number: 325070760,
       create_account: true,
       password: "correcthorsebatterystaple",
       confirm_password: "correcthorsebatterystaple",
@@ -51,6 +51,7 @@
                 var $ele = $(this);
                 locals[$ele.attr("id")]=$ele.val();
               });
+              locals.amount = parseFloat($("#amount").val().replace("$",""));
               locals.create_account = $("#create_account").is(":checked");
               locals.accept_guest_terms = $("#accept_guest_terms").is(":checked");
               locals.accept_member_terms = $("#accept_member_terms").is(":checked");

@@ -26,6 +26,11 @@ module.exports = [
     action: actions.auth
   },
   {
+    verb: 'post',
+    path: '/donate',
+    action: actions.donate
+  },
+  {
     verb: 'get',
     path: '/charity',
     action: actions.get_charity

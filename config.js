@@ -20,8 +20,10 @@ module.exports = function()
         db_username: 'klearchoice',
         db_password: 'KC02242012',
         hostname: "https://dev.klearchoice.com:3000",
+        dwolla_id: "812-708-2911", //this is the klearchoice account id
         //dwolla_path: "/oauth/rest/testapi/send",
         dwolla_path: "/oauth/rest/transactions/send",
+        dwolla_guest_send_path: "/oauth/rest/transactions/guestsend",
         dwolla_balance_path: "/oauth/rest/balance/",
         dwolla_funding_source_path: "/oauth/rest/fundingsources/",
         dwolla_register_path: "/oauth/rest/testapi/register/",

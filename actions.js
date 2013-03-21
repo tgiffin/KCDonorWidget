@@ -10,6 +10,7 @@ var log = conf.logger;
 var accounting = require("./lib/accounting");
 var URI = require("./lib/URI/URI");
 var crypto = require('crypto');
+var util = require("util");
 
 var app = server.app;
 
@@ -159,6 +160,7 @@ exports.donate = function(request, response)
   //payment server later
   if(request.session.auth)
   {
+    dal.open();
     log_transaction(
       {
         donor_id: request.session.auth.id,
@@ -171,6 +173,7 @@ exports.donate = function(request, response)
       },
       function(err,result)
       {
+        dal.close();
         if(err)
         {
           response.json(
@@ -213,23 +216,133 @@ exports.donate = function(request, response)
   //with this email. This is to prevent a possible security exploit where
   //a malicious user could change data in the database by doing unauthenticated
   //service calls with email addresses.
-
-  //before we can create the record, we need to create the salt and encrypt the password
-  var salt = crypto.randomBytes(128).toString('base64');
-  var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,512);
-  
-  dal.add_donor(
+  var donor = 
     {
       first_name: data.first_name,
       last_name: data.last_name,
-      email: data.email,
-
-    },
+      email: data.email
+    };
+  if(data.create_account)
+  {
+    //before we can create the record, we need to create the salt and encrypt the password
+    var salt = crypto.randomBytes(128).toString('base64');
+    var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,512);
+    donor.password = encrypted_password;
+    donor.salt = salt;
+    donor.member = 1;
+  }
+  dal.open(); 
+  dal.add_donor(donor,
     function(err,result)
     {
-    });
+      if(err)
+      {
+        dal.close();
+        console.log(err);
+        response.json(
+          {
+            success: false,
+            message: "Unable to add donor"
+          });
+          return;
+      }
+
+      //the newly inserted donor id
+      var donor_id = result.insertId;
   
-}
+      //send out the payment request
+      payment.guest_send(
+        {
+          destination_id: request.session.charity.dwolla_id,
+          amount: data.amount,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          routing_number: data.routing_number,
+          account_number: data.account_number,
+          account_type: data.account_type,
+          charity_name: request.session.charity.charity_name,
+          charity_id: request.session.charity.id
+        },
+        function(err,results)
+        {
+          if(err)
+          {
+            console.log(err);
+            dal.log_transaction(
+              {
+                donor_id: donor_id,
+                charity_id: request.session.charity.id,
+                amount: data.amount,
+                klearchoice_fee: payment.klearchoice_fee,
+                processor_fee: payment.processor_fee,
+                status: "error",
+                message: err,
+                log: (new Date()).toString() + "Error: " + err
+              },
+              function()
+              {
+                dal.close();
+              });
+            response.json(
+              {
+                success: false,
+                message: "Error sending transaction to payment processor"
+              });
+            return;
+          }
+          if(!results.Success)
+          {
+            console.log(util.inspect(results));
+            dal.log_transaction(
+              {
+                donor_id: donor_id,
+                charity_id: request.session.charity.id,
+                amount: data.amount,
+                klearchoice_fee: payment.klearchoice_fee,
+                processor_fee: payment.processor_fee,
+                status: "error",
+                message: util.inspect(results),
+                log: (new Date()).toString() + "Error: " + util.inspect(results)
+              },
+              function()
+              {
+                dal.close();
+              });
+            response.json(
+              {
+                success: false,
+                message: results.Message
+              });
+            return;
+          }
+
+          //request succeeded
+          dal.log_transaction(
+            {
+              donor_id: donor_id,
+              charity_id: request.session.charity.id,
+              amount: data.amount,
+              klearchoice_fee: payment.klearchoice_fee,
+              processor_fee: payment.processor_fee,
+              status: "processed",
+              message: "Successfully posted transaction",
+              log: (new Date()).toString() + "Successfully posted transaction",
+              processor_transaction_id: results.Response
+            },
+            function()
+            {
+              dal.close();
+            });
+
+          response.json(
+            {
+              success: true
+            });
+        } //end http request callback
+      );//end request call to dwolla
+    });//end add donor
+}//end guest_send
 
 
 /**

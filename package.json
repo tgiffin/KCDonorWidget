@@ -16,7 +16,8 @@
     "express": "~2.5.0",
     "mustache": "~0.4.0",
     "connect-redis": "~1.4.0",
-    "mysql": "~2.0.0-alpha3"
+    "mysql": "~2.0.0-alpha3",
+    "request": "~2.16.6"
   },
   "devDependencies": {},
   "optionalDependencies": {}

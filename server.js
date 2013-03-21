@@ -37,6 +37,7 @@ function authenticate(request, response, next)
 
                       //unsecured API routes
                       '/auth',
+                      '/donate', //this may be called either authenticated or not
                       '/charity',
                       '/register_charity',
                       '/save_charity',
