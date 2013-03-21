@@ -8,7 +8,7 @@
     var screen_logic;
     
     //for debugging
-    locals = {
+    /*locals = {
       amount: 1,
       fee: .5,
       first_name: "Travis",
@@ -22,7 +22,7 @@
       password: "correcthorsebatterystaple",
       confirm_password: "correcthorsebatterystaple",
       accept_member_terms: true
-    };
+    };*/
 
     //initialize logic for each screen
     screen_logic = {
