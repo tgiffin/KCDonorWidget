@@ -9,14 +9,16 @@
     </p>
     <h3>Thank you, {{first_name}}. Please verify the information below.</h3>
     <p>Your account will be debited the amount listed below.</p>
-    <h1>Amount: {{amount}}</h1>
+    <h1>Amount: <span id="donation_total_display">{{amount}}</span></h1>
     <div id="confirmation_fields">
       <span>Donor:</span><span>{{first_name}} {{last_name}}</span>
       <span>Church:</span><span>{{charity_name}}</span>
-      <span>Fee:</span><span>$0.50</span><div id="help_fee" class="help"></div>
+      <span>Donation:</span><span id="donation_amount_display">{{amount}}</span>
+      <span>Fee:</span><span>$0.50 <div id="help_fee" class="help_button"></div></span>
     </div>
   </div>
 
+  <button type="button" class="grey" id="submit_confirm_back">Back</button>
   <button type="button" class="orange" id="submit_no_auth">Submit</button>
 
 </div>

@@ -333,3 +333,30 @@ input.error {
   left: 15px;
   font-size: 1.1em;
 }
+
+
+/**
+ * confirm
+ */
+#subheader
+{
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+#confirmation_fields
+{
+  width: 250px;
+  color: #cd7249;
+  margin: 0 auto;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+#confirmation_fields > span
+{
+  text-align: left;
+  width: 120px;
+  font-size: 1.1em;
+  display: inline-block;
+}

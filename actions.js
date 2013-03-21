@@ -9,6 +9,7 @@ var conf = new Config();
 var log = conf.logger;
 var accounting = require("./lib/accounting");
 var URI = require("./lib/URI/URI");
+var crypto = require('crypto');
 
 var app = server.app;
 
@@ -119,6 +120,116 @@ exports.register = function(request, response)
 /**
  * API Service calls
  */
+
+/**
+ * This is the main donation function called from the donor widget
+ *
+ * This can be called in a couple of different ways, and will do different things depending
+ * how it is called.
+ *
+ * If it is called with an authenticated user in session (request.session.auth) 
+ * then a payment is created with the existing donor account information. The payment record
+ * will be picked up later by the payment server's batch job process and sent for processing. In this case,
+ * it is also possible that a recurring donation was selected. If so, a recurring transaction
+ * record for the donor will also be created.
+ *
+ * If it is called without an authenticated user, then all donor informaion is gathered from the post
+ * body and validated. A payment record will be created in the database, but the transaction will be sent
+ * to the processor immediately so that we don't store any of the user's sensitive information.
+ * In this case, it is also possible that the user is requesting that we create an 
+ * account (body.create_account == true). If so, we validate that the terms were accepted and 
+ * save the account information. Even if a membership was created, for this initial donation the
+ * payment is processed immediately and sent to dwolla. This is so that there aren't conflicts
+ * between the time the payment record is inserted into the database, picked up by the payment job
+ * and sent for process and when the new account file is picked up by the incoming accounts job.
+ * 
+ * Subsequent donations made for the stored account will follow the flow for authenticated users above.
+ *
+ * When creating an account, only non-sesitive information is stored in the database. For the secure
+ * bank account information, we create and encrypted file and sftp it over to the payment server. The
+ * payment server will pick up the new file and keep it in the proper secure storage location.
+ */
+exports.donate = function(request, response)
+{
+  var data = {};
+  //cleanse input for xss. sqli is dealt with via parameterized commands in the dal
+  for(var key in request.body) { data[key] = escapeHtml(request.body[key]); }
+
+  //if this is an authenticated user, just create the transaction, it will be picked up by the 
+  //payment server later
+  if(request.session.auth)
+  {
+    log_transaction(
+      {
+        donor_id: request.session.auth.id,
+        charity_id: request.session.charity.id,
+        amount: data.amount,
+        klearchoice_fee: payment.klearchoice_fee,
+        processor_fee: payment.processor_fee,
+        status: "new",
+        log: (new Date()).toString() + "Transaction created \n"
+      },
+      function(err,result)
+      {
+        if(err)
+        {
+          response.json(
+            {
+              success: false,
+              message: "Unable to add payment transaction"
+            });
+          return;
+        }
+
+        response.json(
+          {
+            success:true
+          });
+      });
+    return;
+  }//end if auth user
+
+  //let's validate the information that was sent to us
+  //sqli is dealt with by the dal, and this has already been cleansed for xss
+  var valid = true;
+  if(!data.first_name) valid=false;
+  if(!data.last_name) valid=false;
+  if(!data.email) valid = false;
+  if(!data.confirm_email || (data.email != data.confirm_email)) valid=false;
+  if(!data.amount) valid=false;
+  if(isNaN(parseFloat(data.amount))) valid=false;
+  if(valid==false)
+  {
+    response.json(
+      {
+        success: false,
+        message: "Invalid data"
+      });
+    return;
+  }
+
+  //this is an unauthenticated user. First, let's create the donor record.
+  //we always add a new donor record, even if there is an existing donor
+  //with this email. This is to prevent a possible security exploit where
+  //a malicious user could change data in the database by doing unauthenticated
+  //service calls with email addresses.
+
+  //before we can create the record, we need to create the salt and encrypt the password
+  var salt = crypto.randomBytes(128).toString('base64');
+  var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,512);
+  
+  dal.add_donor(
+    {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+
+    },
+    function(err,result)
+    {
+    });
+  
+}
 
 
 /**

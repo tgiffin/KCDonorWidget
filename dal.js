@@ -86,7 +86,7 @@ module.exports = {
   },
 
   /**
-   * Insert a row into the transaction log. This happend any time a donation is made
+   * Insert a row into the transaction log. This happens any time a donation is made
    */
   log_transaction: function(transaction, callback)
   {
@@ -138,6 +138,25 @@ module.exports = {
             
         });
     }
+  },
+
+  /**
+   * This inserts a donor record. It doesn not check if the donor already exists.
+   * With the guest send, non-member donation flow, there can (and will) be multiple
+   * donor records with the same email etc...
+   *
+   * This is because a donor can come back multiple times to make donations. For security
+   * reasons, we don't try to match and update the existing donor record in this scenario,
+   * we create a new donor record. This is to prevent an exploit whereby a person could
+   * update or change information in the database by just having an email address
+   */
+  add_donor: function(donor, callback)
+  {
+    connection.query("insert into donor set ?", donor,
+      function(err, result)
+      {
+        callback(err,result);
+      });
   },
 
   /**

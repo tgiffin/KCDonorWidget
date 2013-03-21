@@ -4,12 +4,13 @@
 (
   function()
   {
-    var locals = {};
+    var locals = {fee:.5};
     var screen_logic;
     
     //for debugging
     locals = {
       amount: 10,
+      fee: .5,
       first_name: "Clayton",
       last_name: "Gulick",
       email: "claytongulick@gmail.com",
@@ -386,6 +387,42 @@
       donor_widget_confirm:
         function()
         {
+          //set the correct amount in the UI and format it
+          $("#donation_total_display").html(parseFloat(locals.amount) + locals.fee);
+          $("#donation_total_display").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2, eventOnDecimalsEntered: true });
+          $("#donation_amount_display").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2, eventOnDecimalsEntered: true });
+
+          //handle back click
+          $("#submit_confirm_back").on("click",
+            function()
+            {
+              if(locals.auth)
+                show_screen("donor_widget_auth");
+              else
+                show_screen("donor_widget_no_auth");
+            });
+
+          //handle submit click.
+          $("#submit_no_auth").on("click",
+            function()
+            {
+              $.post("donate",locals)
+                .done(
+                  function(data,status,xhr)
+                  {
+                    if(data.success)
+                      return show_screen("donor_widget_thank_you");
+
+                    alert("There was a problem processing your payment: " + data.message);
+                  }
+                )
+                .fail(
+                  function(xhr,status,err)
+                  {
+                    alert("error processing donation, please try again later. Status:" + status + " Error: " + err);
+                  });
+            });
+
         },
       donor_widget_thank_you:
         function()
@@ -407,17 +444,26 @@
             $("#content")
               .hide()
               .html(content)
-              .fadeIn();
+              .fadeIn(
+                function()
+                {
+                  if(screen_logic[screen]) screen_logic[screen]();
+                }
+              );
           else
             $("#content").fadeOut(
               function()
               {
                 $(this)
                   .html(content)
-                  .fadeIn();
+                  .fadeIn(
+                    function()
+                    {
+                      if(screen_logic[screen]) screen_logic[screen]();
+                    }
+                  );
               });
 
-          if(screen_logic[screen]) screen_logic[screen]();
           
         });
     }
@@ -441,10 +487,12 @@
                 {
                   if(data.auth)
                   {
+                    locals.auth=true;
                     show_screen("donor_widget_auth");
                   }
                   else
                   {
+                    locals.auth = null;
                     show_screen("donor_widget_no_auth");
                   }
                 });
