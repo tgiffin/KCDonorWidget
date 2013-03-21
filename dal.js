@@ -173,19 +173,8 @@ module.exports = {
       function(err,result)
       {
         if(err) { callback(err); return; }
-
-        if(result.length < 1)  
-        {
-          //we don't have a record, need to insert
-          connection.query("insert into donor set ?",
-            donor,
-            function(err,result)
-            {
-              donor.id = result.insertId;
-              return callback(err, donor);
-            });
-          return;
-        }
+        if(result.length < 1)
+          return callback(null,null);
 
         return callback(null, result[0]);
 
@@ -201,7 +190,7 @@ module.exports = {
     var email = donor.email;
     if(!email) { callback(new Error("Missing email")); return; }
 
-    connection.query("select * from donor where email=?",[email],
+    connection.query("select * from donor where email=? and member=1",[email],
       function(err,result)
       {
         if(err) { callback(err); return; }
@@ -213,11 +202,10 @@ module.exports = {
           return;
         }
 
-        var sha = crypto.createHash("sha256");
-        sha.update(donor.password);
-        var b64 = sha.digest("base64");
+        var salt = result[0].salt;
+        var encrypted_password = crypto.pbkdf2Sync(donor.password,salt,5000,256).toString('base64');
 
-        if(b64!=result.password)
+        if(encrypted_password != result[0].password)
         {
           callback(null,null);
           return;

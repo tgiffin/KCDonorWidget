@@ -226,7 +226,7 @@ exports.donate = function(request, response)
   {
     //before we can create the record, we need to create the salt and encrypt the password
     var salt = crypto.randomBytes(128).toString('base64');
-    var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,512);
+    var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,256).toString('base64');
     donor.password = encrypted_password;
     donor.salt = salt;
     donor.member = 1;

@@ -11,8 +11,8 @@
     locals = {
       amount: 1,
       fee: .5,
-      first_name: "Clayton",
-      last_name: "Gulick",
+      first_name: "Travis",
+      last_name: "Griffin",
       email: "claytongulick@gmail.com",
       confirm_email: "claytongulick@gmail.com",
       account_number: 192028539,
@@ -26,6 +26,10 @@
 
     //initialize logic for each screen
     screen_logic = {
+      /**
+       * All of the logic for the guest donation screen
+       * This screen has no authentication, and is the most complex of the widget
+       */
       donor_widget_no_auth: 
         function()
         {
@@ -381,10 +385,84 @@
 
           
         },
+      /**
+       * Logic for the authorized member donation screen.
+       * When a member logs in, they can use this simplified screen
+       */
       donor_widget_auth:
         function()
         {
+          //listen for "show" message and hook up html5 placeholder shim
+          //I curse IE. It caused these shenanigans.
+          $(window).on("message",
+            function(evt)
+            {
+              var data = evt.originalEvent.data;
+              if(data == "show")
+              {
+                //html5 placeholder shim for IE
+                jQuery.placeholder.shim();
+              }
+            });
+
+          //allow only numbers and decimal point
+          $("#auth_amount").on("keypress",
+            function(evt)
+            {
+              var ch = String.fromCharCode(evt.charCode);
+              if(ch == ".") return;
+              if(isNaN(parseInt(ch)))
+              {
+                evt.preventDefault();
+                return false;
+              }
+            });
+
+          //format the input box for currency
+          $("#auth_amount").keyup(
+            function()
+            {
+              var e = window.event || e;
+              var keyUnicode = e.charCode || e.keyCode;
+
+              if (e !== undefined) {
+                switch (keyUnicode) {
+                  case 16: break; // Shift
+                  case 17: break; // Ctrl
+                  case 18: break; // Alt
+                  case 27: this.value = ''; break; // Esc: clear entry
+                  case 35: break; // End
+                  case 36: break; // Home
+                  case 37: break; // cursor left
+                  case 38: break; // cursor up
+                  case 39: break; // cursor right
+                  case 40: break; // cursor down
+                  case 78: break; // N (Opera 9.63+ maps the "." from the number key section to the "N" key too!) (See: http://unixpapa.com/js/key.html search for ". Del")
+                    case 110: break; // . number block (Opera 9.63+ maps the "." from the number block to the "N" key (78) !!!)
+                    case 190: break; // .
+                    default: $(this).formatCurrency({ colorize: true, negativeFormat: '-%s%n', roundToDecimalPlace: -1, eventOnDecimalsEntered: true });
+                }
+              }
+              var new_val = $(this).val();
+              var decimal_pos = new_val.indexOf(".");
+              if(decimal_pos <=0) return;
+              if((new_val.length - decimal_pos - 1) > 2)
+              {
+                //strip decimals more than 2 places
+                $(this).val(new_val.substr(0,new_val.length - 1));
+              }
+            });
+
+          $("#submit_auth").on("click",
+            function()
+            {
+              
+            });
+          
         },
+      /**
+       * Logic for the donation confirmation screen
+       */
       donor_widget_confirm:
         function()
         {
@@ -425,6 +503,9 @@
             });
 
         },
+      /**
+       * Logic for the thank you screen
+       */
       donor_widget_thank_you:
         function()
         {
