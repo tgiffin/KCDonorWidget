@@ -37,11 +37,6 @@ module.exports = [
   },
   {
     verb: 'post',
-    path: '/send_payment',
-    action: actions.send_payment
-  },
-  {
-    verb: 'post',
     path: '/register_charity',
     action: actions.register_charity
   },

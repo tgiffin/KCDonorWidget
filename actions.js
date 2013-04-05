@@ -11,6 +11,7 @@ var accounting = require("./lib/accounting");
 var URI = require("./lib/URI/URI");
 var crypto = require('crypto');
 var util = require("util");
+var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
 
 var app = server.app;
 
@@ -50,66 +51,6 @@ exports.donor_widget = function(request, response, next)
   }
 
 
-/**
- * This is the main payment API, this is called via ajax request to send money
- */
-exports.send_payment = function(request, response, next)
-  {
-    var vals = request.body;
-    var result = {};
-
-    payment.send(
-      {
-        user_token: request.session.auth.dwolla.accessToken,
-        pin: vals.pin,
-        destination_id: request.session.charity.dwolla_id,
-        amount: request.session.total
-      },
-      function(err,result)
-      {
-        var log_info = 
-            {
-              donor_id: request.session.donor_id,
-              charity_id: request.session.charity.id,
-              amount: request.session.amount,
-              klearchoice_fee: payment.klearchoice_fee, 
-              processor_fee: payment.processor_fee,
-              confirmation_number: '',
-            };
-        if(err)
-        {
-          log_info.status = "error";
-          log_info.message = err;
-        }
-        else
-        {
-          log_info.confirmation_number = result.Response;
-          log_info.status = "success";
-          log_info.message = result.Message;
-        }
-        dal.open();
-        dal.log_transaction(
-          log_info,
-          function(err,result)
-          {
-            if(err)
-              next(err);
-          });
-        dal.close();
-
-        if(err)
-          response.json(
-            {
-              status: "error",
-              message: error
-            });
-        else
-          response.json(
-            {
-              status: "success"
-            });
-      }); //end call payment.send
-  };
 
 exports.register = function(request, response)
 {
@@ -230,6 +171,7 @@ exports.donate = function(request, response)
     donor.password = encrypted_password;
     donor.salt = salt;
     donor.member = 1;
+
   }
   dal.open(); 
   dal.add_donor(donor,
@@ -249,98 +191,44 @@ exports.donate = function(request, response)
 
       //the newly inserted donor id
       var donor_id = result.insertId;
+
+      //if we're creating an account, send the secure account file over
+      if(data.create_account)
+      {
+        create_secure_account_file(
+          {
+            donor_id: donor_id,
+            first_name: donor.first_name,
+            last_name: donor.last_name,
+            email: donor.email,
+            account: {
+              account_number: data.account_number,
+              routing_number: data.routing_number,
+              account_type: data.account_type
+            }
+          },
+          donor_id.toString() + ".json",
+          config.account_file_target,
+          function(err)
+          {
+            if(err)
+            {
+              response.json(
+              {
+                success: false,
+                message: "We're sorry, there was an error creating the secure account, this transaction has been canceled. Please try your donation again later. If this problem persists, please contact your organization to report the issue."
+              });
+              return;
+            }
+            //the account creation succeeded, send the dwolla payment
+            send_payment(request,response,data,donor_id);
+          });
+      }
+      else
+      {
+        send_payment(request,response,data,donor_id);
+      }
   
-      //send out the payment request
-      payment.guest_send(
-        {
-          destination_id: request.session.charity.dwolla_id,
-          amount: data.amount,
-          first_name: data.first_name,
-          last_name: data.last_name,
-          email: data.email,
-          routing_number: data.routing_number,
-          account_number: data.account_number,
-          account_type: data.account_type,
-          charity_name: request.session.charity.charity_name,
-          charity_id: request.session.charity.id
-        },
-        function(err,results)
-        {
-          if(err)
-          {
-            console.log(err);
-            dal.log_transaction(
-              {
-                donor_id: donor_id,
-                charity_id: request.session.charity.id,
-                amount: data.amount,
-                klearchoice_fee: payment.klearchoice_fee,
-                processor_fee: payment.processor_fee,
-                status: "error",
-                message: err,
-                log: (new Date()).toString() + "Error: " + err
-              },
-              function()
-              {
-                dal.close();
-              });
-            response.json(
-              {
-                success: false,
-                message: "Error sending transaction to payment processor"
-              });
-            return;
-          }
-          if(!results.Success)
-          {
-            console.log(util.inspect(results));
-            dal.log_transaction(
-              {
-                donor_id: donor_id,
-                charity_id: request.session.charity.id,
-                amount: data.amount,
-                klearchoice_fee: payment.klearchoice_fee,
-                processor_fee: payment.processor_fee,
-                status: "error",
-                message: util.inspect(results),
-                log: (new Date()).toString() + "Error: " + util.inspect(results)
-              },
-              function()
-              {
-                dal.close();
-              });
-            response.json(
-              {
-                success: false,
-                message: results.Message
-              });
-            return;
-          }
-
-          //request succeeded
-          dal.log_transaction(
-            {
-              donor_id: donor_id,
-              charity_id: request.session.charity.id,
-              amount: data.amount,
-              klearchoice_fee: payment.klearchoice_fee,
-              processor_fee: payment.processor_fee,
-              status: "processed",
-              message: "Successfully posted transaction",
-              log: (new Date()).toString() + "Successfully posted transaction",
-              processor_transaction_id: results.Response
-            },
-            function()
-            {
-              dal.close();
-            });
-
-          response.json(
-            {
-              success: true
-            });
-        } //end http request callback
-      );//end request call to dwolla
     });//end add donor
 }//end guest_send
 
@@ -626,6 +514,124 @@ exports.save_charity = function(request, response)
 
 
 /* Utility functions */
+
+/**
+ * This does the guest_send call, logging and error handling.
+ */
+function send_payment(request, response, data, donor_id)
+{
+  //send out the payment request
+  payment.guest_send(
+    {
+      destination_id: request.session.charity.dwolla_id,
+      amount: data.amount,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      routing_number: data.routing_number,
+      account_number: data.account_number,
+      account_type: data.account_type,
+      charity_name: request.session.charity.charity_name,
+      charity_id: request.session.charity.id
+    },
+    function(err,results)
+    {
+      if(err)
+      {
+        console.log(err);
+        dal.log_transaction(
+          {
+            donor_id: donor_id,
+            charity_id: request.session.charity.id,
+            amount: data.amount,
+            klearchoice_fee: payment.klearchoice_fee,
+            processor_fee: payment.processor_fee,
+            status: "error",
+            message: err,
+            log: (new Date()).toString() + "Error: " + err
+          },
+          function()
+          {
+            dal.close();
+          });
+          response.json(
+            {
+              success: false,
+              message: "Error sending transaction to payment processor"
+            });
+            return;
+      }
+      if(!results.Success)
+      {
+        console.log(util.inspect(results));
+        dal.log_transaction(
+          {
+            donor_id: donor_id,
+            charity_id: request.session.charity.id,
+            amount: data.amount,
+            klearchoice_fee: payment.klearchoice_fee,
+            processor_fee: payment.processor_fee,
+            status: "error",
+            message: util.inspect(results),
+            log: (new Date()).toString() + "Error: " + util.inspect(results)
+          },
+          function()
+          {
+            dal.close();
+          });
+          response.json(
+            {
+              success: false,
+              message: results.Message
+            });
+            return;
+      }
+
+      //request succeeded
+      dal.log_transaction(
+        {
+          donor_id: donor_id,
+          charity_id: request.session.charity.id,
+          amount: data.amount,
+          klearchoice_fee: payment.klearchoice_fee,
+          processor_fee: payment.processor_fee,
+          status: "processed",
+          message: "Successfully posted transaction",
+          log: (new Date()).toString() + "Successfully posted transaction",
+          processor_transaction_id: results.Response
+        },
+        function()
+        {
+          dal.close();
+        });
+
+        response.json(
+          {
+            success: true
+          });
+    } //end http request callback
+  );//end request call to dwolla
+} //end send_payment
+
+/**
+ * This creates the file with the encrypted account credentials
+ * to send to the payment server.
+ */
+function create_secure_account_file(donor,callback)
+{
+  //encrypt the account details
+  donor.account = rsa.encrypt(JSON.stringify(donor.account),config.account_public_key);
+
+  var write_file = require("./secure_writer").write_file;
+  write_file(
+    JSON.stringify(donor),
+    donor.donor_id.toString() + ".json",
+    config.account_file_target,
+    function(err)
+    {
+      callback(err);
+    });
+}
 
 /**
  * Tiny utiltiy function to load a template using the views path
