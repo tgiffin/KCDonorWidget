@@ -30,15 +30,18 @@ function authenticate(request, response, next)
   //console.log("authenticate...");
   log.debug("authenticate request: " + request.url);
   var exceptions = [ 
+                      //unsecured html routes
                       '/favicon.ico',
                       '/donor_widget.html',
-                      '/html/donor_widget_invalid_configuration.html',
-                      '/donor_widget_amount.html',
                       '/register.html',
+
+                      //unsecured API routes
+                      '/auth',
+                      '/donate', //this may be called either authenticated or not
+                      '/charity',
                       '/register_charity',
                       '/save_charity',
                       '/get_donor',
-                      '/test/'
                   ]
   var pathname = urllib.parse(request.url).pathname;
 
@@ -52,7 +55,7 @@ function authenticate(request, response, next)
   }
 
   log.debug("Authentication failed, redirecting...");
-  response.redirect(conf.hostname + "/donor_widget.html?charity_id=" + request.session.charity_id);
+  response.redirect(conf.hostname + "/donor_widget.html");
   response.end();
 }
 
@@ -80,29 +83,13 @@ exports.app = app;
 
 /* Config */
 
-//setup everyauth
-everyauth.dwolla
-  .appId(conf.dwolla_app_id)
-  .appSecret(conf.dwolla_app_secret)
-  .scope('accountinfofull|send|balance|funding')
-  .myHostname(conf.hostname)
-  .findOrCreateUser(
-    function(session,accessToken,accessTokenExtra,dwollaUserMetadata)
-    {
-      //console.log(util.inspect(dwollaUserMetadata));
-      return {id: dwollaUserMetadata.Id, dwolla: dwollaUserMetadata};
-
-    })
-  .redirectPath("/donor_widget_confirm.html"); 
-
 //set up express
 app.use(P3P); //send P3P headers on all requests, even static
 app.use(express.static(__dirname + '/static'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
-app.use(express.session({store: session_store, secret:"let's agree to disagree about not agreeing"}));
-app.use(everyauth.middleware());
+app.use(express.session({store: session_store, secret:"let's agree to disagree about not agreeing", cookie: { secure: true, httpOnly: true} }));
 app.use(authenticate);
 app.use(app.router);
 app.set("views",__dirname + "/templates/");
@@ -121,7 +108,12 @@ app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
 console.log("Starting klearchoice server on " + conf.port + "...");
 /* Server startup */
-app.listen(conf.port);
+app.listen(conf.port,
+  function()
+  {
+    process.setgid(conf.app_group_id);
+    process.setuid(conf.app_user_id);
+  });
 
 
 

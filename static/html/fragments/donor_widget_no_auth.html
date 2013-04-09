@@ -1,0 +1,60 @@
+<div id="no_auth" class="widget_screen center">
+  <div id="login">
+    <input type="text" id="login_email" placeholder="E-mail"/>
+    <input type="password" id="login_password" placeholder="Password"/>
+    <button type="button" class="orange" id="login_button">Login</button>
+    <!--<span id="login_label">My Online Giving Login</span>-->
+    <span id="login_error"></span>
+  </div>
+  <div id="header">
+    <h1>
+      Welcome to {{charity_name}} On-Line Giving
+    </h1>
+    <h2>100% given = 100% received</h2>
+    <p id="instructions">
+      Please provide the following secured information to make your church donation. <br/>
+      You can make a one time donation as a Guest, or become a Member and make your next donation even easier.
+    </p>
+  </div>
+
+  <form id="donation_form">
+    <div id="donor_fields">
+      <input type="text" id="amount" value="{{amount}}" name="amount" required="required" placeholder="$Giving Amount " /><div class="validation" for="amount" title="Amount is required, and must be a numeric value"></div><br/>
+      <input type="text" id="first_name" value="{{first_name}}" required="required" placeholder="First name"/><div class="validation" for="first_name" title="First name is a required value"></div>
+      <input type="text" id="last_name" value="{{last_name}}" required="required" placeholder="Last name"/><div class="validation" for="last_name" title="Last name is a required value"></div>
+      <input type="text" id="email" value="{{email}}" required="required" placeholder="Email"/><div class="validation" for="email" title="Email is required, and should be formatted like: myname@example.com"></div>
+      <input type="text" id="confirm_email" value="{{confirm_email}}" required="required" placeholder="Confirm email"/><div class="validation" for="confirm_email" title="Please make sure Email and Confirm email match"></div>
+      <input type="text" id="account_number" value="{{account_number}}" required="required" placeholder="Bank account number"/><div class="validation" for="account_number" title="Bank account number is required"></div>
+      <div id="account_number_help_button" class="help_button"></div>
+      <select id="account_type">
+        <option value="Checking">Checking</option>
+        <option value="Savings">Savings</option>
+      </select>
+      <input type="text" value="{{routing_number}}" id="routing_number" required="required" placeholder="Routing number"/><div class="validation" for="routing_number" title="This does not appear to be a valid routing number. Please correct your entry."></div>
+      <div id="routing_number_help_button" class="help_button"></div>
+    </div>
+
+    <input type="checkbox" id="create_account" /> Save this information for me to make my next donation easier <br/>
+
+    <div id="password_wrapper">
+      <input type="password" id="password" value="{{password}}" placeholder="Password" /><div class="validation" for="password" title="Please pick a password with a strength of at least 'Ok'"></div> 
+      <input type="password" id="confirm_password" value="{{confirm_password}}" placeholder="Confirm password" /><div class="validation" for="confirm_password" title="Passwords don't match"></div> 
+      <div id="password_strength"></div>
+    </div>
+
+    <div id="guest_terms">
+      <input type="checkbox" id="accept_guest_terms" /> I accept the <a href="#">Guest Terms of Service</a>
+    </div>
+
+    <div id="member_terms">
+      <input type="checkbox" id="accept_member_terms" /> I accept the <a href="#">Member Terms of Service</a>
+    </div>
+  </form>
+
+  <div id="check_help">
+      <img id="check_help_img" width="95%" />
+  </div>
+  <p class="error">{{error}}</p>
+  <button type="button" class="orange" id="submit_no_auth">Submit</button>
+
+</div>

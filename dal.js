@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+var crypto = require("crypto");
 var util = require("util");
 var conf = new (require("./config"))();
 var log = conf.logger;
@@ -85,7 +86,7 @@ module.exports = {
   },
 
   /**
-   * Insert a row into the transaction log. This happend any time a donation is made
+   * Insert a row into the transaction log. This happens any time a donation is made
    */
   log_transaction: function(transaction, callback)
   {
@@ -140,6 +141,25 @@ module.exports = {
   },
 
   /**
+   * This inserts a donor record. It doesn not check if the donor already exists.
+   * With the guest send, non-member donation flow, there can (and will) be multiple
+   * donor records with the same email etc...
+   *
+   * This is because a donor can come back multiple times to make donations. For security
+   * reasons, we don't try to match and update the existing donor record in this scenario,
+   * we create a new donor record. This is to prevent an exploit whereby a person could
+   * update or change information in the database by just having an email address
+   */
+  add_donor: function(donor, callback)
+  {
+    connection.query("insert into donor set ?", donor,
+      function(err, result)
+      {
+        callback(err,result);
+      });
+  },
+
+  /**
    * Retrieve the donor based on the specified email address.
    * If a donor with the given email address doesn't exist, a new 
    * donor will be created with the given email
@@ -153,17 +173,41 @@ module.exports = {
       function(err,result)
       {
         if(err) { callback(err); return; }
+        if(result.length < 1)
+          return callback(null,null);
+
+        return callback(null, result[0]);
+
+      });
+  },
+
+  /**
+   * Retrieve the donor based on the specified email address and password.
+   * This is used for authentication of the user
+   */
+  get_donor_auth: function(donor,callback)
+  {
+    var email = donor.email;
+    if(!email) { callback(new Error("Missing email")); return; }
+
+    connection.query("select * from donor where email=? and member=1",[email],
+      function(err,result)
+      {
+        if(err) { callback(err); return; }
 
         if(result.length < 1)  
         {
-          //we don't have a record, need to insert
-          connection.query("insert into donor set ?",
-            donor,
-            function(err,result)
-            {
-              donor.id = result.insertId;
-              return callback(err, donor);
-            });
+          //we don't have a record, authentication failed
+          callback(null,null);
+          return;
+        }
+
+        var salt = result[0].salt;
+        var encrypted_password = crypto.pbkdf2Sync(donor.password,salt,5000,256).toString('base64');
+
+        if(encrypted_password != result[0].password)
+        {
+          callback(null,null);
           return;
         }
 

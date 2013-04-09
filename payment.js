@@ -4,7 +4,10 @@ var util = require('util');
 var conf = require("./config")();
 var qs = require("querystring");
 var log = conf.logger;
+var request = require("request");
 
+var klearchoice_fee = .20;
+var processor_fee = .25;
 
 /**
  * Utility function for wrapping http requests
@@ -82,8 +85,8 @@ function dwolla_response_handler(err,result,callback)
 
 exports.dwolla = 
 {
-  klearchoice_fee: .20,
-  processor_fee: .25,
+  klearchoice_fee: klearchoice_fee,
+  processor_fee: processor_fee,
   /**
    * Enumerates the funding sources available to the donor. The callback should be in the form:
    * callback(err,resp) { ... }
@@ -149,6 +152,85 @@ exports.dwolla =
       {
         dwolla_response_handler(err,result,callback);
       });
+  },
+  /**
+   * Uses the dwolla guest send API
+   *
+   * params should look like:
+   * {
+   *  destination_id: <church dwolla id>,
+   *  amount: <amount>,
+   *  first_name: <first name>,
+   *  last_name: <last name>,
+   *  email: <email>,
+   *  routing_number: <routing number>,
+   *  account_number: <account number>,
+   *  account_type: <account type ("Checking" or "Savings")>,
+   *  charity_name: <charity name>,
+   *  charity_id: <charity id>
+   *
+   * }
+   */
+  guest_send: function(params, callback)
+  {
+    var url = conf.payment_api_url;
+
+    console.log(util.inspect( {
+      client_id: conf.dwolla_app_id,
+      client_secret: conf.dwolla_app_secret,
+      destinationId: params.destination_id,
+      amount: params.amount,
+      firstName: params.first_name,
+      lastName: params.last_name,
+      emailAddress: params.email,
+      routingNumber: params.routing_number,
+      accountNumber: params.account_number,
+      accountType: params.account_type,
+      assumeCosts: true,
+      destinationType: 'Dwolla',
+      notes: "Online Donation to " + params.charity_name,
+      groupId: params.charity_id,
+      additionalFees: [
+        {
+          destinationId: conf.dwolla_id,
+          amount: klearchoice_fee
+        }
+      ]
+    }));
+
+    request(
+      {
+        url: "https://www.dwolla.com" + conf.dwolla_guest_send_path,
+        method: "POST",
+        json: {
+          client_id: conf.dwolla_app_id,
+          client_secret: conf.dwolla_app_secret,
+          destinationId: params.destination_id,
+          amount: params.amount,
+          firstName: params.first_name,
+          lastName: params.last_name,
+          emailAddress: params.email,
+          routingNumber: params.routing_number,
+          accountNumber: params.account_number,
+          accountType: params.account_type,
+          assumeCosts: true,
+          destinationType: 'Dwolla',
+          notes: "Online Donation to " + params.charity_name,
+          groupId: params.charity_id,
+          additionalFees: [
+            {
+              destinationId: conf.dwolla_id,
+              amount: klearchoice_fee
+            }
+          ]
+        }
+      },
+      //http request callback
+      function(err, reponse, body)
+      {
+        callback(err, body);
+      });
+
   },
   /**
    * Send method, expect params object that contains:

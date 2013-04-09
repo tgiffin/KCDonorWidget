@@ -1,0 +1,24 @@
+<div id="auth" class="widget_screen center">
+  <div id="charity_name">
+    {{charity_name}} <br/>
+    <a id="manage_account" href="">Manage your account</a>
+  </div>
+  <div id="auth_header">
+    <h2>100% given = 100% received</h2>
+    <h3>
+      Welcome {{first_name}} {{last_name}}
+    </h3>
+    <p id="auth_subtext">
+      If you're not {{first_name}} {{last_name}} please <a id="logout" href="">click here</a>.
+    </p>
+  </div>
+
+  <form id="donation_form">
+    <div id="donor_fields">
+      <input type="text" id="auth_amount" value="{{amount}}" name="amount" required="required" placeholder="$Giving Amount " /><div class="validation" for="amount" title="Amount is required, and must be a numeric value"></div><br/>
+    </div>
+  </form>
+
+  <button type="button" class="orange" id="submit_auth">Submit</button>
+
+</div>

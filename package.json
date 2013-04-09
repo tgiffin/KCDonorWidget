@@ -10,14 +10,15 @@
   },
   "main": "server.js",
   "engines": {
-    "node": "~0.6.11"
+    "node": "0.10.0"
   },
   "dependencies": {
-    "express": "~2.5.10",
+    "express": "~2.5.0",
     "mustache": "~0.4.0",
-    "everyauth": "~0.2.32",
     "connect-redis": "~1.4.0",
-    "mysql": "~2.0.0-alpha3"
+    "mysql": "~2.0.0-alpha3",
+    "request": "~2.16.6",
+    "ursa": "~0.8"
   },
   "devDependencies": {},
   "optionalDependencies": {}

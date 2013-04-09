@@ -10,10 +10,16 @@ body
   padding-right: 15px;
 }
 
+a
+{
+  text-decoration: underline;
+}
+
 h1
 {
-  font-size: 2em;
+  font-size: 1.7em;
   color: #cd7249;
+  margin-bottom: 0px;
 }
 
 
@@ -21,7 +27,7 @@ h2
 {
   font-size: 1.7em;
   color: black;
-  margin-top: 10px;
+  margin-top: 5px;
   margin-bottom: 5px;
 }
 
@@ -48,25 +54,18 @@ h5
   margin-bottom: 5px;
 }
 
-.center {
-  text-align: center;
-}
-
-.error {
-  color: red;
-}
-
-.input_label {
-  color: #C0C0C0;
+#content
+{
+  margin-top: 85px;
 }
 
 #header_logo
 {
-  background-image: url('/images/empowered_by_logo.jpg');
-  background-position: right;
-  background-repeat: no-repeat;
-  width: 100%;
-  height: 80px;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  width: 145px;
+  height: 60px;
 }
 
 #giving_logo
@@ -80,12 +79,48 @@ h5
   left: 55%;
 }
 
-#charity_name {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  font-size: 1.1em;
+
+#header {
+  margin-top:-30px;
 }
+
+
+#error_popup
+{
+  display: none;
+  width: 300px;
+  /*height: 130px;*/
+  position: absolute;
+  background-color: white;
+  border: solid 1px black;
+  text-align: center;
+  padding:15px;
+}
+
+#error_message
+{
+  color: #883444;
+}
+
+#close_popup
+{
+  float: right;
+}
+
+.center {
+  text-align: center;
+}
+
+input.error {
+  border-color: red;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.input_label {
+  color: #C0C0C0;
+}
+
 .orange:hover {
   background: #A94310;
   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from( #b05819), to( #A94310));
@@ -163,130 +198,178 @@ h5
 }
 
 /**
- * donor_widget.html
+ * no_auth
  */
-#header {
-  margin-top:-30px;
+#instructions
+{
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
-#new_donor {
+#login
+{
+  width: 320px;
+  height: 40px;
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  text-align: left;
+}
+#login > input
+{
+  height: 16px;
+}
+
+#login_label
+{
+  font-size: 12px;
+}
+
+#login_email
+{
+  width: 130px;
+}
+
+#login_password
+{
+  width: 70px;
+}
+
+#login_button
+{
+  height: 26px;
+  width: 70px;
+  margin-left: 5px;
+}
+
+
+
+#donor_fields
+{
+  width: 400px;
+  margin: 0 auto;
+  line-height: 33px;
+}
+
+#amount
+{
+  width: 160px;
+  height: 28px;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+  text-align: right;
+}
+#first_name, #last_name, #email, #confirm_email, #password, #confirm_password
+{
+  width: 160px;
+}
+
+#account_number
+{
+  width: 220px;
+}
+
+#account_type
+{
+  width: 115px;
+  height: 30px;
+}
+
+#routing_number
+{
+  width: 340px;
+}
+
+#password_wrapper
+{
   display: none;
 }
 
-#submit_email {
-  margin-left: 80px;
-  margin-top: 10px;
+#password_strength
+{
+  font-size: 12px;
 }
-#dwolla_buttons {
-  position:relative;
-  width: 80%;
-  left: 80px;
+
+#member_terms
+{
+  display: none;
 }
-#new_dwolla_button {
-  position: absolute;
-  top:0px;
-  left:0px;
-  width: 200px;
-  height: 60px;
+
+#check_help
+{
+  text-align: center;
+  display: none;
 }
-#existing_dwolla_button {
-  position: absolute;
-  top:0px;
-  left: 50%;
-  width: 200px;
-  height: 60px;
+
+.validation
+{
+  width: 16px;
+  height: 16px;
+  background-image: url('/images/exclamation.png');
+  background-size: contain;
+  display: none;
+  /*display: inline-block;*/
 }
+
+.help_button
+{
+  width: 16px;
+  height: 16px;
+  background-image: url('/images/help.png');
+  background-size: contain;
+  display: inline-block;
+  cursor: pointer;
+}
+
+
+
 
 /**
- * donor_widget_amount.html
+ * auth
  */
-#amount_wrapper {
-  text-align: left;
-  width: 75%;
-  margin-left: 12%;
+
+#charity_name {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.1em;
 }
 
-/**
- * donor_widget_confirm.html
- */
-#content
-{
-  width: 450px;
-  margin: 0px auto;
+#auth_header {
+  margin-bottom: 20px;
 }
 
-#info_wrapper
+#auth_amount
 {
-  width: 300px;
-  margin: 0px auto;
-}
-
-.label
-{
-  font-weight: bold;
+  width: 160px;
+  height: 28px;
+  margin-bottom: 10px;
+  font-size: 1.3em;
   text-align: right;
 }
 
-.value
+
+/**
+ * confirm
+ */
+#subheader
 {
-  padding-left: 5px;
+  font-weight: bold;
+  font-size: 1.1em;
 }
 
-#pin_wrapper
+#confirmation_fields
 {
-  width: 200px;
-  margin: 0px auto;
-  margin-top: 15px;
+  width: 250px;
+  color: #cd7249;
+  margin: 0 auto;
+  margin-top: 10px;
   margin-bottom: 15px;
 }
-#pin_label
-{
-  font-size: 24px;
-  font-weight: bold;
-}
 
-#pin
+#confirmation_fields > span
 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-left: 15px;
-  width: 60px;
+  text-align: left;
+  width: 120px;
+  font-size: 1.1em;
+  display: inline-block;
 }
-
-#whats_this_link
-{
-  font-size: 10px;
-  margin-left: 10px;
-}
-
-#whats_this_popup
-{
-  display: none;
-  width: 300px;
-  position: absolute;
-  border: 1px solid black;
-  background-color: white;
-  padding: 10px;
-}
-
-#error_popup
-{
-  display: none;
-  width: 300px;
-  /*height: 130px;*/
-  position: absolute;
-  background-color: white;
-  border: solid 1px black;
-  text-align: center;
-  padding:15px;
-}
-
-#error_message
-{
-  color: #883444;
-}
-
-#close_popup
-{
-  float: right;
-}
-

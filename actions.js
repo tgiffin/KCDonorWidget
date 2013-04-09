@@ -9,6 +9,9 @@ var conf = new Config();
 var log = conf.logger;
 var accounting = require("./lib/accounting");
 var URI = require("./lib/URI/URI");
+var crypto = require('crypto');
+var util = require("util");
+var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
 
 var app = server.app;
 
@@ -48,253 +51,6 @@ exports.donor_widget = function(request, response, next)
   }
 
 
-/**
- * Gather the donation amount
- * This is a GET for donor_widget_amount.html
- */
-exports.donor_widget_amount = function(request, response,next) 
-  {
-    var err = request.session.error;
-    if(err)
-    {
-      request.session.error = null;
-    }
-
-    if(!request.session.charity)
-    {
-      next(new Error("Missing charity in session"));
-      return;
-    }
-
-    if(!request.session.donor) //this is filled in the get_donor ajax call
-    {
-      next(new Error("Missing donor in session"));
-      return;
-    }
-
-    response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
-    {
-      charity_name: request.session.charity.charity_name,
-      donor: request.session.donor
-      //user: request.session.auth.dwolla.user
-    }));
-
-  }
-
-/**
- * Validate the amount the user is requesting to donate
- * This is a POST from donor_widget_amount.html
- */
-exports.donor_widget_validate_amount = function(request, response)
-{
-    var amount = request.session.amount = Number(request.body.amount.replace(/[^0-9\.]+/g,""));
-    var error = null;
-    //validate amount
-    if(amount < 10)
-    {
-      error='The minimum donation amount is $10. Please enter an amount that is at least $10.'
-    }
-
-    if(amount > 5000)
-    {
-      error='The maximum amount for a donation is $5,000. Please enter an amount below $5,000.'
-    }
-
-    if(error)
-    {
-      response.send(mustache.to_html(loadTemplate('donor_widget_amount'),
-        {
-          charity_name: request.session.charity.charity_name,
-          donor: request.session.donor,
-          error: error
-        }));
-      return;
-    }
-
-    if(request.session.auth && request.session.auth.dwolla && request.session.auth.dwolla.user)
-      response.redirect("/donor_widget_confirm.html");
-    else
-      response.redirect(conf.hostname + "/auth/dwolla");
-}
-
-/**
- * Confirmation page, gather PIN (for dwolla)
- */
-exports.confirm_amount =  function(request, response)
-  {
-    var fee = payment.klearchoice_fee + payment.processor_fee;
-    var total = request.session.total = request.session.amount + fee;
-    var donor = request.session.donor;
-
-    //save the dwolla user info in our database
-    donor.name = request.session.auth.dwolla.user.Name;
-    donor.processor_id = request.session.auth.dwolla.user.Id;
-    donor.city = request.session.auth.dwolla.user.City;
-    donor.state = request.session.auth.dwolla.user.State;
-    delete donor.create_date; //don't update the create date
-    dal.open();
-    dal.update_donor(donor,
-      function(err)
-      {
-        dal.close();
-        if(err)
-        {
-          request.next(err);
-          return;
-        }
-
-        //get the user's balance
-        payment.check_balance(
-          {
-            user_token: request.session.auth.dwolla.accessToken
-          },
-          function(err, result)
-          {
-
-            if(err)
-            {
-              request.next(err);
-              return;
-            }
-
-            var balance = result.Response;
-
-            if(balance < request.session.amount)
-            {
-              //there's not enough money in the Dwolla account, we need to enumerate funding sources
-              payment.get_funding_sources(
-              {
-                user_token: request.session.auth.dwolla.accessToken,
-              },
-              function(err, result)
-              {
-                if(err)
-                {
-                  request.next(err);
-                  return;
-                }
-                var sources = result.Response;
-                /* sources look like an array of:
-                  {
-                      "Id": "c58bb9f7f1d51d5547e1987a2833f4fa",
-                      "Name": "Donations Collection Fund - Savings",
-                      "Type": "Savings",
-                      "Verified": "true",
-                      "ProcessingType": "ACH"
-                  },
-                 */ 
-                //if there are no alternate funding sources, and the balance is less than $10, redirect to the insufficient funds dialog
-                if((balance < 10) && sources.length == 0)
-                {
-                  response.send(mustache.to_html(loadTemplate('donor_widget_insufficient_funds'),{}));
-                  return;
-                }
-
-                var show_sources = true;
-                if(sources.length == 0) show_sources = false;
-
-                //load the template, send in funding sources
-                response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
-                {
-                  amount: accounting.formatMoney(request.session.amount),
-                  charity_name: request.session.charity.charity_name,
-                  user: request.session.auth.dwolla.user,
-                  fee: accounting.formatMoney(fee),
-                  total: accounting.formatMoney(total),
-                  show_sources: show_sources, 
-                  sources: sources
-                })); //end send template html
-              });
-
-            }
-            else
-            {
-              //load the template, don't list funding sources
-              response.send(mustache.to_html(loadTemplate('donor_widget_confirm'),
-              {
-                amount: accounting.formatMoney(request.session.amount),
-                charity_name: request.session.charity.charity_name,
-                user: request.session.auth.dwolla.user,
-                fee: accounting.formatMoney(fee),
-                total: accounting.formatMoney(total)
-              })); //end send template html
-            }
-
-          }); //end check balance
-
-      }); //end update_donor
-  }
-
-/**
- * This is the main payment API, this is called via ajax request to send money
- */
-exports.send_payment = function(request, response, next)
-  {
-    var vals = request.body;
-    var result = {};
-
-    payment.send(
-      {
-        user_token: request.session.auth.dwolla.accessToken,
-        pin: vals.pin,
-        destination_id: request.session.charity.dwolla_id,
-        amount: request.session.total
-      },
-      function(err,result)
-      {
-        var log_info = 
-            {
-              donor_id: request.session.donor_id,
-              charity_id: request.session.charity.id,
-              amount: request.session.amount,
-              klearchoice_fee: payment.klearchoice_fee, 
-              processor_fee: payment.processor_fee,
-              confirmation_number: '',
-            };
-        if(err)
-        {
-          log_info.status = "error";
-          log_info.message = err;
-        }
-        else
-        {
-          log_info.confirmation_number = result.Response;
-          log_info.status = "success";
-          log_info.message = result.Message;
-        }
-        dal.open();
-        dal.log_transaction(
-          log_info,
-          function(err,result)
-          {
-            if(err)
-              next(err);
-          });
-        dal.close();
-
-        if(err)
-          response.json(
-            {
-              status: "error",
-              message: error
-            });
-        else
-          response.json(
-            {
-              status: "success"
-            });
-      }); //end call payment.send
-  };
-
-/**
- * Thank You page is shown on successful transaction
- */
-exports.thank_you = function(request, response)
-{
-    response.send(mustache.to_html(loadTemplate('thank_you'),
-      {
-      }));
-}
 
 exports.register = function(request, response)
 {
@@ -304,8 +60,240 @@ exports.register = function(request, response)
 }
 
 /**
- * Service calls
+ * API Service calls
  */
+
+/**
+ * This is the main donation function called from the donor widget
+ *
+ * This can be called in a couple of different ways, and will do different things depending
+ * how it is called.
+ *
+ * If it is called with an authenticated user in session (request.session.auth) 
+ * then a payment is created with the existing donor account information. The payment record
+ * will be picked up later by the payment server's batch job process and sent for processing. In this case,
+ * it is also possible that a recurring donation was selected. If so, a recurring transaction
+ * record for the donor will also be created.
+ *
+ * If it is called without an authenticated user, then all donor informaion is gathered from the post
+ * body and validated. A payment record will be created in the database, but the transaction will be sent
+ * to the processor immediately so that we don't store any of the user's sensitive information.
+ * In this case, it is also possible that the user is requesting that we create an 
+ * account (body.create_account == true). If so, we validate that the terms were accepted and 
+ * save the account information. Even if a membership was created, for this initial donation the
+ * payment is processed immediately and sent to dwolla. This is so that there aren't conflicts
+ * between the time the payment record is inserted into the database, picked up by the payment job
+ * and sent for process and when the new account file is picked up by the incoming accounts job.
+ * 
+ * Subsequent donations made for the stored account will follow the flow for authenticated users above.
+ *
+ * When creating an account, only non-sesitive information is stored in the database. For the secure
+ * bank account information, we create and encrypted file and sftp it over to the payment server. The
+ * payment server will pick up the new file and keep it in the proper secure storage location.
+ */
+exports.donate = function(request, response)
+{
+  var data = {};
+  //cleanse input for xss. sqli is dealt with via parameterized commands in the dal
+  for(var key in request.body) { data[key] = escapeHtml(request.body[key]); }
+
+  //if this is an authenticated user, just create the transaction, it will be picked up by the 
+  //payment server later
+  if(request.session.auth)
+  {
+    dal.open();
+    log_transaction(
+      {
+        donor_id: request.session.auth.id,
+        charity_id: request.session.charity.id,
+        amount: data.amount,
+        klearchoice_fee: payment.klearchoice_fee,
+        processor_fee: payment.processor_fee,
+        status: "new",
+        log: (new Date()).toString() + "Transaction created \n"
+      },
+      function(err,result)
+      {
+        dal.close();
+        if(err)
+        {
+          response.json(
+            {
+              success: false,
+              message: "Unable to add payment transaction"
+            });
+          return;
+        }
+
+        response.json(
+          {
+            success:true
+          });
+      });
+    return;
+  }//end if auth user
+
+  //let's validate the information that was sent to us
+  //sqli is dealt with by the dal, and this has already been cleansed for xss
+  var valid = true;
+  if(!data.first_name) valid=false;
+  if(!data.last_name) valid=false;
+  if(!data.email) valid = false;
+  if(!data.confirm_email || (data.email != data.confirm_email)) valid=false;
+  if(!data.amount) valid=false;
+  if(isNaN(parseFloat(data.amount))) valid=false;
+  if(valid==false)
+  {
+    response.json(
+      {
+        success: false,
+        message: "Invalid data"
+      });
+    return;
+  }
+
+  //this is an unauthenticated user. First, let's create the donor record.
+  //we always add a new donor record, even if there is an existing donor
+  //with this email. This is to prevent a possible security exploit where
+  //a malicious user could change data in the database by doing unauthenticated
+  //service calls with email addresses.
+  var donor = 
+    {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email
+    };
+  if(data.create_account)
+  {
+    //before we can create the record, we need to create the salt and encrypt the password
+    var salt = crypto.randomBytes(128).toString('base64');
+    var encrypted_password = crypto.pbkdf2Sync(data.password,salt,5000,256).toString('base64');
+    donor.password = encrypted_password;
+    donor.salt = salt;
+    donor.member = 1;
+
+  }
+  dal.open(); 
+  dal.add_donor(donor,
+    function(err,result)
+    {
+      if(err)
+      {
+        dal.close();
+        console.log(err);
+        response.json(
+          {
+            success: false,
+            message: "Unable to add donor"
+          });
+          return;
+      }
+
+      //the newly inserted donor id
+      var donor_id = result.insertId;
+
+      //if we're creating an account, send the secure account file over
+      if(data.create_account)
+      {
+        create_secure_account_file(
+          {
+            donor_id: donor_id,
+            first_name: donor.first_name,
+            last_name: donor.last_name,
+            email: donor.email,
+            account: {
+              account_number: data.account_number,
+              routing_number: data.routing_number,
+              account_type: data.account_type
+            }
+          },
+          donor_id.toString() + ".json",
+          config.account_file_target,
+          function(err)
+          {
+            if(err)
+            {
+              response.json(
+              {
+                success: false,
+                message: "We're sorry, there was an error creating the secure account, this transaction has been canceled. Please try your donation again later. If this problem persists, please contact your organization to report the issue."
+              });
+              return;
+            }
+            //the account creation succeeded, send the dwolla payment
+            send_payment(request,response,data,donor_id);
+          });
+      }
+      else
+      {
+        send_payment(request,response,data,donor_id);
+      }
+  
+    });//end add donor
+}//end guest_send
+
+
+/**
+ * Return JSON packets that indicated whether the user is currently logged in
+ */
+exports.is_auth = function(request, response)
+{
+  if(request.session.auth)
+  {
+    response.json(
+      {
+        auth: true
+      }
+    );
+  }
+  else
+  {
+    response.json(
+      {
+        auth: false
+      }
+    );
+  }
+}
+
+/**
+ * Authenticate user and store info in auth session variable
+ */
+exports.auth = function(request, response, next)
+{
+  var credentials={};
+  for(var key in request.body) { credentials[key] = escapeHtml(request.body[key]); }
+
+  dal.open();
+  dal.get_donor_auth({email: credentials.email, password: credentials.password},
+    function(err, donor)
+    {
+      dal.close();
+      if(err)
+      {
+        next(err);
+        return;
+      }
+
+      if(donor)
+      {
+        request.session.auth = donor;
+        response.json(
+          {
+            auth: true
+          });
+      }
+      else
+      {
+        request.session.auth = null;
+        response.json(
+          {
+            auth: false
+          });
+      }
+
+    });
+}
 
 /**
  * Lookup donor information based on email address, return JSON formated donor
@@ -339,6 +327,26 @@ exports.get_donor = function(request, response)
           new_donor: donor.processor_id ? false : true 
         });
     });
+}
+
+/**
+ * Retrieve charity information. For now, the only information that is sent is the charity name
+ */
+exports.get_charity = function(request, response)
+{
+  
+  if(request.session.charity)
+    response.json(
+      {
+        status: "ok",
+        name: request.session.charity.charity_name
+      });
+  else
+    response.json(
+      {
+        status: "error",
+        message: "no charity in session"
+      });
 }
 
 /**
@@ -506,6 +514,124 @@ exports.save_charity = function(request, response)
 
 
 /* Utility functions */
+
+/**
+ * This does the guest_send call, logging and error handling.
+ */
+function send_payment(request, response, data, donor_id)
+{
+  //send out the payment request
+  payment.guest_send(
+    {
+      destination_id: request.session.charity.dwolla_id,
+      amount: data.amount,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      routing_number: data.routing_number,
+      account_number: data.account_number,
+      account_type: data.account_type,
+      charity_name: request.session.charity.charity_name,
+      charity_id: request.session.charity.id
+    },
+    function(err,results)
+    {
+      if(err)
+      {
+        console.log(err);
+        dal.log_transaction(
+          {
+            donor_id: donor_id,
+            charity_id: request.session.charity.id,
+            amount: data.amount,
+            klearchoice_fee: payment.klearchoice_fee,
+            processor_fee: payment.processor_fee,
+            status: "error",
+            message: err,
+            log: (new Date()).toString() + "Error: " + err
+          },
+          function()
+          {
+            dal.close();
+          });
+          response.json(
+            {
+              success: false,
+              message: "Error sending transaction to payment processor"
+            });
+            return;
+      }
+      if(!results.Success)
+      {
+        console.log(util.inspect(results));
+        dal.log_transaction(
+          {
+            donor_id: donor_id,
+            charity_id: request.session.charity.id,
+            amount: data.amount,
+            klearchoice_fee: payment.klearchoice_fee,
+            processor_fee: payment.processor_fee,
+            status: "error",
+            message: util.inspect(results),
+            log: (new Date()).toString() + "Error: " + util.inspect(results)
+          },
+          function()
+          {
+            dal.close();
+          });
+          response.json(
+            {
+              success: false,
+              message: results.Message
+            });
+            return;
+      }
+
+      //request succeeded
+      dal.log_transaction(
+        {
+          donor_id: donor_id,
+          charity_id: request.session.charity.id,
+          amount: data.amount,
+          klearchoice_fee: payment.klearchoice_fee,
+          processor_fee: payment.processor_fee,
+          status: "processed",
+          message: "Successfully posted transaction",
+          log: (new Date()).toString() + "Successfully posted transaction",
+          processor_transaction_id: results.Response
+        },
+        function()
+        {
+          dal.close();
+        });
+
+        response.json(
+          {
+            success: true
+          });
+    } //end http request callback
+  );//end request call to dwolla
+} //end send_payment
+
+/**
+ * This creates the file with the encrypted account credentials
+ * to send to the payment server.
+ */
+function create_secure_account_file(donor,callback)
+{
+  //encrypt the account details
+  donor.account = rsa.encrypt(JSON.stringify(donor.account),config.account_public_key);
+
+  var write_file = require("./secure_writer").write_file;
+  write_file(
+    JSON.stringify(donor),
+    donor.donor_id.toString() + ".json",
+    config.account_file_target,
+    function(err)
+    {
+      callback(err);
+    });
+}
 
 /**
  * Tiny utiltiy function to load a template using the views path
