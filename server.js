@@ -105,6 +105,13 @@ routes.forEach(
 //ensure error handler is last item in middleware stack
 app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
+process.on('error',
+  function(err)
+  {
+    console.log(util.inspect(err));
+    process.exit(1);
+  });
+
 
 console.log("Starting klearchoice server on " + conf.port + "...");
 /* Server startup */
