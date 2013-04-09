@@ -50,7 +50,7 @@ module.exports = function()
         env: "production",
         logger: log,
         port: 443,
-        db_host: '10.112.1.35',
+        db_host: 'localhost',
         db_name: 'klearchoice',
         db_username: 'klearchoice',
         db_password: 'KC2242012',
