@@ -108,7 +108,12 @@ app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
 console.log("Starting klearchoice server on " + conf.port + "...");
 /* Server startup */
-app.listen(conf.port);
+app.listen(conf.port,
+  function()
+  {
+    process.setgid(conf.app_group_id);
+    process.setuid(conf.app_user_id);
+  });
 
 
 
