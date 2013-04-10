@@ -13,6 +13,7 @@ module.exports = function()
       log.mode("debug");
       return {
         env: "development",
+        prevent_payment_processing: true,
         logger: log,
         port: 3000,
         db_host: '192.168.1.100',
@@ -48,6 +49,7 @@ module.exports = function()
       //log.mode("warn");
       return {
         env: "production",
+        prevent_payment_processing: false,
         logger: log,
         port: 443,
         db_host: 'localhost',

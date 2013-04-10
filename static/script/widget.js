@@ -77,6 +77,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
  *  12/13/2010      Clay Gulick         Added relativeToElement option and functionality
  *  12/27/2010		Clay Gulick			Added support for multiple concurrent popups
  *  12/29/2010		Clay Gulick			Added options to support absolute offsets
+ *  4/9/2013      Clay Gulick     Fixed issue with background when browser is resized
  *
  **/
 
@@ -132,6 +133,18 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
             if(tempRelativeZIndex && tempRelativeZIndex == parseInt(tempRelativeZIndex)){
               relativeZIndex = tempRelativeZIndex;
             }            
+
+            background.css({
+              "background-color":settings.backgroundColor,
+              "position":"absolute",
+              "top": relativeTop + relativeScrollTop,
+              "left": relativeLeft + relativeScrollLeft, 
+              "width": relativeWidth, 
+              "height": relativeHeight,
+              "opacity":settings.backgroundOpacity,
+              "z-index":relativeZIndex + 1,
+              "display":"none"
+            });
         }
         else
         {
@@ -139,19 +152,21 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
             relativeWidth = $(window).width();
             relativeScrollTop = $(window).scrollTop();
             relativeScrollLeft = $(window).scrollLeft(); 
+
+            background.css({
+              "background-color":settings.backgroundColor,
+              "position":"absolute",
+              "top": 0,
+              "left": 0,
+              "right":0,
+              "bottom":0,
+              "overflow":"none",
+              "opacity":settings.backgroundOpacity,
+              "z-index":relativeZIndex + 1,
+              "display":"none"
+            });
         }
 
-        background.css({
-            "background-color":settings.backgroundColor,
-            "position":"absolute",
-            "top": relativeTop + relativeScrollTop,
-            "left": relativeLeft + relativeScrollLeft, 
-            "width": relativeWidth, 
-            "height": relativeHeight,
-            "opacity":settings.backgroundOpacity,
-            "z-index":relativeZIndex + 1,
-            "display":"none"
-        });
 
         $("body").append(background);
         //fade it in

@@ -8,7 +8,7 @@
     var screen_logic;
     
     //for debugging
-    /*locals = {
+    locals = {
       amount: 1,
       fee: .5,
       first_name: "Travis",
@@ -22,7 +22,7 @@
       password: "correcthorsebatterystaple",
       confirm_password: "correcthorsebatterystaple",
       accept_member_terms: true
-    };*/
+    };
 
     //initialize logic for each screen
     screen_logic = {
@@ -244,7 +244,7 @@
           $("#auth_amount").on("keypress",filter_amount);
 
           //format the input box for currency
-          $("#auth_amount").keyup(filter_amount);
+          $("#auth_amount").keyup(format_amount);
           
           //initialize the validator for the amount input
           $("#auth_amount")[0].validate = validator(
@@ -259,7 +259,7 @@
           $("#submit_auth").on("click",
             function()
             {
-              if(!valiate()) return;
+              if(!validate()) return;
               locals.amount = parseFloat($("#auth_amount").val().replace("$",""));
               show_screen("donor_widget_confirm");
             });
@@ -410,9 +410,8 @@
     /**
      * Handle keyboard filtering and currency formatting for the amount text boxes
      */
-    function format_amount()
+    function format_amount(e)
     {
-      var e = window.event || e;
       var keyUnicode = e.charCode || e.keyCode;
 
       if (e !== undefined) {
@@ -512,15 +511,10 @@
         {
           var content = Mustache.render(data,locals);
           if($("#content").html()=="")
-            $("#content")
-              .hide()
-              .html(content)
-              .fadeIn(
-                function()
-                {
-                  if(screen_logic[screen]) screen_logic[screen]();
-                }
-              );
+          {
+            $("#content").html(content);
+            if(screen_logic[screen]) screen_logic[screen]();
+          }
           else
             $("#content").fadeOut(
               function()
@@ -534,8 +528,6 @@
                     }
                   );
               });
-
-          
         });
     }
 

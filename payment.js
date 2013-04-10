@@ -175,6 +175,12 @@ exports.dwolla =
   {
     var url = conf.payment_api_url;
 
+    if(conf.prevent_payment_processing)
+    {
+      callback(null,{Success:true});
+      return;
+    }
+
     console.log(util.inspect( {
       client_id: conf.dwolla_app_id,
       client_secret: conf.dwolla_app_secret,

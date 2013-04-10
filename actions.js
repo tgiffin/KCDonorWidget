@@ -102,7 +102,7 @@ exports.donate = function(request, response)
   if(request.session.auth)
   {
     dal.open();
-    log_transaction(
+    dal.log_transaction(
       {
         donor_id: request.session.auth.id,
         charity_id: request.session.charity.id,
@@ -218,8 +218,6 @@ exports.donate = function(request, response)
               account_type: data.account_type
             }
           },
-          donor_id.toString() + ".json",
-          config.account_file_target,
           function(err)
           {
             if(err)
@@ -647,13 +645,13 @@ function send_payment(request, response, data, donor_id)
 function create_secure_account_file(donor,callback)
 {
   //encrypt the account details
-  donor.account = rsa.encrypt(JSON.stringify(donor.account),config.account_public_key);
+  donor.account = rsa.encrypt(JSON.stringify(donor.account),conf.account_public_key);
 
   var write_file = require("./secure_writer").write_file;
   write_file(
     JSON.stringify(donor),
     donor.donor_id.toString() + ".json",
-    config.account_file_target,
+    conf.account_file_target,
     function(err)
     {
       callback(err);
