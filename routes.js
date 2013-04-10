@@ -27,6 +27,11 @@ module.exports = [
   },
   {
     verb: 'post',
+    path: '/logout',
+    action: actions.logout
+  },
+  {
+    verb: 'post',
     path: '/donate',
     action: actions.donate
   },

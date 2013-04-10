@@ -1,7 +1,7 @@
 <div id="auth" class="widget_screen center">
   <div id="charity_name">
     {{charity_name}} <br/>
-    <a id="manage_account" href="">Manage your account</a>
+    <!--<a id="manage_account" href="">Manage your account</a>-->
   </div>
   <div id="auth_header">
     <h2>100% given = 100% received</h2>
@@ -15,7 +15,7 @@
 
   <form id="donation_form">
     <div id="donor_fields">
-      <input type="text" id="auth_amount" value="{{amount}}" name="amount" required="required" placeholder="$Giving Amount " /><div class="validation" for="amount" title="Amount is required, and must be a numeric value"></div><br/>
+      <input type="text" id="auth_amount" value="{{amount}}" name="amount" required="required" placeholder="$Giving Amount " /><div class="validation" for="amount" title="Amount is required, and must be a numeric value between $5 and $2000"></div><br/>
     </div>
   </form>
 

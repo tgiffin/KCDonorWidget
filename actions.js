@@ -136,20 +136,31 @@ exports.donate = function(request, response)
   //let's validate the information that was sent to us
   //sqli is dealt with by the dal, and this has already been cleansed for xss
   var valid = true;
+  var message = "Invalid data";
   if(!data.first_name) valid=false;
   if(!data.last_name) valid=false;
   if(!data.email) valid = false;
   if(!data.confirm_email || (data.email != data.confirm_email)) valid=false;
   if(!data.amount) valid=false;
-  if(isNaN(parseFloat(data.amount))) valid=false;
+  var amt = parseFloat(data.amount);
+  if(isNaN(amt)) valid=false;
+  else
+  {
+    if(amt<5 || amt > 2000)
+    {
+      valid=false;
+      message = "Please enter an amount between $5 and $2000";
+    }
+  }
+
   if(valid==false)
   {
     response.json(
       {
         success: false,
-        message: "Invalid data"
+        message: message
       });
-    return;
+      return;
   }
 
   //this is an unauthenticated user. First, let's create the donor record.
@@ -242,7 +253,9 @@ exports.is_auth = function(request, response)
   {
     response.json(
       {
-        auth: true
+        auth: true, 
+        first_name: request.session.auth.first_name,
+        last_name: request.session.auth.last_name
       }
     );
   }
@@ -280,7 +293,9 @@ exports.auth = function(request, response, next)
         request.session.auth = donor;
         response.json(
           {
-            auth: true
+            auth: true,
+            first_name: request.session.auth.first_name,
+            last_name: request.session.auth.last_name
           });
       }
       else
@@ -292,6 +307,18 @@ exports.auth = function(request, response, next)
           });
       }
 
+    });
+}
+
+/**
+ * Logs the authenticated user out by clearing the auth object out of the session
+ */
+exports.logout = function(request,response)
+{
+  request.session.auth = null;
+  response.json(
+    {
+      auth: false
     });
 }
 
