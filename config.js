@@ -52,7 +52,7 @@ module.exports = function()
         prevent_payment_processing: false,
         logger: log,
         port: 443,
-        db_host: 'localhost',
+        db_host: '10.112.82.8',
         db_name: 'klearchoice',
         db_username: 'klearchoice',
         db_password: 'KC2242012',
