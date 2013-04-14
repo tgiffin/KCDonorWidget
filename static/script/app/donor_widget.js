@@ -85,7 +85,7 @@
             {
               var amt = parseFloat($(this).val().replace("$",""));
               if(isNaN(amt)) return false;
-              if(amt < 5 || amt > 2000) return false;
+              if(amt < 1 || amt > 2000) return false;
               return true;
             });
           //just basic validator functions for these. Required validation
@@ -235,7 +235,7 @@
             {
               var amt = parseFloat($(this).val().replace("$",""));
               if(isNaN(amt)) return false;
-              if(amt < 5 || amt > 2000) return false;
+              if(amt < 1 || amt > 2000) return false;
               return true;
             });
 
