@@ -57,7 +57,7 @@ module.exports = function()
         db_username: 'klearchoice',
         db_password: 'KC2242012',
         hostname: "https://app.klearchoice.com",
-        account_file_target: "incoming@payment_server",
+        account_file_target: "incoming@payment_server -p 4242",
         account_public_key: fs.readFileSync("/home/app/keys/payment_server.pub"),
         dwolla_id: "812-708-2911", //this is the klearchoice account id
         dwolla_path: "/oauth/rest/transactions/send",
