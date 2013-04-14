@@ -6,23 +6,6 @@
   {
     var locals = {fee:.5};
     var screen_logic;
-    
-    //for debugging
-    locals = {
-      amount: 1,
-      fee: .5,
-      first_name: "Travis",
-      last_name: "Griffin",
-      email: "claytongulick@gmail.com",
-      confirm_email: "claytongulick@gmail.com",
-      account_number: 192028539,
-      account_type: "Checking",
-      routing_number: 325070760,
-      create_account: true,
-      password: "correcthorsebatterystaple",
-      confirm_password: "correcthorsebatterystaple",
-      accept_member_terms: true
-    };
 
     //initialize logic for each screen
     screen_logic = {
