@@ -222,6 +222,7 @@ exports.donate = function(request, response)
           {
             if(err)
             {
+              console.error(err);
               response.json(
               {
                 success: false,
