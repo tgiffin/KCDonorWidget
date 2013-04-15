@@ -181,29 +181,6 @@ exports.dwolla =
       return;
     }
 
-    console.log(util.inspect( {
-      client_id: conf.dwolla_app_id,
-      client_secret: conf.dwolla_app_secret,
-      destinationId: params.destination_id,
-      amount: params.amount,
-      firstName: params.first_name,
-      lastName: params.last_name,
-      emailAddress: params.email,
-      routingNumber: params.routing_number,
-      accountNumber: params.account_number,
-      accountType: params.account_type,
-      assumeCosts: true,
-      destinationType: 'Dwolla',
-      notes: "Online Donation to " + params.charity_name,
-      groupId: params.charity_id,
-      additionalFees: [
-        {
-          destinationId: conf.dwolla_id,
-          amount: klearchoice_fee
-        }
-      ]
-    }));
-
     request(
       {
         url: "https://www.dwolla.com" + conf.dwolla_guest_send_path,
