@@ -199,13 +199,7 @@ exports.dwolla =
           assumeCosts: true,
           destinationType: 'Dwolla',
           notes: "Online Donation to " + params.charity_name,
-          groupId: params.charity_id,
-          additionalFees: [
-            {
-              destinationId: conf.dwolla_id,
-              amount: klearchoice_fee
-            }
-          ]
+          groupId: params.charity_id
         }
       },
       //http request callback
