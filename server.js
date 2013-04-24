@@ -48,7 +48,6 @@ function authenticate(request, response, next)
                       '/register_charity',
                       '/save_charity',
                       '/get_donor',
-                      '/get_captcha',
                       '/recover_password'
                   ]
   var pathname = urllib.parse(request.url).pathname;

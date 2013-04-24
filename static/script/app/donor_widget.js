@@ -196,7 +196,12 @@
                     locals = $.extend(locals,data);
                     return show_screen("donor_widget_auth");
                   }
-                  $("#login_error").html("Invalid login");
+                  if(data.require_captcha)
+                  {
+                    $("#login").empty().html("Too many login attempts. Please wait 5 minutes or <a href='/profile.html' target='_blank'>click here</a> to recover your password.");
+                  }
+                  else
+                    $("#login_error").html("Invalid login");
                 }
               );
             });

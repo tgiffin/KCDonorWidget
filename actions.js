@@ -1,4 +1,3 @@
-var mustache = require("mustache"); //templating engine
 var console = require("console");
 var payment = require("./payment").dwolla; //payment processor
 var dal = require("./dal"); //data access layer
@@ -12,6 +11,7 @@ var crypto = require('crypto');
 var util = require("util");
 var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
 var templates = require("./templates").templates;
+var Recaptcha = require("recaptcha").Recaptcha;
 
 /**
  * This is the starting page
@@ -66,7 +66,8 @@ exports.profile = function(request, response)
 {
     response.send(templates['profile.html'](
       {
-        authenticated: request.session.auth ? true : false
+        authenticated: request.session.auth ? true : false,
+        recaptcha_public_key: conf.recaptcha_public_key
       }));
 }
 
@@ -74,21 +75,6 @@ exports.profile = function(request, response)
  * API Service calls
  */
 
-/**
- * Straight ajax method to return captcha markup.
- * Unlike other service calls in this api, this does not return a json packet,
- * it is a straight html write
- */
-exports.get_captcha = function(request, response)
-{
-  var Recaptcha = require("recaptcha").Recaptcha;
-  response.send(
-    new Recaptcha(
-      conf.recaptcha_public_key,
-      conf.recaptcha_private_key
-    ).toHTML()
-  );
-}
 
 /**
  * Send out password recovery email.
@@ -335,6 +321,8 @@ exports.is_auth = function(request, response)
   }
 }
 
+//this is a tracker that keeps a tally of the auth requests per IP address
+var auth_requests = [];
 /**
  * Authenticate user and store info in auth session variable
  */
@@ -342,38 +330,103 @@ exports.auth = function(request, response, next)
 {
   var credentials={};
   for(var key in request.body) { credentials[key] = escapeHtml(request.body[key]); }
+  
+  var ip = request.connection.remoteAddress;
+  var require_captcha=false;
 
-  dal.open();
-  dal.get_donor_auth({email: credentials.email, password: credentials.password},
-    function(err, donor)
+  if(auth_requests[ip])
+  {
+    var ticks = (new Date()).ticks - auth_requests[ip].last_attempt.ticks;
+    if(ticks > 1000 * 60 * 5) //been 5 mins?
     {
-      dal.close();
-      if(err)
-      {
-        next(err);
-        return;
-      }
+      //reset attempts
+      auth_requests[ip].attempts=0;
+    }
+    auth_requests[ip].attempts++;
+    auth_requests[ip].last_attempt=new Date();
+  }
+  else
+    auth_requests[ip] = {attempts:1,last_attempt:new Date()};
 
-      if(donor)
-      {
-        request.session.auth = donor;
-        response.json(
-          {
-            auth: true,
-            first_name: request.session.auth.first_name,
-            last_name: request.session.auth.last_name
-          });
-      }
-      else
-      {
-        request.session.auth = null;
-        response.json(
-          {
-            auth: false
-          });
-      }
+  if(auth_requests[ip].attempts > 3)
+  {
+    require_captcha=true;
+    console.log("exceed max trials for ip: " + ip + " requiring captcha.");
+  }
 
-    });
+  function validate_auth()
+  {
+    dal.open();
+    dal.get_donor_auth({email: credentials.email, password: credentials.password},
+      function(err, donor)
+      {
+        dal.close();
+        if(err)
+        {
+          next(err);
+          return;
+        }
+
+        if(donor)
+        {
+          auth_requests[ip].attempts=0;//reset auth requests
+          request.session.auth = donor;
+          response.json(
+            {
+              auth: true,
+              first_name: request.session.auth.first_name,
+              last_name: request.session.auth.last_name
+            });
+        }
+        else
+        {
+          request.session.auth = null;
+          response.json(
+            {
+              auth: false,
+              require_captcha: (auth_requests[ip].attempts >= 3)
+            });
+        }
+
+      }); //end get_donor_auth
+  } //end validate_auth
+  if(require_captcha)
+  {
+    if(!request.body.recaptcha_response_field)
+    {
+      response.json(
+        {
+          auth: false,
+          require_captcha: true,
+          recaptcha_success: false
+        });
+      return;
+    }
+    var recaptcha = new Recaptcha(
+                          conf.recaptcha_public_key, 
+                          conf.recaptcha_private_key,
+                          {
+                            remoteip: ip,
+                            challenge: request.body.recaptcha_challenge_field,
+                            response: request.body.recaptcha_response_field
+                          });
+    recaptcha.verify(
+      function(success, error_code)
+      {
+        if(success)
+          validate_auth();
+        else
+          response.json(
+            {
+              auth: false,
+              require_captcha: true,
+              recaptcha_success: false
+            });
+      });
+  }
+  else
+    validate_auth();
+    
 }
 
 /**

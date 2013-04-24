@@ -66,11 +66,6 @@ module.exports = [
     action: actions.get_donor
   },
   {
-    verb: 'get',
-    path: '/get_captcha',
-    action: actions.get_captcha
-  },
-  {
     verb: 'post',
     path: '/recover_password',
     action: actions.recover_password
