@@ -13,6 +13,8 @@ module.exports = function()
       log.mode("debug");
       return {
         env: "development",
+        recaptcha_public_key: "6Ld6XeASAAAAAGc2bgxW4EOf-dkCKV9htqXhxdbd",
+        recaptcha_private_key: "6Ld6XeASAAAAAC7Q5mwT_xP6YQpxZglV8wDOcAr6",
         prevent_payment_processing: true,
         logger: log,
         port: 3000,

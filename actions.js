@@ -1,6 +1,5 @@
 var mustache = require("mustache"); //templating engine
 var console = require("console");
-var server = require("./server");
 var payment = require("./payment").dwolla; //payment processor
 var dal = require("./dal"); //data access layer
 var fs = require("fs");
@@ -12,8 +11,7 @@ var URI = require("./lib/URI/URI");
 var crypto = require('crypto');
 var util = require("util");
 var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
-
-var app = server.app;
+var templates = require("./templates").templates;
 
 /**
  * This is the starting page
@@ -41,8 +39,7 @@ exports.donor_widget = function(request, response, next)
         }
 
         request.session.charity = info = row;
-
-        response.send(mustache.to_html(loadTemplate('donor_widget'),
+        response.send(templates['donor_widget.html'](
         {
           charity_name: row.charity_name
         }));
@@ -51,17 +48,87 @@ exports.donor_widget = function(request, response, next)
   }
 
 
-
+/**
+ * This is the Charity registration page. Currently it just loads the static template,
+ * however in the future server-side logic may occur, so it is implemented as an action
+ */
 exports.register = function(request, response)
 {
-    response.send(mustache.to_html(loadTemplate('register'),
+    response.send(templates['register.html'](
       {
+      }));
+}
+
+/**
+ * Load the user's profile page
+ */
+exports.profile = function(request, response)
+{
+    response.send(templates['profile.html'](
+      {
+        authenticated: request.session.auth ? true : false
       }));
 }
 
 /**
  * API Service calls
  */
+
+/**
+ * Straight ajax method to return captcha markup.
+ * Unlike other service calls in this api, this does not return a json packet,
+ * it is a straight html write
+ */
+exports.get_captcha = function(request, response)
+{
+  var Recaptcha = require("recaptcha").Recaptcha;
+  response.send(
+    new Recaptcha(
+      conf.recaptcha_public_key,
+      conf.recaptcha_private_key
+    ).toHTML()
+  );
+}
+
+/**
+ * Send out password recovery email.
+ *
+ * This does the following things:
+ * 1) Generates reset token (guid) and stores it in the password_recovery_token field along with the password recovery date
+ * 2) Sends email with recovery link
+ */
+exports.recover_password = function(request, response)
+{
+  var uuid = require("node-uuid");
+  var token = uuid.v4();
+
+  dal.open();
+  dal.get_donor(request.body.email,
+    function(err, donor)
+    {
+      if(err)
+      {
+          response.json(
+            {
+              success: false,
+              message: "Database error querying donor record"
+            });
+          return;
+      }
+      if(!donor)
+      {
+          response.json(
+            {
+              success: false,
+              message: "Unknown email address"
+            });
+          return;
+      }
+
+    
+    });
+
+}
 
 /**
  * This is the main donation function called from the donor widget

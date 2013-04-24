@@ -34,6 +34,12 @@ function authenticate(request, response, next)
                       '/favicon.ico',
                       '/donor_widget.html',
                       '/register.html',
+                      //though it doesn't look like this should be an exception,
+                      //it is - the user can log in on this page or have their auth
+                      //passed through if they are already authenticated
+                      '/profile.html',
+                      //this takes the one time token as a url param, so there's no auth
+                      '/reset_password.html',
 
                       //unsecured API routes
                       '/auth',
@@ -42,6 +48,8 @@ function authenticate(request, response, next)
                       '/register_charity',
                       '/save_charity',
                       '/get_donor',
+                      '/get_captcha',
+                      '/recover_password'
                   ]
   var pathname = urllib.parse(request.url).pathname;
 

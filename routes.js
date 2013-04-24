@@ -11,6 +11,16 @@ module.exports = [
     path: '/register.html',
     action: actions.register
   },
+  {
+    verb: 'get',
+    path: '/profile.html',
+    action: actions.profile
+  },
+  {
+    verb: 'get',
+    path: '/reset_password.html',
+    action: actions.reset_password
+  },
 
   /**
    * API routes
@@ -54,5 +64,15 @@ module.exports = [
     verb: 'post',
     path: '/get_donor',
     action: actions.get_donor
+  },
+  {
+    verb: 'get',
+    path: '/get_captcha',
+    action: actions.get_captcha
+  },
+  {
+    verb: 'post',
+    path: '/recover_password',
+    action: actions.recover_password
   }
 ];
