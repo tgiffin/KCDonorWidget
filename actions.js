@@ -1,6 +1,4 @@
-var mustache = require("mustache"); //templating engine
 var console = require("console");
-var server = require("./server");
 var payment = require("./payment").dwolla; //payment processor
 var dal = require("./dal"); //data access layer
 var fs = require("fs");
@@ -12,8 +10,8 @@ var URI = require("./lib/URI/URI");
 var crypto = require('crypto');
 var util = require("util");
 var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
-
-var app = server.app;
+var templates = require("./templates").templates;
+var Recaptcha = require("recaptcha").Recaptcha;
 
 /**
  * This is the starting page
@@ -41,8 +39,7 @@ exports.donor_widget = function(request, response, next)
         }
 
         request.session.charity = info = row;
-
-        response.send(mustache.to_html(loadTemplate('donor_widget'),
+        response.send(templates['donor_widget.html'](
         {
           charity_name: row.charity_name
         }));
@@ -51,17 +48,73 @@ exports.donor_widget = function(request, response, next)
   }
 
 
-
+/**
+ * This is the Charity registration page. Currently it just loads the static template,
+ * however in the future server-side logic may occur, so it is implemented as an action
+ */
 exports.register = function(request, response)
 {
-    response.send(mustache.to_html(loadTemplate('register'),
+    response.send(templates['register.html'](
       {
+      }));
+}
+
+/**
+ * Load the user's profile page
+ */
+exports.profile = function(request, response)
+{
+    response.send(templates['profile.html'](
+      {
+        authenticated: request.session.auth ? true : false,
+        recaptcha_public_key: conf.recaptcha_public_key
       }));
 }
 
 /**
  * API Service calls
  */
+
+
+/**
+ * Send out password recovery email.
+ *
+ * This does the following things:
+ * 1) Generates reset token (guid) and stores it in the password_recovery_token field along with the password recovery date
+ * 2) Sends email with recovery link
+ */
+exports.recover_password = function(request, response)
+{
+  var uuid = require("node-uuid");
+  var token = uuid.v4();
+
+  dal.open();
+  dal.get_donor(request.body.email,
+    function(err, donor)
+    {
+      if(err)
+      {
+          response.json(
+            {
+              success: false,
+              message: "Database error querying donor record"
+            });
+          return;
+      }
+      if(!donor)
+      {
+          response.json(
+            {
+              success: false,
+              message: "Unknown email address"
+            });
+          return;
+      }
+
+    
+    });
+
+}
 
 /**
  * This is the main donation function called from the donor widget
@@ -102,7 +155,7 @@ exports.donate = function(request, response)
   if(request.session.auth)
   {
     dal.open();
-    log_transaction(
+    dal.log_transaction(
       {
         donor_id: request.session.auth.id,
         charity_id: request.session.charity.id,
@@ -136,20 +189,31 @@ exports.donate = function(request, response)
   //let's validate the information that was sent to us
   //sqli is dealt with by the dal, and this has already been cleansed for xss
   var valid = true;
+  var message = "Invalid data";
   if(!data.first_name) valid=false;
   if(!data.last_name) valid=false;
   if(!data.email) valid = false;
   if(!data.confirm_email || (data.email != data.confirm_email)) valid=false;
   if(!data.amount) valid=false;
-  if(isNaN(parseFloat(data.amount))) valid=false;
+  var amt = parseFloat(data.amount);
+  if(isNaN(amt)) valid=false;
+  else
+  {
+    if(amt<1 || amt > 2000)
+    {
+      valid=false;
+      message = "Please enter an amount between $5 and $2000";
+    }
+  }
+
   if(valid==false)
   {
     response.json(
       {
         success: false,
-        message: "Invalid data"
+        message: message
       });
-    return;
+      return;
   }
 
   //this is an unauthenticated user. First, let's create the donor record.
@@ -207,12 +271,11 @@ exports.donate = function(request, response)
               account_type: data.account_type
             }
           },
-          donor_id.toString() + ".json",
-          config.account_file_target,
           function(err)
           {
             if(err)
             {
+              console.error(err);
               response.json(
               {
                 success: false,
@@ -242,7 +305,9 @@ exports.is_auth = function(request, response)
   {
     response.json(
       {
-        auth: true
+        auth: true, 
+        first_name: request.session.auth.first_name,
+        last_name: request.session.auth.last_name
       }
     );
   }
@@ -256,6 +321,8 @@ exports.is_auth = function(request, response)
   }
 }
 
+//this is a tracker that keeps a tally of the auth requests per IP address
+var auth_requests = [];
 /**
  * Authenticate user and store info in auth session variable
  */
@@ -263,35 +330,114 @@ exports.auth = function(request, response, next)
 {
   var credentials={};
   for(var key in request.body) { credentials[key] = escapeHtml(request.body[key]); }
+  
+  var ip = request.connection.remoteAddress;
+  var require_captcha=false;
 
-  dal.open();
-  dal.get_donor_auth({email: credentials.email, password: credentials.password},
-    function(err, donor)
+  if(auth_requests[ip])
+  {
+    var ticks = (new Date()).ticks - auth_requests[ip].last_attempt.ticks;
+    if(ticks > 1000 * 60 * 5) //been 5 mins?
     {
-      dal.close();
-      if(err)
-      {
-        next(err);
-        return;
-      }
+      //reset attempts
+      auth_requests[ip].attempts=0;
+    }
+    auth_requests[ip].attempts++;
+    auth_requests[ip].last_attempt=new Date();
+  }
+  else
+    auth_requests[ip] = {attempts:1,last_attempt:new Date()};
 
-      if(donor)
-      {
-        request.session.auth = donor;
-        response.json(
-          {
-            auth: true
-          });
-      }
-      else
-      {
-        request.session.auth = null;
-        response.json(
-          {
-            auth: false
-          });
-      }
+  if(auth_requests[ip].attempts > 3)
+  {
+    require_captcha=true;
+    console.log("exceed max trials for ip: " + ip + " requiring captcha.");
+  }
 
+  function validate_auth()
+  {
+    dal.open();
+    dal.get_donor_auth({email: credentials.email, password: credentials.password},
+      function(err, donor)
+      {
+        dal.close();
+        if(err)
+        {
+          next(err);
+          return;
+        }
+
+        if(donor)
+        {
+          auth_requests[ip].attempts=0;//reset auth requests
+          request.session.auth = donor;
+          response.json(
+            {
+              auth: true,
+              first_name: request.session.auth.first_name,
+              last_name: request.session.auth.last_name
+            });
+        }
+        else
+        {
+          request.session.auth = null;
+          response.json(
+            {
+              auth: false,
+              require_captcha: (auth_requests[ip].attempts >= 3)
+            });
+        }
+
+      }); //end get_donor_auth
+  } //end validate_auth
+  if(require_captcha)
+  {
+    if(!request.body.recaptcha_response_field)
+    {
+      response.json(
+        {
+          auth: false,
+          require_captcha: true,
+          recaptcha_success: false
+        });
+      return;
+    }
+    var recaptcha = new Recaptcha(
+                          conf.recaptcha_public_key, 
+                          conf.recaptcha_private_key,
+                          {
+                            remoteip: ip,
+                            challenge: request.body.recaptcha_challenge_field,
+                            response: request.body.recaptcha_response_field
+                          });
+    recaptcha.verify(
+      function(success, error_code)
+      {
+        if(success)
+          validate_auth();
+        else
+          response.json(
+            {
+              auth: false,
+              require_captcha: true,
+              recaptcha_success: false
+            });
+      });
+  }
+  else
+    validate_auth();
+    
+}
+
+/**
+ * Logs the authenticated user out by clearing the auth object out of the session
+ */
+exports.logout = function(request,response)
+{
+  request.session.auth = null;
+  response.json(
+    {
+      auth: false
     });
 }
 
@@ -620,13 +766,13 @@ function send_payment(request, response, data, donor_id)
 function create_secure_account_file(donor,callback)
 {
   //encrypt the account details
-  donor.account = rsa.encrypt(JSON.stringify(donor.account),config.account_public_key);
+  donor.account = rsa.encrypt(JSON.stringify(donor.account),conf.account_public_key);
 
   var write_file = require("./secure_writer").write_file;
   write_file(
     JSON.stringify(donor),
     donor.donor_id.toString() + ".json",
-    config.account_file_target,
+    conf.account_file_target,
     function(err)
     {
       callback(err);

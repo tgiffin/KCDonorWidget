@@ -175,28 +175,11 @@ exports.dwolla =
   {
     var url = conf.payment_api_url;
 
-    console.log(util.inspect( {
-      client_id: conf.dwolla_app_id,
-      client_secret: conf.dwolla_app_secret,
-      destinationId: params.destination_id,
-      amount: params.amount,
-      firstName: params.first_name,
-      lastName: params.last_name,
-      emailAddress: params.email,
-      routingNumber: params.routing_number,
-      accountNumber: params.account_number,
-      accountType: params.account_type,
-      assumeCosts: true,
-      destinationType: 'Dwolla',
-      notes: "Online Donation to " + params.charity_name,
-      groupId: params.charity_id,
-      additionalFees: [
-        {
-          destinationId: conf.dwolla_id,
-          amount: klearchoice_fee
-        }
-      ]
-    }));
+    if(conf.prevent_payment_processing)
+    {
+      callback(null,{Success:true});
+      return;
+    }
 
     request(
       {
@@ -216,13 +199,7 @@ exports.dwolla =
           assumeCosts: true,
           destinationType: 'Dwolla',
           notes: "Online Donation to " + params.charity_name,
-          groupId: params.charity_id,
-          additionalFees: [
-            {
-              destinationId: conf.dwolla_id,
-              amount: klearchoice_fee
-            }
-          ]
+          groupId: params.charity_id
         }
       },
       //http request callback

@@ -27,6 +27,16 @@ scripts = {
                                             "/script/lib/URI.js",
                                             null, //block until libs are loaded
                                             "/script/app/register.js"
+                                          ],
+
+  "/profile.html"                  : [
+                                            "/script/lib/jquery-ui-1.10.2.custom.min.js",
+                                            "/script/lib/jquery.formatCurrency-1.4.0.min.js",
+                                            "/script/lib/mustache.js",
+                                            "/script/lib/jquery.html5-placeholder-shim.js",
+                                            "/script/lib/spin.js",
+                                            null, //block until libs are loaded
+                                            "/script/app/profile.js"
                                           ]
 
 

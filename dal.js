@@ -96,8 +96,8 @@ module.exports = {
         if(err)
         {
           log.error("Error inserting transaction: " + util.inspect(transaction) + " err: " + err);
-          if(callback) callback(err,result);
         }
+        if(callback) callback(err,result);
       });
   },
 

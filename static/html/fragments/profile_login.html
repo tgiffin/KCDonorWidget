@@ -1,0 +1,38 @@
+<div id="login" class="profile_screen">
+  <h3>Login</h3>
+  <div id='login_form' class="login_form large_line_height">
+    <p>Please enter your user name (email address) and password below to log in to your account profile page</p>
+    <form id="auth">
+      <div class="input_wrapper col1">
+        <input type="text" class="required" placeholder="User name (email address)" name="username" id="username" required="required" />
+        <div class="validation" for="username" title="Username is required and must be a valid email address"></div>
+      </div>
+      <div class="input_wrapper col2">
+        <input type="password" class="required" placeholder="Password" name="password" id="password" required="required" />
+        <div class="validation" for="password" title="Password is required"></div>
+      </div>
+      <button type="button" id="submit_login" class="orange">
+        Submit 
+      </button>
+      <div id="login_error" class="error"></div>
+      <div id="login_recaptcha" class="captcha"></div>
+    </form>
+  </div>
+  <div id="password_recovery_form" class="large_line_height">
+    <h4>Password Recovery</h4>
+    <p>Forgot your password? No problem, just enter the email address you used to register with us and we'll send you 
+    a link that you can use to reset your password.</p>
+    <form id="password_recovery">
+      <div class="large_line_height">
+        <div class="input_wrapper col1">
+          <input type="text" class="required" placeholder="Email address" name="email" id="email" />
+          <div class="validation" for="email" title="Email is required and must be a valid email format (user@example.com)"></div>
+        </div>
+      </div>
+      <div id="recovery_recaptcha" class="captcha"></div>
+      <button type="button" id="submit_password_recovery" class="orange">
+        Submit 
+      </button>
+    </form>
+  </div>
+</div> <!-- end step 1 -->

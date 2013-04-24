@@ -6,23 +6,6 @@
   {
     var locals = {fee:.5};
     var screen_logic;
-    
-    //for debugging
-    /*locals = {
-      amount: 1,
-      fee: .5,
-      first_name: "Travis",
-      last_name: "Griffin",
-      email: "claytongulick@gmail.com",
-      confirm_email: "claytongulick@gmail.com",
-      account_number: 192028539,
-      account_type: "Checking",
-      routing_number: 325070760,
-      create_account: true,
-      password: "correcthorsebatterystaple",
-      confirm_password: "correcthorsebatterystaple",
-      accept_member_terms: true
-    };*/
 
     //initialize logic for each screen
     screen_logic = {
@@ -33,6 +16,8 @@
       donor_widget_no_auth: 
         function()
         {
+
+
           //a little initialization, in case this is a edit/back. The other values are loaded from the template
           if(locals.create_account)
           {
@@ -93,28 +78,14 @@
               }
             });
 
-          //decorator for required values
-          function validator(fn)
-          {
-            return function()
-            {
-              if(($(this).attr("required") == "required"))
-              {
-                if(!($(this).val())) return false;
-              }
-
-              if(fn)
-                return fn.apply(this);
-
-              return true
-            }
-          }
 
           //set up validations
           $("#amount")[0].validate = validator(
             function()
             {
-              if(isNaN(parseFloat($(this).val().replace("$","")))) return false;
+              var amt = parseFloat($(this).val().replace("$",""));
+              if(isNaN(amt)) return false;
+              if(amt < 1 || amt > 2000) return false;
               return true;
             });
           //just basic validator functions for these. Required validation
@@ -162,105 +133,6 @@
 
           );
 
-          //validate the input
-          function validate()
-          {
-            var valid=true;
-            $(".error").removeClass("error");
-            $(".validation").hide();
-
-            //validate all fields
-            $("input").each(
-              function()
-              {
-                if(this.validate && !this.validate())
-                  valid = show_error($(this).attr("id"));
-              });
-
-            return valid;
-          }
-
-          //calculate the password strength
-          function score_password(pass) {
-            var score = 0;
-            if (!pass)
-              return score;
-
-            // award every unique letter until 5 repetitions
-            var letters = new Object();
-            for (var i=0; i<pass.length; i++) {
-              letters[pass[i]] = (letters[pass[i]] || 0) + 1;
-              score += 5.0 / letters[pass[i]];
-            }
-
-            // bonus points for mixing it up
-            var variations = {
-              digits: /\d/.test(pass),
-              lower: /[a-z]/.test(pass),
-              upper: /[A-Z]/.test(pass),
-              nonWords: /\W/.test(pass),
-            }
-
-            variationCount = 0;
-            for (var check in variations) {
-              variationCount += (variations[check] == true) ? 1 : 0;
-            }
-            score += (variationCount - 1) * 10;
-
-            return parseInt(score);
-          }
-          //validate the routing number according to ABA standard
-          function check_aba(s) {
-
-            var i, n, t;
-
-            // First, remove any non-numeric characters.
-
-            t = "";
-            for (i = 0; i < s.length; i++) {
-              c = parseInt(s.charAt(i), 10);
-              if (c >= 0 && c <= 9)
-                t = t + c;
-            }
-
-            // Check the length, it should be nine digits.
-
-            if (t.length != 9)
-              return false;
-
-            // Now run through each digit and calculate the total.
-
-            n = 0;
-            for (i = 0; i < t.length; i += 3) {
-              n += parseInt(t.charAt(i),     10) * 3
-              +  parseInt(t.charAt(i + 1), 10) * 7
-              +  parseInt(t.charAt(i + 2), 10);
-            }
-
-            // If the resulting sum is an even multiple of ten (but not zero),
-            // the aba routing number is good.
-
-            if (n != 0 && n % 10 == 0)
-              return true;
-            else
-              return false;
-          }
-
-          //change the class and show the error tooltip
-          function show_error(id)
-          {
-            $("#" + id).addClass("error");
-            $("[for='" + id + "']").css("display","inline-block");
-            return false; //this is just to save curly brackets typing
-          }
-
-          //clear the error display
-          function clear_error(id)
-          {
-            $("#" + id).removeClass("error");
-            $("[for='" + id + "']").fadeOut();
-          }
-
           //show check help dialog when help button is clicked
           $(".help_button").on("click",
             function()
@@ -272,119 +144,71 @@
                 {
                   width: 500
                 });
-
-
-            });
-
-          //listen for "show" message and hook up html5 placeholder shim
-          //I curse IE. It caused these shenanigans.
-          $(window).on("message",
-            function(evt)
-            {
-              var data = evt.originalEvent.data;
-              if(data == "show")
-              {
-                //html5 placeholder shim for IE
-                jQuery.placeholder.shim();
-              }
             });
 
           //allow only numbers and decimal point
-          $("#amount").on("keypress",
-            function(evt)
-            {
-              var ch = String.fromCharCode(evt.charCode);
-              if(ch == ".") return;
-              if(isNaN(parseInt(ch)))
-              {
-                evt.preventDefault();
-                return false;
-              }
-            });
+          $("#amount").on("keypress",filter_amount);
 
           //format the input box for currency
-          $("#amount").keyup(
+          $("#amount").keyup(format_amount);
+
+          //handle create account click
+          $("#create_account").on("click",
             function()
             {
-              var e = window.event || e;
-              var keyUnicode = e.charCode || e.keyCode;
-
-              if (e !== undefined) {
-                switch (keyUnicode) {
-                  case 16: break; // Shift
-                  case 17: break; // Ctrl
-                  case 18: break; // Alt
-                  case 27: this.value = ''; break; // Esc: clear entry
-                  case 35: break; // End
-                  case 36: break; // Home
-                  case 37: break; // cursor left
-                  case 38: break; // cursor up
-                  case 39: break; // cursor right
-                  case 40: break; // cursor down
-                  case 78: break; // N (Opera 9.63+ maps the "." from the number key section to the "N" key too!) (See: http://unixpapa.com/js/key.html search for ". Del")
-                    case 110: break; // . number block (Opera 9.63+ maps the "." from the number block to the "N" key (78) !!!)
-                    case 190: break; // .
-                    default: $(this).formatCurrency({ colorize: true, negativeFormat: '-%s%n', roundToDecimalPlace: -1, eventOnDecimalsEntered: true });
-                }
-              }
-              var new_val = $(this).val();
-              var decimal_pos = new_val.indexOf(".");
-              if(decimal_pos <=0) return;
-              if((new_val.length - decimal_pos - 1) > 2)
+              if($(this).is(":checked"))
               {
-                //strip decimals more than 2 places
-                $(this).val(new_val.substr(0,new_val.length - 1));
+                $("#password_wrapper").fadeIn();
+                $("#member_terms").show();
+                $("#guest_terms").hide();
+              }
+              else
+              {
+                $("#password_wrapper").fadeOut();
+                $("#member_terms").hide();
+                $("#guest_terms").show();
               }
             });
 
-            //handle create account click
-            $("#create_account").on("click",
-              function()
-              {
-                if($(this).is(":checked"))
-                {
-                  $("#password_wrapper").fadeIn();
-                  $("#member_terms").show();
-                  $("#guest_terms").hide();
-                }
-                else
-                {
-                  $("#password_wrapper").fadeOut();
-                  $("#member_terms").hide();
-                  $("#guest_terms").show();
-                }
-              });
+          //handle submit click
+          $("#submit_no_auth").on("click",
+            function()
+            {
+              if(!validate())
+                return;
+              get_values();
+              show_screen("donor_widget_confirm");
+            });
 
-            //handle submit click
-            $("#submit_no_auth").on("click",
-              function()
-              {
-                if(!validate())
-                  return;
-                get_values();
-                show_screen("donor_widget_confirm");
-              });
-
-            //handle login click
-            $("#login_button").on("click",
-              function()
-              {
-                $.post("auth",
-                      {
-                        email: $("#login_email").val(),
-                        password: $("#login_password").val()
-                      },
-                      function(data,textStatus,jqXHR)
-                      {
-                        if(data.auth)
-                          return show_screen("donor_widget_auth");
-                        $("#login_error").html("Invalid login");
-                      }
-                  );
-              });
+          //handle login click
+          $("#login_button").on("click",
+            function()
+            {
+              $.post("auth",
+                {
+                  email: $("#login_email").val(),
+                  password: $("#login_password").val()
+                },
+                function(data,textStatus,jqXHR)
+                {
+                  if(data.auth)
+                  {
+                    locals = $.extend(locals,data);
+                    return show_screen("donor_widget_auth");
+                  }
+                  if(data.require_captcha)
+                  {
+                    $("#login").empty().html("Too many login attempts. Please wait 5 minutes or <a href='/profile.html' target='_blank'>click here</a> to recover your password.");
+                  }
+                  else
+                    $("#login_error").html("Invalid login");
+                }
+              );
+            });
 
           
         },
+
       /**
        * Logic for the authorized member donation screen.
        * When a member logs in, they can use this simplified screen
@@ -392,71 +216,40 @@
       donor_widget_auth:
         function()
         {
-          //listen for "show" message and hook up html5 placeholder shim
-          //I curse IE. It caused these shenanigans.
-          $(window).on("message",
-            function(evt)
+          //handle logout click
+          $("#logout").on("click",
+            function()
             {
-              var data = evt.originalEvent.data;
-              if(data == "show")
-              {
-                //html5 placeholder shim for IE
-                jQuery.placeholder.shim();
-              }
+              $.post("logout", {},
+                function(data,textStatus,jqXHR)
+                {
+                  show_screen("donor_widget_no_auth");
+                }
+              );
             });
 
           //allow only numbers and decimal point
-          $("#auth_amount").on("keypress",
-            function(evt)
-            {
-              var ch = String.fromCharCode(evt.charCode);
-              if(ch == ".") return;
-              if(isNaN(parseInt(ch)))
-              {
-                evt.preventDefault();
-                return false;
-              }
-            });
+          $("#auth_amount").on("keypress",filter_amount);
 
           //format the input box for currency
-          $("#auth_amount").keyup(
+          $("#auth_amount").keyup(format_amount);
+          
+          //initialize the validator for the amount input
+          $("#auth_amount")[0].validate = validator(
             function()
             {
-              var e = window.event || e;
-              var keyUnicode = e.charCode || e.keyCode;
-
-              if (e !== undefined) {
-                switch (keyUnicode) {
-                  case 16: break; // Shift
-                  case 17: break; // Ctrl
-                  case 18: break; // Alt
-                  case 27: this.value = ''; break; // Esc: clear entry
-                  case 35: break; // End
-                  case 36: break; // Home
-                  case 37: break; // cursor left
-                  case 38: break; // cursor up
-                  case 39: break; // cursor right
-                  case 40: break; // cursor down
-                  case 78: break; // N (Opera 9.63+ maps the "." from the number key section to the "N" key too!) (See: http://unixpapa.com/js/key.html search for ". Del")
-                    case 110: break; // . number block (Opera 9.63+ maps the "." from the number block to the "N" key (78) !!!)
-                    case 190: break; // .
-                    default: $(this).formatCurrency({ colorize: true, negativeFormat: '-%s%n', roundToDecimalPlace: -1, eventOnDecimalsEntered: true });
-                }
-              }
-              var new_val = $(this).val();
-              var decimal_pos = new_val.indexOf(".");
-              if(decimal_pos <=0) return;
-              if((new_val.length - decimal_pos - 1) > 2)
-              {
-                //strip decimals more than 2 places
-                $(this).val(new_val.substr(0,new_val.length - 1));
-              }
+              var amt = parseFloat($(this).val().replace("$",""));
+              if(isNaN(amt)) return false;
+              if(amt < 1 || amt > 2000) return false;
+              return true;
             });
 
           $("#submit_auth").on("click",
             function()
             {
-              
+              if(!validate()) return;
+              locals.amount = parseFloat($("#auth_amount").val().replace("$",""));
+              show_screen("donor_widget_confirm");
             });
           
         },
@@ -512,6 +305,189 @@
         }
     };
 
+    /*********************** Utility Functions **********************/
+
+    /**
+     * calculate the password strength
+     */
+    function score_password(pass) {
+      var score = 0;
+      if (!pass)
+        return score;
+
+      // award every unique letter until 5 repetitions
+      var letters = new Object();
+      for (var i=0; i<pass.length; i++) {
+        letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+        score += 5.0 / letters[pass[i]];
+      }
+
+      // bonus points for mixing it up
+      var variations = {
+        digits: /\d/.test(pass),
+        lower: /[a-z]/.test(pass),
+        upper: /[A-Z]/.test(pass),
+        nonWords: /\W/.test(pass),
+      }
+
+      variationCount = 0;
+      for (var check in variations) {
+        variationCount += (variations[check] == true) ? 1 : 0;
+      }
+      score += (variationCount - 1) * 10;
+
+      return parseInt(score);
+    }
+
+
+    /**
+     * Basic char code filtering for numeric and decimal
+     */
+    function filter_amount(evt)
+    {
+      var ch = String.fromCharCode(evt.charCode);
+      if(ch == ".") return;
+      if(isNaN(parseInt(ch)))
+      {
+        evt.preventDefault();
+        return false;
+      }
+    }
+
+    /**
+     * validate the routing number according to ABA standard
+     */
+    function check_aba(s) {
+
+      var i, n, t;
+
+      // First, remove any non-numeric characters.
+
+      t = "";
+      for (i = 0; i < s.length; i++) {
+        c = parseInt(s.charAt(i), 10);
+        if (c >= 0 && c <= 9)
+          t = t + c;
+      }
+
+      // Check the length, it should be nine digits.
+
+      if (t.length != 9)
+        return false;
+
+      // Now run through each digit and calculate the total.
+
+      n = 0;
+      for (i = 0; i < t.length; i += 3) {
+        n += parseInt(t.charAt(i),     10) * 3
+        +  parseInt(t.charAt(i + 1), 10) * 7
+        +  parseInt(t.charAt(i + 2), 10);
+      }
+
+      // If the resulting sum is an even multiple of ten (but not zero),
+      // the aba routing number is good.
+
+      if (n != 0 && n % 10 == 0)
+        return true;
+      else
+        return false;
+    }
+
+
+
+    /**
+     * Handle keyboard filtering and currency formatting for the amount text boxes
+     */
+    function format_amount(e)
+    {
+      var keyUnicode = e.charCode || e.keyCode;
+
+      if (e !== undefined) {
+        switch (keyUnicode) {
+          case 16: break; // Shift
+          case 17: break; // Ctrl
+          case 18: break; // Alt
+          case 27: this.value = ''; break; // Esc: clear entry
+          case 35: break; // End
+          case 36: break; // Home
+          case 37: break; // cursor left
+          case 38: break; // cursor up
+          case 39: break; // cursor right
+          case 40: break; // cursor down
+          case 78: break; // N (Opera 9.63+ maps the "." from the number key section to the "N" key too!) (See: http://unixpapa.com/js/key.html search for ". Del")
+          case 110: break; // . number block (Opera 9.63+ maps the "." from the number block to the "N" key (78) !!!)
+          case 190: break; // .
+          default: $(this).formatCurrency({ colorize: true, negativeFormat: '-%s%n', roundToDecimalPlace: -1, eventOnDecimalsEntered: true });
+        }
+      }
+      var new_val = $(this).val();
+      var decimal_pos = new_val.indexOf(".");
+      if(decimal_pos <=0) return;
+      if((new_val.length - decimal_pos - 1) > 2)
+      {
+        //strip decimals more than 2 places
+        $(this).val(new_val.substr(0,new_val.length - 1));
+      }
+    }
+
+    /**
+     * Utility function for wrapping validators. Handles required fields
+     */
+    function validator(fn)
+    {
+      return function()
+      {
+        if(($(this).attr("required") == "required"))
+        {
+          if(!($(this).val())) return false;
+        }
+
+        if(fn)
+          return fn.apply(this);
+
+        return true
+      }
+    }
+
+    /**
+     * Validate the inputs on the currently active screen
+     */
+    function validate()
+    {
+      var valid=true;
+      $(".error").removeClass("error");
+      $(".validation").hide();
+
+      //validate all fields
+      $("input").each(
+        function()
+        {
+          if(this.validate && !this.validate())
+            valid = show_error($(this).attr("id"));
+        });
+
+        return valid;
+    }
+
+    /**
+     * Change the class and show the error tooltip
+     */
+    function show_error(id)
+    {
+      $("#" + id).addClass("error");
+      $("[for='" + id + "']").css("display","inline-block");
+      return false; //this is just to save curly brackets typing
+    }
+
+    /**
+     * Clear the error display
+     */
+    function clear_error(id)
+    {
+      $("#" + id).removeClass("error");
+      $("[for='" + id + "']").fadeOut();
+    }
+
     /**
      * Transition to the specified screen
      */
@@ -523,15 +499,10 @@
         {
           var content = Mustache.render(data,locals);
           if($("#content").html()=="")
-            $("#content")
-              .hide()
-              .html(content)
-              .fadeIn(
-                function()
-                {
-                  if(screen_logic[screen]) screen_logic[screen]();
-                }
-              );
+          {
+            $("#content").html(content);
+            if(screen_logic[screen]) screen_logic[screen]();
+          }
           else
             $("#content").fadeOut(
               function()
@@ -545,8 +516,6 @@
                     }
                   );
               });
-
-          
         });
     }
 
@@ -569,7 +538,7 @@
                 {
                   if(data.auth)
                   {
-                    locals.auth=true;
+                    locals = $.extend(locals,data);
                     show_screen("donor_widget_auth");
                   }
                   else
@@ -583,6 +552,21 @@
             {
               show_screen("donor_widget_error");
             }
+
+            /*listen for "show" message and hook up html5 placeholder shim
+            I curse IE. It caused these shenanigans.
+            The basic issue here is that we need the placeholder shim to execute on an item that's already loaded in the DOM. Since
+            the widget is initially hidden, we have to wait for the hosting page to post a message to tell us that the widget is visible.*/
+            $(window).on("message",
+              function(evt)
+              {
+                var data = evt.originalEvent.data;
+                if(data == "show")
+                {
+                  //html5 placeholder shim for IE
+                  jQuery.placeholder.shim();
+                }
+              });
 
           });
       });
