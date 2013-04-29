@@ -6,7 +6,7 @@ var qs = require("querystring");
 var log = conf.logger;
 var request = require("request");
 
-var klearchoice_fee = .20;
+var klearchoice_fee = .25;
 var processor_fee = .25;
 
 /**
@@ -199,7 +199,8 @@ exports.dwolla =
           assumeCosts: true,
           destinationType: 'Dwolla',
           notes: "Online Donation to " + params.charity_name,
-          groupId: params.charity_id
+          groupId: params.charity_id,
+          facilitatorAmount: klearchoice_fee
         }
       },
       //http request callback
