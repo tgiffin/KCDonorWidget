@@ -62,15 +62,15 @@
               var strength = score_password($(this).val());
               if(strength < 50)
               {
-                $("#password_strength").html("Strength: <span style='color:red'>Weak</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:red'>Weak</span>.");
               }
               else if(strength < 60)
               {
-                $("#password_strength").html("Strength: <span style='color:orange'>Ok</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:orange'>Ok</span>.");
               }
               else if(strength < 80)
               {
-                $("#password_strength").html("Strength: <span style='color:blue'>Good</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:blue'>Good</span>.");
               }
               else if(strength >= 80)
               {
@@ -85,7 +85,7 @@
             {
               var amt = parseFloat($(this).val().replace("$",""));
               if(isNaN(amt)) return false;
-              if(amt < 1 || amt > 2000) return false;
+              if(amt < 10 || amt > 2500) return false;
               return true;
             });
           //just basic validator functions for these. Required validation

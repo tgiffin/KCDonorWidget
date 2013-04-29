@@ -256,7 +256,7 @@ exports.donate = function(request, response)
   if(isNaN(amt)) valid=false;
   else
   {
-    if(amt<1 || amt > 2000)
+    if(amt < 10 || amt > 2500)
     {
       valid=false;
       message = "Please enter an amount between $5 and $2000";
