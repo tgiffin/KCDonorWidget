@@ -10,15 +10,15 @@ module.exports = function()
     case 'development':
     {
       console.log("development");
-      log.mode("debug");
+      log.mode("debug"); 
       return {
         env: "development",
         recaptcha_public_key: "6Ld6XeASAAAAAGc2bgxW4EOf-dkCKV9htqXhxdbd",
         recaptcha_private_key: "6Ld6XeASAAAAAC7Q5mwT_xP6YQpxZglV8wDOcAr6",
         prevent_payment_processing: true,
         logger: log,
-        port: 3000,
-        db_host: '192.168.1.100',
+        port: 3000, 
+        db_host: '192.168.1.101',
         db_name: 'klearchoice',
         db_username: 'klearchoice',
         db_password: 'KC02242012',
