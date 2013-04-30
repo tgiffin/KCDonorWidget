@@ -112,6 +112,8 @@ h5
   padding:15px;
 }
 
+#submit_no_auth {margin-top: 5px;}
+
 #error_message
 {
   color: #883444;

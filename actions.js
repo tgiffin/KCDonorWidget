@@ -256,7 +256,7 @@ exports.donate = function(request, response)
   if(isNaN(amt)) valid=false;
   else
   {
-    if(amt<1 || amt > 2000)
+    if(amt < 10 || amt > 2500)
     {
       valid=false;
       message = "Please enter an amount between $5 and $2000";
@@ -623,7 +623,6 @@ exports.register_charity = function(request, response)
           first_name: charity_info.first_name,
           last_name: charity_info.last_name,
           title: charity_info.title,
-          gender: charity_info.gender,
           board_type: charity_info.board_type,
           email: charity_info.email,
           phone: charity_info.phone,
@@ -657,6 +656,7 @@ exports.register_charity = function(request, response)
 
 /**
  * Save charity information to the database. 
+ * This is called when the charity has an existing dwolla id and doesn't need to register
  *TODO: make this work for updating charity info instead of just inserts
  */
 exports.save_charity = function(request, response)
@@ -684,7 +684,6 @@ exports.save_charity = function(request, response)
       first_name: charity_info.first_name,
       last_name: charity_info.last_name,
       title: charity_info.title,
-      gender: charity_info.gender,
       board_type: charity_info.board_type,
       email: charity_info.email,
       phone: charity_info.phone,

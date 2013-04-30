@@ -315,7 +315,6 @@
             if(!$(this).attr("exclude"))
               charity_info[$(this).attr("id")]=$(this).val();
           });
-        charity_info.gender = $("input[name=gender]:checked").val();
       }
 
       //all back buttons should be permanently enabled 
