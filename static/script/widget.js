@@ -420,7 +420,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       $widget.css(
         {
-          'position':'absolute',
+          'position':'fixed',
           'cursor':'pointer',
           'right':'-30px',
           'height':'30px',
