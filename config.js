@@ -18,7 +18,7 @@ module.exports = function()
         prevent_payment_processing: true,
         logger: log,
         port: 3000,
-        db_host: db_host,
+        db_host: "db_host",
         db_name: 'klearchoice',
         db_username: 'klearchoice',
         db_password: 'KC02242012',
