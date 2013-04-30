@@ -76,7 +76,7 @@
             return;
           }
 
-          $("#register_now".attr("disabled","disabled");
+          $("#register_now").attr("disabled","disabled");
           if(existing_account)
             save_existing_account();
           else
