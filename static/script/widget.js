@@ -414,7 +414,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     //style the tab. If a css class has been specified, use that class. Otherwise, use default styling
     if(tab_style)
     {
-      $widget.addClass(tab_style);
+      $widget.addClass(tab_style); 
     }
     else
     {
@@ -513,7 +513,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     $header.append($close_button);
     $dialog.append($header);
     var $iframe = $("<iframe src='" + options.url + "donor_widget.html' id='klearchoice_widget'></iframe>");
-    $iframe.css({'height':'95%', 'width':'100%', 'border':'none'});
+    $iframe.css({'height':'94%', 'width':'100%', 'border':'none'});
     $dialog.append($iframe);
 
     if(options.dialog_style)

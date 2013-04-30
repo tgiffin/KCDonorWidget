@@ -62,19 +62,19 @@
               var strength = score_password($(this).val());
               if(strength < 50)
               {
-                $("#password_strength").html("Strength: <span style='color:red'>Weak</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:red'>Weak</span>");
               }
               else if(strength < 60)
               {
-                $("#password_strength").html("Strength: <span style='color:orange'>Ok</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:orange'>Ok</span>");
               }
               else if(strength < 80)
               {
-                $("#password_strength").html("Strength: <span style='color:blue'>Good</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:blue'>Good</span>");
               }
               else if(strength >= 80)
               {
-                $("#password_strength").html("Strength: <span style='color:green'>Great!</span> see: <a href='http://xkcd.com/936/' target='_blank'>this</a> for more information on strong passwords.");
+                $("#password_strength").html("Strength: <span style='color:green'>Great!</span>");
               }
             });
 

@@ -15,7 +15,7 @@ var Recaptcha = require("recaptcha").Recaptcha;
 
 /**
  * This is the starting page
- */
+ */ 
 exports.donor_widget = function(request, response, next)
   {
     //console.log("donor widget: charity_id:" + request.params['charity_id']);
