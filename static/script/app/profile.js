@@ -115,7 +115,34 @@
                   }
                 }
               );
-            });
+            }); //end submit login click
+
+            //handle password recovery click
+            $("#submit_password_recovery").on("click",
+              function()
+              {
+                if(!$("#email")[0].validate())
+                {
+                  show_error("email");
+                  return;
+                }
+                $.post("/recover_password",
+                {
+                  email: $("#email").val()
+                },
+                function(data,textStatus,jqXHR)
+                {
+                  if(data.success)
+                  {
+                    $("#recovery_message").html("An email has been sent with a link for you to use to reset your password.");
+                  }
+                  else
+                  {
+                    $("#recover_message").html(data.message);
+                  }
+                }); //end post
+
+              }); //end submit password recovery click
         },
 
       /**

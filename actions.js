@@ -89,11 +89,12 @@ exports.recover_password = function(request, response)
   var token = uuid.v4();
 
   dal.open();
-  dal.get_donor(request.body.email,
+  dal.get_donor({email:request.body.email},
     function(err, donor)
     {
       if(err)
       {
+          console.error(err);
           response.json(
             {
               success: false,
@@ -110,11 +111,67 @@ exports.recover_password = function(request, response)
             });
           return;
       }
+      //format a mysql date
+      var date;
+      date = new Date();
+      date = date.getUTCFullYear() + '-' +
+        ('00' + (date.getUTCMonth()+1)).slice(-2) + '-' +
+        ('00' + date.getUTCDate()).slice(-2) + ' ' + 
+        ('00' + date.getUTCHours()).slice(-2) + ':' + 
+        ('00' + date.getUTCMinutes()).slice(-2) + ':' + 
+        ('00' + date.getUTCSeconds()).slice(-2);
+      //update the donor with the recovery token and time
+      dal.update_donor(
+        {
+          id: donor.id,
+          password_recovery_token: token,
+          password_recovery_date: date
+        },
+        function(err)
+        {
+          if(err)
+          {
+            response.json(
+              {
+                success:false,
+                message:"Error querying database"
+              });
+              return;
+          }
 
-    
-    });
+          //send reset email with link
+          var nodemailer = require("nodemailer");
 
-}
+          // create reusable transport method (opens pool of SMTP connections)
+          var smtpTransport = nodemailer.createTransport("Sendmail");
+
+          // setup e-mail data with unicode symbols
+          var mailOptions = {
+            from: "KlearChoice Support . <support@klearchoice.com>", // sender address
+            to: request.body.email, // list of receivers
+            subject: "Password Reset", // Subject line
+            html: "We've received a request to reset your password. To proceed, please <a href='https://app.klearchoice.com/reset_password.html?token=" + token + "'>click here</a>. If you did not request a password reset, you can ignore this email." // html body
+          }
+
+          // send mail with defined transport object
+          smtpTransport.sendMail(mailOptions, 
+            function(error, response){
+              if(error){
+                console.log(error);
+              }else{
+                console.log("Message sent: " + response.message);
+              }
+
+              smtpTransport.close(); // shut down the connection pool, no more messages
+            }); 
+
+          response.json(
+            {
+              success: true
+            });
+        }); //end update donor
+    }); //end get_donor
+} //end recover_password
 
 /**
  * This is the main donation function called from the donor widget
