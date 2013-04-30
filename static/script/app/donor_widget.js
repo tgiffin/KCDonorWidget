@@ -177,6 +177,7 @@
               if(!validate())
                 return;
               get_values();
+              show_loader();
               show_screen("donor_widget_confirm");
             });
 
@@ -184,6 +185,7 @@
           $("#login_button").on("click",
             function()
             {
+              show_loader();
               $.post("auth",
                 {
                   email: $("#login_email").val(),
@@ -196,6 +198,7 @@
                     locals = $.extend(locals,data);
                     return show_screen("donor_widget_auth");
                   }
+                  hide_loader();
                   if(data.require_captcha)
                   {
                     $("#login").empty().html("Too many login attempts. Please wait 5 minutes or <a href='/profile.html' target='_blank'>click here</a> to recover your password.");
@@ -220,6 +223,7 @@
           $("#logout").on("click",
             function()
             {
+              show_loader();
               $.post("logout", {},
                 function(data,textStatus,jqXHR)
                 {
@@ -278,6 +282,7 @@
           $("#submit_no_auth").on("click",
             function()
             {
+              show_loader();
               $.post("donate",locals)
                 .done(
                   function(data,status,xhr)
@@ -306,6 +311,22 @@
     };
 
     /*********************** Utility Functions **********************/
+
+    /**
+     * Show the loader overlay
+     */
+    function show_loader()
+    {
+      $("#loader").show();
+    }
+    
+    /**
+     * Hide the loader
+     */
+    function hide_loader()
+    {
+      $("#loader").hide();
+    }
 
     /**
      * calculate the password strength
@@ -498,6 +519,7 @@
         function(data,status,jqXHR)
         {
           var content = Mustache.render(data,locals);
+          hide_loader();
           if($("#content").html()=="")
           {
             $("#content").html(content);

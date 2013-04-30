@@ -11,7 +11,7 @@ var crypto = require('crypto');
 var util = require("util");
 var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
 var templates = require("./templates").templates;
-var Recaptcha = require("recaptcha").Recaptcha;
+var Recaptcha = require("recaptcha").Recaptcha; 
 
 /**
  * This is the starting page
