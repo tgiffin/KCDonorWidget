@@ -200,7 +200,8 @@ exports.dwolla =
           destinationType: 'Dwolla',
           notes: "Online Donation to " + params.charity_name,
           groupId: params.charity_id,
-          facilitatorAmount: klearchoice_fee
+          facilitatorAmount: klearchoice_fee,
+          assumeAdditionalFees: true
         }
       },
       //http request callback
