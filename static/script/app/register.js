@@ -76,6 +76,7 @@
             return;
           }
 
+          $("#register_now".attr("disabled","disabled");
           if(existing_account)
             save_existing_account();
           else
@@ -314,7 +315,6 @@
             if(!$(this).attr("exclude"))
               charity_info[$(this).attr("id")]=$(this).val();
           });
-        charity_info.gender = $("input[name=gender]:checked").val();
       }
 
       //all back buttons should be permanently enabled 

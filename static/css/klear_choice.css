@@ -786,6 +786,28 @@ input[class="login_password"] {
   transition: all .5s linear;
 }
 
+#aboutDot {
+  background-color: #cc9900;
+  visibility: hidden;
+  opacity: 0.1;
+  margin-left: 20px;
+  -webkit-transition: all .3s linear;
+  -moz-transition: all .3s linear;
+  -o-transition: all .3s linear;
+  -ms-transition: all .3s linear;
+  transition: all .3s linear;
+}
+
+.hover:hover #aboutDot {
+  visibility: visible;
+  opacity: 1;
+  -webkit-transition: all .5s linear;
+  -moz-transition: all .5s linear;
+  -o-transition: all .5s linear;
+  -ms-transition: all .5s linear;
+  transition: all .5s linear;
+}
+
 
 .fadein {
   animation: fadein 4s;
