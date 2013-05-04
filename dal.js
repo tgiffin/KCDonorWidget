@@ -182,6 +182,25 @@ module.exports = {
   },
 
   /**
+   * Retrieves the donor record based on the passed in token.
+   * This is used for password reset
+   */
+  get_donor_by_token: function(token, callback)
+  {
+    connection.query("select * from donor where password_recovery_token=?",[token],
+      function(err, result)
+      {
+        if(err) { callback(err); return; }
+        if(result.length < 1)
+          return callback(null,null);
+        if(result.length > 1)
+          return callback("Multiple token matches",null);
+
+        return callback(null, result[0]);
+      });
+  },
+
+  /**
    * Retrieve the donor based on the specified email address and password.
    * This is used for authentication of the user
    */

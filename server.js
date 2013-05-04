@@ -1,6 +1,5 @@
 var express = require("express"); //web framework
 var redis_store = require("connect-redis")(express);
-var everyauth = require("everyauth"); //oath lib
 var urllib = require("url"); //for parsing urls
 var util = require("util");
 var console = require("console");
@@ -48,7 +47,8 @@ function authenticate(request, response, next)
                       '/register_charity',
                       '/save_charity',
                       '/get_donor',
-                      '/recover_password'
+                      '/recover_password',
+                      '/set_password'
                   ]
   var pathname = urllib.parse(request.url).pathname;
 

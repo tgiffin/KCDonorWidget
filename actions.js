@@ -12,15 +12,23 @@ var util = require("util");
 var rsa = require("./crypt"); //this is the utility function for rsa encryption of account details
 var templates = require("./templates").templates;
 var Recaptcha = require("recaptcha").Recaptcha; 
+var Mandrill = require("mandrill-api").Mandrill;
+var mandrill = new Mandrill(
+  conf.mandrill_api_key, //the api key to use
+  conf.env=="development" //whether debugging output should be logged
+);
+
+/*********************************************************************************************
+ * Templates / pages 
+ *
+ * These are actual html pages that are rendered upon user request
+ *********************************************************************************************/
 
 /**
  * This is the starting page
  */ 
 exports.donor_widget = function(request, response, next)
   {
-    //console.log("donor widget: charity_id:" + request.params['charity_id']);
-    //console.log(request);
-    //var charity_id = request.session.charity_id = parseInt(escapeHtml(request.query['charity_id']));
     var referer = request.headers['referer'];
     var parsedURI = URI.parse(referer);
     log.debug("referer: " + referer + " hostname: " + parsedURI.hostname);
@@ -34,12 +42,12 @@ exports.donor_widget = function(request, response, next)
 
         if(!row)
         {
-          response.redirect(conf.hostname + "/html/donor_widget_invalid_configuration.html");
-          return;
+          response.redirect(conf.hostname + "/html/donor_widget_invalid_configuration.html");   
+          return; 
         }
 
         request.session.charity = info = row;
-        response.send(templates['donor_widget.html'](
+        response.send(templates['donor_widget.html']( 
         {
           charity_name: row.charity_name
         }));
@@ -72,9 +80,26 @@ exports.profile = function(request, response)
 }
 
 /**
- * API Service calls
+ * Render the password reset form. Store the passed in token in the session
+ * for later verification.
  */
+exports.reset_password = function(request, response)
+{
+  var token = request.query["token"];
+  if(token) token = escapeHtml(token);
+  request.session["reset_token"]=token; //this will be verified later, when the actual password reset call is made
+  
+  response.send(templates['reset_password.html'](
+    {
+    }));
+}
 
+
+/*********************************************************************************************
+ * API Service calls
+ *
+ * These are semi-RESTful api calls that are called from the browser or client
+ *********************************************************************************************/
 
 /**
  * Send out password recovery email.
@@ -139,31 +164,28 @@ exports.recover_password = function(request, response)
               return;
           }
 
-          //send reset email with link
-          var nodemailer = require("nodemailer");
+          try
+          {
+            log.debug("sending password recovery email...");
+            mandrill.messages.sendTemplate(
+              {
+                template_name:"loginrecovery",
+                template_content: [
+                  {name:"reset_link", content:"<a href='https://app.klearchoice.com/reset_password.html?token=" + token + "'>reset password</a>"},
+                ],
+                message: {
+                  to: [
+                        {email:donor.email, name:donor.first_name + " " + donor.last_name}
+                      ],
+                  tracking_domain: "klearchoice.com"
+                }
 
-          // create reusable transport method (opens pool of SMTP connections)
-          var smtpTransport = nodemailer.createTransport("Sendmail");
-
-          // setup e-mail data with unicode symbols
-          var mailOptions = {
-            from: "KlearChoice Support . <support@klearchoice.com>", // sender address
-            to: request.body.email, // list of receivers
-            subject: "Password Reset", // Subject line
-            html: "We've received a request to reset your password. To proceed, please <a href='https://app.klearchoice.com/reset_password.html?token=" + token + "'>click here</a>. If you did not request a password reset, you can ignore this email." // html body
+              },
+              function(){log.debug("email sent successfully");}, //success, do nothing
+              function(err){console.error(util.inspect(err));} //error
+              );
           }
-
-          // send mail with defined transport object
-          smtpTransport.sendMail(mailOptions, 
-            function(error, response){
-              if(error){
-                console.log(error);
-              }else{
-                console.log("Message sent: " + response.message);
-              }
-
-              smtpTransport.close(); // shut down the connection pool, no more messages
-            }); 
+          catch(e) { console.error("error sending email: " + util.inspect(e)); }
 
           response.json(
             {
@@ -172,6 +194,76 @@ exports.recover_password = function(request, response)
         }); //end update donor
     }); //end get_donor
 } //end recover_password
+
+/**
+ * API call to reset user password.
+ *
+ * In order for this to work, a token must already be in the session, otherwise an error will
+ * be returned.
+ */
+exports.set_password = function(request, response)
+{
+  //first, grab the token out of the session and validate it
+  var token = request.session["reset_token"];
+  var password = request.body["password"];
+  if(!token)
+    return response.json(
+      {
+        success: false,
+        message: "Missing or invalid token"
+      });
+  dal.open();
+  //get the donor record based on the token
+  dal.get_donor_by_token(token,
+    function(err,donor)
+    {
+      //check to see if the token has expired
+      var date = donor.password_recovery_date;
+      var ticks = (new Date()).getTime() - date.getTime();
+      if(ticks > 1000 * 60 * 60 * 24) //been longer than a day?
+        return response.json(
+          {
+            success: false,
+            message: "Expired token"
+          });
+      
+      //create salt and encrypted password
+      var salt = crypto.randomBytes(128).toString('base64');
+      var encrypted_password = crypto.pbkdf2Sync(password,salt,5000,256).toString('base64');
+      
+      //burn the token so it can't be reused
+      //update the donor with the recovery token and time
+      dal.update_donor(
+        {
+          id: donor.id,
+          password: encrypted_password,
+          salt: salt,
+          password_recovery_token: "",
+          password_recovery_date: null
+        },
+        function(err)
+        {
+          if(err)
+            return response.json(
+              {
+                success:false,
+                message: "Error updating donor"
+              });
+
+          //TODO: send notification email that the password has been reset
+
+          //send a success response
+          return response.json(
+            {
+              success:true,
+              message: ""
+            });
+        });
+
+    });
+
+  
+}
 
 /**
  * This is the main donation function called from the donor widget
@@ -399,7 +491,7 @@ exports.auth = function(request, response, next)
 
   if(auth_requests[ip])
   {
-    var ticks = (new Date()).ticks - auth_requests[ip].last_attempt.ticks;
+    var ticks = (new Date()).getTime() - auth_requests[ip].last_attempt.getTime();
     if(ticks > 1000 * 60 * 5) //been 5 mins?
     {
       //reset attempts
@@ -728,11 +820,6 @@ exports.save_charity = function(request, response)
  */
 function send_payment(request, response, data, donor_id)
 {
-  var Mandrill = require("mandrill-api").Mandrill;
-  var mandrill = new Mandrill(
-                              conf.mandrill_api_key, //the api key to use
-                              conf.env=="development" //whether debugging output should be logged
-                             );
   log.debug("sending payment...");
   //send out the payment request
   payment.guest_send(
@@ -840,7 +927,8 @@ function send_payment(request, response, data, donor_id)
             message: {
               to: [
                     {email:data.email, name:data.first_name + " " + data.last_name}
-                  ]
+                  ],
+              tracking_domain: "klearchoice.com"
             }
 
           },
