@@ -71,6 +71,8 @@ module.exports = function()
         dwolla_register_path: "/oauth/rest/register/",
         dwolla_app_id: "1JUZIa33HXhhyyDhX3PpT6XDk8vp3B0NtO0lQe7rbxKiOhYTGI",
         dwolla_app_secret: "pTqTyg6VCVMO6UlgXnarzqndt3mJLDJdJNiI4dLSwDo3rIoi3/",
+        override_dwolla_email_address: "support@dwolla.com",
+        mandrill_api_key: "15gKhFNatFZZsafWyFL42g",
         app_user_id: "app",
         app_group_id: "app",
         options: {
