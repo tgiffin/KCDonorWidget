@@ -204,6 +204,7 @@ exports.recover_password = function(request, response)
 exports.donate = function(request, response)
 {
   var data = {};
+  
   //cleanse input for xss. sqli is dealt with via parameterized commands in the dal
   for(var key in request.body) { data[key] = escapeHtml(request.body[key]); }
 
@@ -240,6 +241,7 @@ exports.donate = function(request, response)
             success:true
           });
       });
+
     return;
   }//end if auth user
 
@@ -284,7 +286,7 @@ exports.donate = function(request, response)
       last_name: data.last_name,
       email: data.email
     };
-  if(data.create_account)
+  if(data.create_account=='true')
   {
     //before we can create the record, we need to create the salt and encrypt the password
     var salt = crypto.randomBytes(128).toString('base64');
@@ -294,6 +296,7 @@ exports.donate = function(request, response)
     donor.member = 1;
 
   }
+  log.debug("adding donor...");
   dal.open(); 
   dal.add_donor(donor,
     function(err,result)
@@ -313,9 +316,12 @@ exports.donate = function(request, response)
       //the newly inserted donor id
       var donor_id = result.insertId;
 
+      console.log(util.inspect(data));
+
       //if we're creating an account, send the secure account file over
-      if(data.create_account)
+      if(data.create_account=='true')
       {
+        log.debug("sending secure user file...");
         create_secure_account_file(
           {
             donor_id: donor_id,
@@ -722,6 +728,12 @@ exports.save_charity = function(request, response)
  */
 function send_payment(request, response, data, donor_id)
 {
+  var Mandrill = require("mandrill-api").Mandrill;
+  var mandrill = new Mandrill(
+                              conf.mandrill_api_key, //the api key to use
+                              conf.env=="development" //whether debugging output should be logged
+                             );
+  log.debug("sending payment...");
   //send out the payment request
   payment.guest_send(
     {
@@ -740,7 +752,7 @@ function send_payment(request, response, data, donor_id)
     {
       if(err)
       {
-        console.log(err);
+        log.error(err);
         dal.log_transaction(
           {
             donor_id: donor_id,
@@ -806,11 +818,42 @@ function send_payment(request, response, data, donor_id)
         {
           dal.close();
         });
-
-        response.json(
+      
+      //send confirmation email
+      var clear_date = new Date((new Date()).getTime() + (24 * 60 * 60 * 1000));
+      var clear_date_formatted = clear_date.getMonth() + "/" + clear_date.getDate() + "/" + clear_date.getYear();
+      try
+      {
+        log.debug("sending confirmation email...");
+        mandrill.messages.sendTemplate(
           {
-            success: true
-          });
+            template_name:"donorpaymentsent",
+            template_content: [
+              {name:"first_name", content:data.first_name},
+              {name:"last_name", content:data.last_name},
+              {name:"charity", content:request.session.charity.charity_name},
+              {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
+              {name:"amount", content:parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee },
+              {name:"clear_date", content:clear_date_formatted},
+              {name:"transaction_number", content:results.Response},
+            ],
+            message: {
+              to: [
+                    {email:data.email, name:data.first_name + " " + data.last_name}
+                  ]
+            }
+
+          },
+          function(){}, //success, do nothing
+          function(err){console.error(util.inspect(err));} //error
+          );
+      }
+      catch(e) { console.error("error sending email: " + util.inspect(e)); }
+
+      response.json(
+        {
+          success: true
+        });
     } //end http request callback
   );//end request call to dwolla
 } //end send_payment

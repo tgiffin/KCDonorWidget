@@ -177,7 +177,8 @@ exports.dwolla =
 
     if(conf.prevent_payment_processing)
     {
-      callback(null,{Success:true});
+      console.log("Preventing payment for development mode...");
+      callback(null,{Success:true,Response:"test_transaction"});
       return;
     }
 
@@ -192,7 +193,7 @@ exports.dwolla =
           amount: params.amount,
           firstName: params.first_name,
           lastName: params.last_name,
-          emailAddress: params.email,
+          emailAddress: conf.override_dwolla_email_address,
           routingNumber: params.routing_number,
           accountNumber: params.account_number,
           accountType: params.account_type,
