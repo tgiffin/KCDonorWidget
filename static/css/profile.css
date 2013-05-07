@@ -86,7 +86,6 @@ input.error {
   margin-top: 0px;
   overflow: hidden;
   position: relative;
-  font-family: Arial;
 }
 
 #steps {
@@ -96,6 +95,7 @@ input.error {
 
 #username { width: 230px; }
 #password { width: 230px; }
+#confirm_password { width: 230px; }
 #email { width: 230px; }
 #submit_login, #submit_password_recovery {
   margin-left: 10px;

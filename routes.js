@@ -69,5 +69,10 @@ module.exports = [
     verb: 'post',
     path: '/recover_password',
     action: actions.recover_password
+  },
+  {
+    verb: 'post',
+    path: '/set_password',
+    action: actions.set_password
   }
 ];

@@ -28,6 +28,10 @@ files.forEach(
     var markup = fs.readFileSync(template_path + file).toString();
     templates[file] = hb.compile(markup);
   });
+
+//set up partials
+hb.registerPartial("header",templates["header.html"]);
+hb.registerPartial("footer",templates["footer.html"]);
 exports.templates = templates;
 
 console.log("Completed compiling templates.");

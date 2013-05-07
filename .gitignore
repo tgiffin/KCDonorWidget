@@ -1,5 +1,6 @@
 *~
 *.swp
 .bin
+node_modules
 /node_modules/ursa
 /node_modules/npm
