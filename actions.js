@@ -998,7 +998,7 @@ function send_payment(request, response, data, donor_id)
       }
 
       clear_date = new Date(clear_date);
-      var clear_date_formatted = clear_date.getMonth() + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
+      var clear_date_formatted = (clear_date.getMonth() + 1) + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
       try
       {
         log.debug("sending confirmation email...");
