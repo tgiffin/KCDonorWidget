@@ -1,3 +1,18 @@
+/**
+ * register.js
+ *
+ * Handles the logic for the registration screen.
+ *
+ * Good developers view source!
+ * For any questions please contact the author: clay@ratiosoftware.com
+ *
+ * History
+ * 
+ * Date         Author                                 Comment
+ * ----------------------------------------------------------------------
+ * 4/18/2013    Clay Gulick (clay@ratiosoftware.com)   Initial version created
+ * 
+ */
 (function($)
 {
   $(document).ready(

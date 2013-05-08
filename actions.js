@@ -21,7 +21,7 @@ var mandrill = new Mandrill(
 /*********************************************************************************************
  * Templates / pages 
  *
- * These are actual html pages that are rendered upon user request
+ * These are the logic behind the actual html pages that are rendered upon user request
  *********************************************************************************************/
 
 /**
@@ -741,6 +741,41 @@ exports.register_charity = function(request, response)
 
               return;
           }
+          mandrill.messages.sendTemplate(
+            {
+              template_name:"charity_registration_notification",
+              template_content: [
+                {name:"charity_name", content: charity_info.charity_name},
+                {name:"charity_id", content: charity_id},
+                {name:"address1", content: charity_info.address1},
+                {name:"address2", content: charity_info.address2},
+                {name:"city", content: charity_info.city},
+                {name:"state", content: charity_info.state},
+                {name:"zip", content: charity_info.zip},
+                {name:"mailing_address1", content: charity_info.mailing_address1},
+                {name:"mailing_address2", content: charity_info.mailing_address2},
+                {name:"mailing_city", content: charity_info.mailing_city},
+                {name:"mailing_state", content: charity_info.mailing_state},
+                {name:"mailing_zip", content: charity_info.mailing_zip},
+                {name:"first_name", content: charity_info.first_name},
+                {name:"last_name", content: charity_info.last_name},
+                {name:"title", content: charity_info.title},
+                {name:"email", content: charity_info.email},
+                {name:"phone", content: charity_info.phone},
+                {name:"domain", content: charity_info.domain},
+                {name:"board_type", content: charity_info.board_type}
+                  ],
+                  message: {
+                    to: [
+                      {email:"support@klearchoice.com"},
+                    ],
+                    tracking_domain: "klearchoice.com"
+                  }
+
+            },
+            function(){log.debug("email sent successfully");}, //success, do nothing
+            function(err){console.error(util.inspect(err));} //error
+          );
 
           response.json(
             {
@@ -802,6 +837,40 @@ exports.save_charity = function(request, response)
 
         return;
       }
+
+      mandrill.messages.sendTemplate(
+        {
+          template_name:"charity_registration_notification",
+          template_content: [
+            {name:"charity_name", content: charity_info.charity_name},
+            {name:"charity_id", content: charity_id},
+            {name:"address", content: charity_info.address},
+            {name:"city", content: charity_info.city},
+            {name:"state", content: charity_info.state},
+            {name:"zip", content: charity_info.zip},
+            {name:"mailing_address", content: charity_info.mailing_address},
+            {name:"mailing_city", content: charity_info.mailing_city},
+            {name:"mailing_state", content: charity_info.mailing_state},
+            {name:"mailing_zip", content: charity_info.mailing_zip},
+            {name:"first_name", content: charity_info.first_name},
+            {name:"last_name", content: charity_info.last_name},
+            {name:"title", content: charity_info.title},
+            {name:"email", content: charity_info.email},
+            {name:"phone", content: charity_info.phone},
+            {name:"domain", content: charity_info.domain},
+            {name:"board_type", content: charity_info.board_type}
+          ],
+          message: {
+            to: [
+              {email:"support@klearchoice.com"}
+            ],
+            tracking_domain: "klearchoice.com"
+          }
+
+            },
+            function(){log.debug("email sent successfully");}, //success, do nothing
+            function(err){console.error(util.inspect(err));} //error
+          );
 
       response.json(
         {
@@ -907,8 +976,29 @@ function send_payment(request, response, data, donor_id)
         });
       
       //send confirmation email
-      var clear_date = new Date((new Date()).getTime() + (24 * 60 * 60 * 1000));
-      var clear_date_formatted = clear_date.getMonth() + "/" + clear_date.getDate() + "/" + clear_date.getYear();
+      var clear_date = new Date().getTime();
+      //add three days
+      clear_date += (3 * 24 * 60 * 60 * 1000);
+      //now keep adding days until we hit a business day, i.e., one that isn't saturday (6) or sunday (0)
+      for(var i=0; i<3;i++)
+      {
+        if(
+          (
+            (new Date(clear_date))
+            .getDay() != 6
+          )
+          &&
+          (
+            (new Date(clear_date))
+            .getDay() != 0
+          )
+        ) break;
+
+        clear_date += (24 * 60 * 60 * 1000);
+      }
+
+      clear_date = new Date(clear_date);
+      var clear_date_formatted = clear_date.getMonth() + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
       try
       {
         log.debug("sending confirmation email...");
@@ -920,7 +1010,7 @@ function send_payment(request, response, data, donor_id)
               {name:"last_name", content:data.last_name},
               {name:"charity", content:request.session.charity.charity_name},
               {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
-              {name:"amount", content:parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee },
+              {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee) },
               {name:"clear_date", content:clear_date_formatted},
               {name:"transaction_number", content:results.Response},
             ],
@@ -945,6 +1035,24 @@ function send_payment(request, response, data, donor_id)
     } //end http request callback
   );//end request call to dwolla
 } //end send_payment
+
+
+
+/**
+ * Simple utility function to format currency, deals with sign and commas
+ */
+function formatCurrency(num) {
+  num = num.toString().replace(/\$|\,/g, '');
+  if (isNaN(num)) num = "0";
+  sign = (num == (num = Math.abs(num)));
+  num = Math.floor(num * 100 + 0.50000000001);
+  cents = num % 100;
+  num = Math.floor(num / 100).toString();
+  if (cents < 10) cents = "0" + cents;
+  for (var i = 0; i < Math.floor((num.length - (1 + i)) / 3); i++)
+    num = num.substring(0, num.length - (4 * i + 3)) + ',' + num.substring(num.length - (4 * i + 3));
+  return (((sign) ? '' : '-') + '$' + num + '.' + cents);
+}
 
 /**
  * This creates the file with the encrypted account credentials
