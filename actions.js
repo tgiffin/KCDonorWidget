@@ -199,24 +199,29 @@ exports.recover_password = function(request, response)
  * API call to reset user password.
  *
  * In order for this to work, a token must already be in the session, otherwise an error will
- * be returned.
+ * be returned. 
  */
 exports.set_password = function(request, response)
 {
   //first, grab the token out of the session and validate it
   var token = request.session["reset_token"];
-  var password = request.body["password"];
-  if(!token)
-    return response.json(
+  var password = request.body["password"]; 
+  if(!token) 
+    return response.json(   
       {
-        success: false,
+        success: false, 
         message: "Missing or invalid token"
       });
   dal.open();
   //get the donor record based on the token
-  dal.get_donor_by_token(token,
+  dal.get_donor_by_token(token, 
     function(err,donor)
     {
+      if(err || !donor)
+        return response.json({
+          success: false,
+          message: "Invalid token"
+        });
       //check to see if the token has expired
       var date = donor.password_recovery_date;
       var ticks = (new Date()).getTime() - date.getTime();
@@ -462,7 +467,8 @@ exports.is_auth = function(request, response)
       {
         auth: true, 
         first_name: request.session.auth.first_name,
-        last_name: request.session.auth.last_name
+        last_name: request.session.auth.last_name,
+        email: request.session.auth.email
       }
     );
   }
@@ -530,7 +536,8 @@ exports.auth = function(request, response, next)
             {
               auth: true,
               first_name: request.session.auth.first_name,
-              last_name: request.session.auth.last_name
+              last_name: request.session.auth.last_name,
+              email: request.session.auth.email
             });
         }
         else

@@ -1,0 +1,26 @@
+<div id="information" class="profile_screen">
+  <h3>Information</h3>
+  <div id="information_wrapper" class="large_line_height">
+    <span class="information_label">First name:</span> <span class="information_field">{{first_name}}</span><br/>
+    <span class="information_label">Last name:</span> <span class="information_field">{{last_name}}</span><br/>
+    <span class="information_label">Email: </span> <span class="information_field">{{email}}</span> <button id="change_email" type="button" class="orange">Change</button><br/>
+    <span class="information_label">Password:</span> <button id="change_password" type="button" class="orange">Change</button><br/>
+    <form id="change_password_form">
+      <div class="input_wrapper col1">
+        <input type="password" class="required" placeholder="New password" name="password" id="password" required="required" />
+        <div class="validation" for="password" title="Password is required"></div>
+      </div>
+      <div class="input_wrapper col2">
+        <input type="password" class="required" placeholder="Confirm password" name="confirm_password" id="confirm_password" required="required" />
+        <div class="validation" for="confirm_password" title="Password confirmation must be the same value as the password field"></div>
+      </div>
+      <button type="button" id="submit_change" class="orange">
+        Submit 
+      </button>
+      <button type="button" id="cancel_change" class="grey">
+        Cancel 
+      </button>
+      <div class="clear"></div>
+      <div id="password_strength"></div>
+    </form>
+</div> <!-- end step 1 -->

@@ -17,53 +17,111 @@
 (
   function()
   {
-    $(document).ready(init());
-
-    //set up validators
-    $("#password")[0].validate = validator();
-    $("#confirm_password")[0].validate = validator(
-      function()
-      {
-        return $("#password").val() == $("#confirm_password").val();
-      }
-    );
-
-    //revalidate each time a form item loses focus
-    $("input").on("blur",
-      function()
-      {
-        if(this.validate && !this.validate()) show_error($(this).attr("id"));
-        else clear_error($(this).attr("id"));
-      });
+    $(document).ready(init);
 
     /**
      * Set up handlers and initialize the screen
      */
     function init()
     {
+      //set up validators
+      $("#password")[0].validate = validator();
+      $("#confirm_password")[0].validate = validator(
+        function()
+        {
+          return $("#password").val() == $("#confirm_password").val();
+        }
+      );
+
+      //do the password strength meter
+      $("#password").on("keyup",
+        function()
+        {
+          var strength = score_password($(this).val());
+          if(strength < 50)
+          {
+            $("#password_strength").html("Strength: <span style='color:red'>Weak</span>");
+          }
+          else if(strength < 60)
+          {
+            $("#password_strength").html("Strength: <span style='color:orange'>Ok</span>");
+          }
+          else if(strength < 80)
+          {
+            $("#password_strength").html("Strength: <span style='color:blue'>Good</span>");
+          }
+          else if(strength >= 80)
+          {
+            $("#password_strength").html("Strength: <span style='color:green'>Great!</span>");
+          }
+        });
+
+      //revalidate each time a form item loses focus
+      $("input").on("blur",
+        function()
+        {
+          if(this.validate && !this.validate()) show_error($(this).attr("id"));
+          else clear_error($(this).attr("id"));
+        });
+
+      //handle submit click
       $("#submit_reset").on("click",
         function()
         {
           if(!validate()) return;
 
-          $.post(
+          $.post("/set_password",{ password: $("#password").val() })
+          .done(function(data,textStatus, jqXHR)
+          {
+            if(!data.success)
             {
-              url: "/reset_password",
-              data: {
-                password: $("#password").val()
-              },
-            },
-            function(data,textStatus, jqXHR)
-            {
-              if(!data.success)
-              {
-                $("#error_message").text(data.message);
-              }
+              $("#error_message").text(data.message);
+              $("#reset_error").fadeIn();
+              return;
             }
-            );
+
+            $("#login_form").fadeOut();
+            $("#reset_success").fadeIn();
+          })
+          .fail(function(xhr,status,err)
+          {
+            alert(err);
+          });
 
         });
 
+    }
+
+    /**
+     * calculate the password strength
+     */
+    function score_password(pass) {
+      var score = 0;
+      if (!pass)
+        return score;
+
+      // award every unique letter until 5 repetitions
+      var letters = new Object();
+      for (var i=0; i<pass.length; i++) {
+        letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+        score += 5.0 / letters[pass[i]];
+      }
+
+      // bonus points for mixing it up
+      var variations = {
+        digits: /\d/.test(pass),
+        lower: /[a-z]/.test(pass),
+        upper: /[A-Z]/.test(pass),
+        nonWords: /\W/.test(pass),
+      }
+
+      variationCount = 0;
+      for (var check in variations) {
+        variationCount += (variations[check] == true) ? 1 : 0;
+      }
+      score += (variationCount - 1) * 10;
+
+      return parseInt(score);
     }
 
     /**
@@ -84,6 +142,25 @@
         });
 
         return valid;
+    }
+
+    /**
+     * Change the class and show the error tooltip
+     */
+    function show_error(id)
+    {
+      $("#" + id).addClass("error");
+      $("[for='" + id + "']").css("display","inline-block");
+      return false; //this is just to save curly brackets typing
+    }
+
+    /**
+     * Clear the error display
+     */
+    function clear_error(id)
+    {
+      $("#" + id).removeClass("error");
+      $("[for='" + id + "']").fadeOut();
     }
 
     /**

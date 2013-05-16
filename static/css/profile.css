@@ -49,7 +49,7 @@ p
   line-height: normal;
 }
 
-label.error, .error
+label.error, .error, .error_message
 {
   margin-top: 0px;
   margin-bottom: 0px;
@@ -93,6 +93,20 @@ input.error {
   width: 3200px;
 }
 
+/*** Reset password page ***/
+#submit_reset {
+  margin-top: 12px;
+  margin-left: 10px;
+}
+
+#reset_error {
+  display: none;
+}
+#reset_success {
+  display: none;
+}
+
+/**** Login Screen ****/
 #username { width: 230px; }
 #password { width: 230px; }
 #confirm_password { width: 230px; }
@@ -122,9 +136,47 @@ input.error {
   margin-bottom: 15px;
 }
 
+/**** Information Screen ****/
+
+#information_wrapper {
+  margin-left: 15px;
+  width: 700px;
+}
+#change_email, #change_password {
+  width: 68px;
+  height: 24px;
+  font-size: 14px;
+}
+
+#submit_change, #cancel_change {
+  margin-top: 16px;
+  width: 70px;
+  height: 28px;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+#cancel_change {
+  margin-left: 10px;
+}
+
+
+.information_label {
+  display: inline-block;
+  font-weight: bold;
+  width: 120px;
+}
+.information_field {
+  display: inline-block;
+  width: 200px;
+}
+
 
 /* general classes */
-
+.clear
+{
+  clear:both;
+}
 
 .validation
 {

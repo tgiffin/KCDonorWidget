@@ -35,8 +35,15 @@ scripts = {
                                             "/script/lib/mustache.js",
                                             "/script/lib/jquery.html5-placeholder-shim.js",
                                             "/script/lib/spin.js",
+                                            "/script/lib/jquery.history.min.js",
                                             null, //block until libs are loaded
                                             "/script/app/profile.js"
+                                          ],
+  "/reset_password.html"                  : [
+                                            "/script/lib/jquery.html5-placeholder-shim.js",
+                                            "/script/lib/spin.js",
+                                            null, //block until libs are loaded
+                                            "/script/app/reset_password.js"
                                           ]
 
 

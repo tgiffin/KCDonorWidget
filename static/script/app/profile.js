@@ -18,6 +18,7 @@
   {
     var locals = {fee:.5};
     var screen_logic;
+    var current_screen;
 
     //initialize logic for each screen
     screen_logic = {
@@ -99,6 +100,7 @@
                   if(data.auth)
                   {
                     locals = $.extend(locals,data);
+                    $(".process").fadeIn(); //show navbar
                     return show_screen("profile_information");
                   }
                   $("#login_error").html("Invalid login");
@@ -138,7 +140,7 @@
                   }
                   else
                   {
-                    $("#recover_message").html(data.message);
+                    $("#recovery_message").html(data.message);
                   }
                 }); //end post
 
@@ -151,6 +153,15 @@
       profile_information:
         function()
         {
+
+          //set up validators
+          $("#password")[0].validate = validator();
+          $("#confirm_password")[0].validate = validator(
+            function()
+            {
+              return $("#password").val() == $("#confirm_password").val();
+            }
+          );
           
           //do the password strength meter
           $("#password").on("keyup",
@@ -175,6 +186,39 @@
               }
             });
 
+            //revalidate each time a form item loses focus
+            $("input").on("blur",
+              function()
+              {
+                if(this.validate && !this.validate()) show_error($(this).attr("id"));
+                else clear_error($(this).attr("id"));
+              });
+
+            //handle submit click
+            $("#submit_change").on("click",
+              function()
+              {
+                if(!validate()) return;
+
+                $.post("/set_password",{ password: $("#password").val() })
+                .done(function(data,textStatus, jqXHR)
+                {
+                  if(!data.success)
+                  {
+                    $("#error_message").text(data.message);
+                    $("#reset_error").fadeIn();
+                    return;
+                  }
+
+                  $("#login_form").fadeOut();
+                  $("#reset_success").fadeIn();
+                })
+                .fail(function(xhr,status,err)
+                {
+                  alert(err);
+                });
+
+              });
         },
       /**
        * Logic for the recurring donations screen
@@ -412,6 +456,32 @@
         });
     }
 
+    /**
+     * Initiallize the history plugin to support browser back buttons
+     */
+    function init_history()
+    {
+      $.History.bind(function(state)
+      {
+        var prev;
+        state = state.replace("/","");
+        if(state == "") state="profile_information";
+        show_screen(state);
+        current_screen = state;
+      });
+    }
+
+    /**
+     * Set up event handlers to deal with user navigation between screens
+     */
+    function init_navigation()
+    {
+      $(".process").on("click",
+        function()
+        {
+        });
+    }
+
 
     /**
      * Main
@@ -419,11 +489,18 @@
     $(document).ready(
       function()
       {
+
+        init_history();
+        init_navigation();
+
         $.getJSON("/auth",
           function(data,status,jqXHR)
           {
             if(data.auth)
             {
+              current_screen = $.History.getHash();
+              current_screen = current_screen.replace("/","");
+              if(current_screen == "") current_screen = "profile_information";
               locals = $.extend(locals,data);
               $(".process").fadeIn();
               show_screen("profile_information");
