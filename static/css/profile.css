@@ -148,7 +148,7 @@ input.error {
   font-size: 14px;
 }
 
-#submit_change, #cancel_change {
+#submit_change, #cancel_change, #submit_change_email, #cancel_change_email {
   margin-top: 16px;
   width: 70px;
   height: 28px;
@@ -158,6 +158,11 @@ input.error {
 
 #cancel_change {
   margin-left: 10px;
+}
+
+#change_password_form, #change_email_form
+{
+  display:none;
 }
 
 

@@ -74,5 +74,10 @@ module.exports = [
     verb: 'post',
     path: '/set_password',
     action: actions.set_password
+  },
+  {
+    verb: 'post',
+    path: '/set_email',
+    action: actions.update_donor_email
   }
 ];

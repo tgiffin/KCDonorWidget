@@ -3,7 +3,16 @@
   <div id="information_wrapper" class="large_line_height">
     <span class="information_label">First name:</span> <span class="information_field">{{first_name}}</span><br/>
     <span class="information_label">Last name:</span> <span class="information_field">{{last_name}}</span><br/>
-    <span class="information_label">Email: </span> <span class="information_field">{{email}}</span> <button id="change_email" type="button" class="orange">Change</button><br/>
+    <span id="email_container"><span class="information_label">Email: </span> <span class="information_field" id="email_display">{{email}}</span> <button id="change_email" type="button" class="orange">Change</button></span><br/>
+    <form id="change_email_form">
+      <input id="email" type="text" class="required" value="{{email}}" />
+      <button type="button" id="submit_change_email" class="orange">
+        Submit 
+      </button>
+      <button type="button" id="cancel_change_email" class="grey">
+        Cancel 
+      </button>
+    </form>
     <span class="information_label">Password:</span> <button id="change_password" type="button" class="orange">Change</button><br/>
     <form id="change_password_form">
       <div class="input_wrapper col1">

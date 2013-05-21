@@ -604,6 +604,35 @@ exports.logout = function(request,response)
 }
 
 /**
+ * Update the email address of the donor currently in session
+ */
+exports.update_donor_email = function(request, response)
+{
+  var donor_email = escapeHtml(request.body["email"]);
+  dal.open();
+  dal.update_donor({id: request.session.auth.id, email: donor_email},
+    function(err)
+    {
+      dal.close();
+      if(err)
+      {
+        response.json(
+          {
+            success:false,
+            message:"Error saving email"
+          });
+          return;
+      }
+      response.json(
+        {
+          success:true,
+          message:""
+        });
+        return;
+    });
+}
+
+/**
  * Lookup donor information based on email address, return JSON formated donor
  */
 exports.get_donor = function(request, response)

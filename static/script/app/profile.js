@@ -162,6 +162,15 @@
               return $("#password").val() == $("#confirm_password").val();
             }
           );
+
+          $("#email")[0].validate = validator(
+            function()
+            {
+              //very basic email format validation
+              return /\S+@\S+\.\S+/.test($("#email").val());
+            }
+          );
+
           
           //do the password strength meter
           $("#password").on("keyup",
@@ -194,11 +203,53 @@
                 else clear_error($(this).attr("id"));
               });
 
+            //set up handlers for button clicks
+            $("#change_email").on("click",
+              function()
+              {
+                $("#change_email_form").fadeIn();
+              });
+            $("#cancel_change_email").on("click",
+              function()
+              {
+                $("#change_email_form").fadeOut();
+              });
+
+            $("#change_password").on("click",
+              function()
+              {
+                $("#change_password_form").fadeIn();
+              });
+            $("#cancel_change").on("click",
+              function()
+              {
+                $("#change_password_form").fadeOut();
+              });
+
+            //handle email submit click
+            $("#submit_change_email").on("click",
+              function()
+              {
+                if(!validate($("#email"))) return;
+
+                $.post("/set_email",{ email: $("#email").val() })
+                .done(
+                  function(data, textStatus, jqXHR)
+                  {
+                    if(!data.success) return alert(data.message);
+                    $("#email_display").html($("#email").val());
+                    $("#change_email_form").fadeOut();
+                  })
+                .fail(
+                  function(xhr,status,err) { alert(err); });
+                  
+              });
+
             //handle submit click
             $("#submit_change").on("click",
               function()
               {
-                if(!validate()) return;
+                if(!validate($("#password, #confirm_password"))) return;
 
                 $.post("/set_password",{ password: $("#password").val() })
                 .done(function(data,textStatus, jqXHR)
@@ -389,14 +440,16 @@
     /**
      * Validate the inputs on the currently active screen
      */
-    function validate()
+    function validate($eles)
     {
       var valid=true;
       $(".error").removeClass("error");
       $(".validation").hide();
 
+      var $validation_elements = $eles || $("input");
+
       //validate all fields
-      $("input").each(
+      $validation_elements.each(
         function()
         {
           if(this.validate && !this.validate())
