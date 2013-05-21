@@ -667,6 +667,37 @@ exports.get_donor = function(request, response)
 }
 
 /**
+ * Retrieve the donation history for the logged in user
+ */
+exports.get_donation_history = function(request, response)
+{
+  dal.open();
+  dal.get_donation_history(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        return reponse.json(
+          {
+            success: false,
+            message: "There was a problem retrieving donation history, please try again later. If this problem persists, please contact technical support with the following information: " + err.message
+          }
+        );
+      }
+
+      return response.json(
+        {
+          success: true,
+          message: "",
+          rows: rows
+        });
+
+    });
+
+}
+
+/**
  * Retrieve charity information. For now, the only information that is sent is the charity name
  */
 exports.get_charity = function(request, response)

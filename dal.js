@@ -42,6 +42,23 @@ module.exports = {
   },
 
   /**
+   * retrieve the rows from the transactions table with the donation history
+   * for the current user
+   */
+  get_donation_history: function(donor_id, callback)
+  {
+    connection.query("select id, charity_id, charity_name, amount, status, create_date "
+                    + "from transactions "
+                    + " join charity "
+                    + "  on charity.id = transactions.charity_id "
+                    + "where donor_id = ?",[donor_id],
+                    function(err, rows)
+                    {
+                      callback(err, rows);
+                    });
+  }
+
+  /**
    * Get charity info for the given id
    */
   get_charity: function(charity_id, callback)
