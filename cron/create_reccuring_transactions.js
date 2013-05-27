@@ -107,6 +107,7 @@ function update_subscription(subscription)
   }
   update.id=subscription.id;
   update.next_transaction_date = date_string(dt);
+  update.last_transaction_date = date_string(new Date());
 
   dal.update_subscription(update,
     function(err,result)

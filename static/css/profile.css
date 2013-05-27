@@ -176,6 +176,41 @@ input.error {
   width: 200px;
 }
 
+/**
+ * Recuring donation / subscription screen
+ */
+.recurring_donation_widget
+{
+  padding: 5px;
+  border: 1px solid #A0A0A0;
+}
+.recurring_donation_widget > label
+{
+  font-weight: bold;
+  display: inline-block;
+  width: 150px;
+}
+.recurring_donation_widget > span
+{
+  display: inline-block;
+  width: 150px;
+}
+button.cancel_subscription
+{
+  width: 80px !important;
+  height: 28px !important;
+}
+
+/**
+ * Donation history screen
+ */
+#donation_history_table
+{
+    width: 60%;
+    text-align: center;
+}
+
+
 
 /* general classes */
 .clear

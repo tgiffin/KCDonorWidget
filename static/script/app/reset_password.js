@@ -24,6 +24,12 @@
      */
     function init()
     {
+      //init google analytics
+      var _gaq=[["_setAccount","UA-30533633-1"],['_setDomainName','klearchoice.com'],["_trackPageview","/reset_password"]];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+      s.parentNode.insertBefore(g,s)}(document,"script"));
+
       //set up validators
       $("#password")[0].validate = validator();
       $("#confirm_password")[0].validate = validator(

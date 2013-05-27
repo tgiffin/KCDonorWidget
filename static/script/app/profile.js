@@ -20,14 +20,22 @@
     var screen_logic;
     var current_screen;
 
+    //init google analytics
+    var _gaq=[["_setAccount","UA-30533633-1"],['_setDomainName','klearchoice.com']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+        s.parentNode.insertBefore(g,s)}(document,"script"));
+
     //initialize logic for each screen
     screen_logic = {
+
       /**
        * Login screen logic
        */
       profile_login: 
         function()
         {
+          _gaq.push(["_trackPageview","/profile/login"]);
 
           window.RecaptchaOptions = {
             theme : 'theme_name'
@@ -101,7 +109,10 @@
                   {
                     locals = $.extend(locals,data);
                     $(".process").fadeIn(); //show navbar
-                    return show_screen("profile_information");
+                    current_screen = $.History.getHash();
+                    current_screen = current_screen.replace("/","");
+                    if(current_screen == "") current_screen = "profile_information";
+                    return show_screen(current_screen);
                   }
                   $("#login_error").html("Invalid login");
                   if(data.require_captcha)
@@ -153,6 +164,7 @@
       profile_information:
         function()
         {
+          _gaq.push(["_trackPageview","/profile/profile_information"]);
 
           //set up validators
           $("#password")[0].validate = validator();
@@ -274,25 +286,113 @@
       /**
        * Logic for the recurring donations screen
        */
-      recurring_donations:
+      profile_recurring_donations:
         function()
         {
+          _gaq.push(["_trackPageview","/profile/recurring_donations"]);
 
-        },
-      /**
-       * Logic for the organizations screen
-       */
-      organizations:
-        function()
-        {
+          //get the widget markup and the subscription data
+          $.when(
+              $.get("/html/fragments/profile_recurring_donation_widget.html"), //get the markup template
+              $.get("/subscriptions")) //get the data
+            .done(
+              function(fragment, response)
+              {
+                fragment = fragment[0]; response = response[0];
+
+                if(!response.success)
+                  return alert("Error retrieving recurring donations, please try again later.");
+
+                if(response.subscriptions.length == 0)
+                  $("#subscriptions").html("<b>No active recurring donations.</b>");
+                else
+                  response.subscriptions.forEach(
+                    function(subscription)
+                    {
+                      subscription.last_transaction_date = subscription.last_transaction_date ? (new Date(subscription.last_transaction_date)).toLocaleDateString() : "None";
+                      subscription.next_transaction_date = (new Date(subscription.next_transaction_date)).toLocaleDateString();
+                      subscription.subscription_id = subscription.id;
+                      var $frag = $(Mustache.render(fragment,subscription));
+                      $frag.find("[field=amount]").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+                      $("#subscriptions").append($frag);
+                    });
+                
+              })
+            .fail(
+              function()
+              {
+                  return alert("Error retrieving recurring donations, please try again later.");
+              });
+
+          //handle cancel subscription click using delegated event
+          $("#subscriptions").on("click",".cancel_subscription",
+            function()
+            {
+              var subscription_id = $(this).attr("subscription_id");
+ 
+              $.post("/subscription/cancel",
+              {
+                subscription_id: subscription_id
+              })
+              .done(
+                function(result)
+                {
+                  if(!result.success)
+                  {
+                    return alert("Failed to cancel subscription. If this problem persists, please contact technical support");
+                  }
+                  //mark this row as canceled
+                  $(".recurring_donation_widget[subscription_id=" + subscription_id + "] > [field=next_transaction_date]")
+                    .html("canceled");
+
+                  //remove the cancel button
+                  $(".recurring_donation_widget[subscription_id=" + subscription_id + "] > button").remove();
+                })
+              .fail(
+                function()
+                {
+                  alert("Failed to cancel subscription. If this problem persists, please contact technical support");
+                });
+            });
+
         },
       /**
        * Logic for the donation history screen
        */
-      donation_history:
+      profile_donation_history:
         function()
         {
-        },
+          _gaq.push(["_trackPageview","/profile/donation_history"]);
+          $.get("/donation_history")
+            .done(
+              function(result)
+              {
+                if(!result.success)
+                  return alert("Unable to retrieve donation history. Please try again later.");
+                if(result.rows.length == 0)
+                  return $("#donation_history_display").html("<b>No transactions found.</b>");
+
+                result.rows.forEach(
+                  function(row)
+                  {
+                    $("#donation_history_table_body").append(
+                      "<tr>" + 
+                        "<td>" + (new Date(row.create_date)).toLocaleDateString() + "</td>" +
+                        "<td>" + row.charity_name + "</td>" + 
+                        "<td class='currency'>" + row.amount + "</td>" + 
+                        "<td>" + row.transaction_id + "</td>" + 
+                        "<td>" + row.status + "</td>" + 
+                      "</tr>"
+                      );
+                  });
+                $(".currency").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+              })
+            .fail(
+              function()
+              {
+                return alert("Unable to retrieve donation history. Please try again later.");
+              });
+        }
     };
 
     /*********************** Utility Functions **********************/
@@ -483,6 +583,7 @@
      */
     function show_screen(screen)
     {
+      if(!locals.auth) screen = "profile_login";
       var fragment = screen + ".html";
       $.get("/html/fragments/" + fragment,
         function(data,status,jqXHR)
@@ -543,26 +644,32 @@
       function()
       {
 
-        init_history();
         init_navigation();
+        current_screen = $.History.getHash();
+        current_screen = current_screen.replace("/","");
 
         $.getJSON("/auth",
           function(data,status,jqXHR)
           {
             if(data.auth)
             {
-              current_screen = $.History.getHash();
-              current_screen = current_screen.replace("/","");
-              if(current_screen == "") current_screen = "profile_information";
               locals = $.extend(locals,data);
               $(".process").fadeIn();
-              show_screen("profile_information");
+              if(current_screen == "")
+              {
+                current_screen = "profile_information";
+                show_screen(current_screen);
+              }
             }
             else
             {
               locals.auth = null;
-              show_screen("profile_login");
+              if(current_screen == "")
+              {
+                show_screen("profile_login");
+              }
             }
+            init_history();
           });
       });
 

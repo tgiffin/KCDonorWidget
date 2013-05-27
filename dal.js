@@ -47,7 +47,7 @@ module.exports = {
    */
   get_donation_history: function(donor_id, callback)
   {
-    connection.query("select id, charity_id, charity_name, amount, status, create_date "
+    connection.query("select transactions.id as transaction_id, charity_id, charity_name, amount, status, transactions.create_date as create_date "
                     + "from transactions "
                     + " join charity "
                     + "  on charity.id = transactions.charity_id "
@@ -283,6 +283,17 @@ module.exports = {
         callback(err,result); 
       });
 
+  },
+
+  /**
+   * Retrieve all recurring transactions for the given donor
+   */
+  get_recurring_transactions: function(donor_id, callback)
+  {
+    connection.query("select subscription.id, charity_name, amount, frequency, last_transaction_date, next_transaction_date " +
+                      " from subscription " + 
+                      "   join charity on subscription.charity_id = charity.id " + 
+                      " where donor_id=? and next_transaction_date is not null",[donor_id],callback);
   },
 
   /**

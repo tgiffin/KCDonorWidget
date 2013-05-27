@@ -56,6 +56,16 @@ module.exports = [
     action: actions.register_charity
   },
   {
+    verb: 'get',
+    path: '/subscriptions',
+    action: actions.get_subscriptions
+  },
+  {
+    verb: 'post',
+    path: '/subscription/cancel',
+    action: actions.cancel_subscription
+  },
+  {
     verb: 'post',
     path: '/save_charity',
     action: actions.save_charity
@@ -79,5 +89,10 @@ module.exports = [
     verb: 'post',
     path: '/set_email',
     action: actions.update_donor_email
+  },
+  {
+    verb: 'get',
+    path: '/donation_history',
+    action: actions.get_donation_history
   }
 ];

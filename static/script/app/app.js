@@ -35,7 +35,8 @@ scripts = {
                                             "/script/lib/mustache.js",
                                             "/script/lib/jquery.html5-placeholder-shim.js",
                                             "/script/lib/spin.js",
-                                            "/script/lib/jquery.history.min.js",
+                                            "/script/lib/jquery.browser.js", //jquery history depends on this because browser detection was removed from 1.9
+                                            "/script/lib/jquery.history.js",
                                             null, //block until libs are loaded
                                             "/script/app/profile.js"
                                           ],
@@ -56,7 +57,7 @@ scripts = {
     var head = oDOC.head || oDOC.getElementsByTagName("head");
 
     function LABjsLoaded() {
-      $LAB.setGlobalDefaults({CacheBust: true});
+      $LAB.setGlobalDefaults({CacheBust: false});
       var $L=$LAB;
       var queue;
 

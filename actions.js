@@ -466,6 +466,7 @@ exports.is_auth = function(request, response)
     response.json(
       {
         auth: true, 
+        donor_id: request.session.auth.id,
         first_name: request.session.auth.first_name,
         last_name: request.session.auth.last_name,
         email: request.session.auth.email
@@ -535,6 +536,7 @@ exports.auth = function(request, response, next)
           response.json(
             {
               auth: true,
+              donor_id: request.session.auth.id,
               first_name: request.session.auth.first_name,
               last_name: request.session.auth.last_name,
               email: request.session.auth.email
@@ -948,6 +950,103 @@ exports.save_charity = function(request, response)
     }); //end dal.save_charity()
 }
 
+/**
+ * Retrieve the donation history for the donor
+ */
+exports.get_donation_history = function(request, response)
+{
+  dal.open();
+  dal.get_donation_history(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        log.error("Error retrieving donation history: " + util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Error retreiving donation history"
+          });
+      }
+
+      response.json(
+        {
+          success: true,
+          message: "",
+          rows: rows
+        });
+    });
+}
+
+/*******************************
+ * Subscription API calls
+ *******************************/
+
+/**
+ * Retrieve a list of subscriptions for the authenticated donor
+ */
+ exports.get_subscriptions = function(request, response)
+ {
+  dal.open()
+  dal.get_recurring_transactions(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        log.error(util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Error retreiving subscriptions"
+          });
+      }
+      response.json(
+        {
+          success: true,
+          message: "",
+          subscriptions: rows
+        });
+    });
+ }
+
+/**
+ * Cancel subscription for the authenticated donor, for the 
+ * passed in subscription_id
+ */
+exports.cancel_subscription = function(request, response)
+{
+  var subscription_id = request.body["subscription_id"];
+  log.log("Canceling subscription: " + subscription_id);
+  if(!subscription_id)
+    return response.json(
+      {
+        success: false,
+        message: "Missing subscription_id"
+      });
+  dal.open();
+  dal.cancel_subscription(subscription_id,
+    function(err, result)
+    {
+      if(err)
+      {
+        log.error("Error canceling subscription: " + util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Failed to cancel subscription"
+          });
+      }
+
+      response.json(
+        {
+          success: true,
+          message: ""
+        });
+    });
+
+}
 
 /* Utility functions */
 
@@ -1102,6 +1201,8 @@ function send_payment(request, response, data, donor_id)
     } //end http request callback
   );//end request call to dwolla
 } //end send_payment
+
+
 
 
 
