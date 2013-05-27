@@ -19,6 +19,12 @@
     function()
     {
 
+      //init google analytics
+      var _gaq=[["_setAccount","UA-30533633-1"],['_setDomainName','klearchoice.com'],["_trackPageview"]];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+      s.parentNode.insertBefore(g,s)}(document,"script"));
+
       var charity_info = {};
       var existing_account = null;
 
@@ -77,6 +83,7 @@
           if(!validate())
             return;
 
+          _gaq.push(["_trackPageView","/step2"]);
           show_next();
         });
 
@@ -139,6 +146,7 @@
               {
                 charity_info.id=data.charity_id;
                 $("#charity_id").html(charity_info.id);
+                _gaq.push(["_trackPageView","/step3"]);
                 show_next();
               }
               else
@@ -184,6 +192,7 @@
               {
                 charity_info.id = data.charity_id;
                 $("#charity_id").html(charity_info.id);
+                _gaq.push(["_trackPageView","/step3"]);
                 show_next();
               }
               else
