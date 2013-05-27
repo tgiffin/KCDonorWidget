@@ -56,7 +56,7 @@ module.exports = {
                     {
                       callback(err, rows);
                     });
-  }
+  },
 
   /**
    * Get charity info for the given id
@@ -263,7 +263,46 @@ module.exports = {
       {
         callback(err);
       });
-  }
+  },
 
+  /*********************************************
+   * Recurring Subscription Fucntions
+   *********************************************/
+  /**
+   * Retrieve the list of subscription records which have a next_date of today.
+   * This is used to create transactions from the cron job create_recurring_transactions.js
+   */
+  get_current_recurring_transactions: function(callback)
+  { 
+    var d = new Date();
+    var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    log.log(date_string);
+    connection.query("select * from subscription where next_transaction_date = ?",[date_string],
+      function(err, result)
+      {
+        callback(err,result); 
+      });
+
+  },
+
+  /**
+   * Cancel a subscription. This is achieved by simply setting the cancel date and nulling the next_transaction_date column
+   */
+  cancel_subscription: function(subscription_id, callback)
+  {
+    connection.query("update subscription set cancel_date = ?, next_transaction_date = null where id=?",[new Date(), subscription_id],
+      function(err, result)
+      {
+        callback(err);
+      });
+  },
+
+  /**
+   * Update the subscription record. This is a generic utility function that will update any fields passed in via the subscription object.
+   */
+  update_subscription: function(subscription, callback)
+  {
+    connection.query("update subscription set ? where id=?",[subscription,subscription.id], callback);
+  }
 
 }
