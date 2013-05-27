@@ -83,7 +83,7 @@
           if(!validate())
             return;
 
-          _gaq.push(["_trackPageView","/step2"]);
+          _gaq.push(["_trackPageView","/register/step2"]);
           show_next();
         });
 
@@ -146,7 +146,7 @@
               {
                 charity_info.id=data.charity_id;
                 $("#charity_id").html(charity_info.id);
-                _gaq.push(["_trackPageView","/step3"]);
+                _gaq.push(["_trackPageView","/register/step3"]);
                 show_next();
               }
               else
@@ -192,7 +192,7 @@
               {
                 charity_info.id = data.charity_id;
                 $("#charity_id").html(charity_info.id);
-                _gaq.push(["_trackPageView","/step3"]);
+                _gaq.push(["_trackPageView","/register/step3"]);
                 show_next();
               }
               else
