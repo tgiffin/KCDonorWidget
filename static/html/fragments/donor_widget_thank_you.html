@@ -9,6 +9,23 @@
       You will receive a confirmation email for your donation.
     </p>
   </div>
+  <div id="recurring_container">
+    <input type="checkbox" id="recurring"/><label for="recurring">Make this a recurring donation</label>
+    <div id="recurring_options">
+      <label for="amount_display">Amount:</label><span id="amount_display">{{amount}}</span>
+      <label for="frequency">Frequency:</label>
+      <select id="frequency">
+        <option value="daily">Daily</option>
+        <option value="weekly" selected="selected">Weekly</option>
+        <option value="biweekly">Bi-Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <button type="button" class="orange" id="create_recurring_donation">Save</button>
+    </div>
+  </div>
+  <div id="recurring_created">
+    <p>Thank you, your recurring donation has been created. To view or modify your recurring donations, please <a target="_blank" href="/profile.html#profile_recurring_donations">click here</a></p>
+  </div>
 
 
 

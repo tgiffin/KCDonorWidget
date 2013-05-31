@@ -67,6 +67,11 @@ module.exports = [
   },
   {
     verb: 'post',
+    path: '/subscription/create',
+    action: actions.create_subscription
+  },
+  {
+    verb: 'post',
     path: '/save_charity',
     action: actions.save_charity
   },

@@ -309,6 +309,14 @@ module.exports = {
   },
 
   /**
+   * Create a new subscription record
+   */
+  create_subscription: function(params, callback)
+  {
+    connection.query("insert into subscription set ?", params, callback);
+  },
+
+  /**
    * Update the subscription record. This is a generic utility function that will update any fields passed in via the subscription object.
    */
   update_subscription: function(subscription, callback)

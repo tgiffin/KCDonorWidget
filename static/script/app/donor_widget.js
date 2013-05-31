@@ -317,6 +317,46 @@
         function()
         {
           _gaq.push(["_trackPageview","/widget/donor_widget_thank_you"]);
+          if(locals.auth)
+          {
+            $("#recurring_container").show();
+          }
+
+          $("#amount_display").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+
+          
+          $("#recurring").on("click",
+            function()
+            {
+              if($("#recurring").is(":checked"))
+                $("#recurring_options").fadeIn();
+              else
+                $("#recurring_options").fadeOut();
+            });
+          $("#create_recurring_donation").on("click",
+            function()
+            {
+              locals.frequency = $("#frequency").val();
+              $.post("/subscription/create",locals)
+                .done(
+                  function(result)
+                  {
+                    if(!result.success)
+                      return alert("Error creating recuring subscription, please try again later");
+                    $("#recurring_container").fadeOut(
+                      {
+                        done: function()
+                          {
+                            $("#recurring_created").fadeIn();
+                          }
+                      });
+                  })
+                .fail(
+                  function()
+                  {
+                    alert("Error creating recuring subscription, please try again later");
+                  });
+            });
         }
     };
 

@@ -1012,6 +1012,55 @@ exports.get_donation_history = function(request, response)
  }
 
 /**
+ * API method to create a new recurring donation/transaction
+ */
+exports.create_subscription = function(request, response)
+{
+  var valid_frequencies = ["daily","weekly","biweekly","monthly"];
+  log.debug("create subscription - frequency: " + request.body["frequency"] + " amount: " + request.body["amount"]);
+  if(!(valid_frequencies.indexOf(request.body["frequency"]) >= 0))
+    return response.json(
+      {
+        success: false,
+        message: "Invalid or missing frequency"
+      });
+  if(isNaN(parseFloat(request.body["amount"])))
+    return response.json(
+      {
+        success: false,
+        message: "Missing or invalid amount"
+      });
+  dal.open();
+  dal.create_subscription(
+      {
+        amount: parseFloat(request.body["amount"]),
+        frequency: request.body["frequency"],
+        donor_id: request.session.auth.id,
+        charity_id: request.session.charity.id,
+        next_transaction_date: date_string(getNextSubscriptionDate(request.body["frequency"],new Date()))
+      },
+      function(err, result)
+      {
+        dal.close();
+        if(err)
+        {
+          log.error("Error creating recurring subscription: " + util.inspect(err));
+          return response.json(
+            {
+              success: false,
+              message: "Error creating recurring subscription"
+            });
+        }
+
+        response.json(
+          {
+            success: true,
+            message: ""
+          });
+      });
+}
+
+/**
  * Cancel subscription for the authenticated donor, for the 
  * passed in subscription_id
  */
@@ -1261,4 +1310,46 @@ function escapeHtml(unsafe) {
       .replace(/'/g, "&#039;");
 }
 
+/**
+ * Calculate the next subscription date for recurring transactions
+ */
+var getNextSubscriptionDate;
+exports.getNextSubscriptionDate = getNextSubscriptionDate = function (frequency, create_date)
+{
+  var dt = new Date();
+  switch(frequency)
+  {
+    case "daily":
+      dt.setDate(dt.getDate() + 1);
+      break;
+    case "weekly":
+      dt.setDate(dt.getDate() + 7);
+      break;
+    case "biweekly":
+      dt.setDate(dt.getDate() + 14);
+      break;
+    case "monthly":
+      //check to see if the last day of next month is less than the subscription date,
+      //if so, adjust accordingly
+      var current_date = new Date();
+      var temp_date = new Date(current_date.getFullYear(),current_date.getMonth() + 2,1);
+      var last_day_of_next_month = (new Date(temp_date - 1)).getDate();
+      var subscription_day = create_date.getDate();
+      if(last_day_of_next_month < subscription_day)
+        dt = new Date(dt.getFullYear(), dt.getMonth() + 1, last_day_of_next_month);
+      else
+        dt.setMonth(dt.getMonth() + 1);
+      break;
+  }
+  
+  return dt;
+}
 
+
+/**
+ * Returns a formatted my-sql compliant date string with no time component
+ */
+function date_string(d)
+{
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
