@@ -209,6 +209,10 @@ button.cancel_subscription
     width: 60%;
     text-align: center;
 }
+#donation_history_display {
+  height: 400px;
+  overflow: auto; 
+}
 
 
 
