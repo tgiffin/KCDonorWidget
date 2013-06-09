@@ -18,15 +18,24 @@
   {
     var locals = {fee:.5};
     var screen_logic;
+    var current_screen;
+
+    //init google analytics
+    var _gaq=[["_setAccount","UA-30533633-1"],['_setDomainName','klearchoice.com']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+        s.parentNode.insertBefore(g,s)}(document,"script"));
 
     //initialize logic for each screen
     screen_logic = {
+
       /**
        * Login screen logic
        */
       profile_login: 
         function()
         {
+          _gaq.push(["_trackPageview","/profile/login"]);
 
           window.RecaptchaOptions = {
             theme : 'theme_name'
@@ -99,7 +108,11 @@
                   if(data.auth)
                   {
                     locals = $.extend(locals,data);
-                    return show_screen("profile_information");
+                    $(".process").fadeIn(); //show navbar
+                    current_screen = $.History.getHash();
+                    current_screen = current_screen.replace("/","");
+                    if(current_screen == "") current_screen = "profile_information";
+                    return show_screen(current_screen);
                   }
                   $("#login_error").html("Invalid login");
                   if(data.require_captcha)
@@ -138,7 +151,7 @@
                   }
                   else
                   {
-                    $("#recover_message").html(data.message);
+                    $("#recovery_message").html(data.message);
                   }
                 }); //end post
 
@@ -151,6 +164,25 @@
       profile_information:
         function()
         {
+          _gaq.push(["_trackPageview","/profile/profile_information"]);
+
+          //set up validators
+          $("#password")[0].validate = validator();
+          $("#confirm_password")[0].validate = validator(
+            function()
+            {
+              return $("#password").val() == $("#confirm_password").val();
+            }
+          );
+
+          $("#email")[0].validate = validator(
+            function()
+            {
+              //very basic email format validation
+              return /\S+@\S+\.\S+/.test($("#email").val());
+            }
+          );
+
           
           //do the password strength meter
           $("#password").on("keyup",
@@ -175,29 +207,192 @@
               }
             });
 
+            //revalidate each time a form item loses focus
+            $("input").on("blur",
+              function()
+              {
+                if(this.validate && !this.validate()) show_error($(this).attr("id"));
+                else clear_error($(this).attr("id"));
+              });
+
+            //set up handlers for button clicks
+            $("#change_email").on("click",
+              function()
+              {
+                $("#change_email_form").fadeIn();
+              });
+            $("#cancel_change_email").on("click",
+              function()
+              {
+                $("#change_email_form").fadeOut();
+              });
+
+            $("#change_password").on("click",
+              function()
+              {
+                $("#change_password_form").fadeIn();
+              });
+            $("#cancel_change").on("click",
+              function()
+              {
+                $("#change_password_form").fadeOut();
+              });
+
+            //handle email submit click
+            $("#submit_change_email").on("click",
+              function()
+              {
+                if(!validate($("#email"))) return;
+
+                $.post("/set_email",{ email: $("#email").val() })
+                .done(
+                  function(data, textStatus, jqXHR)
+                  {
+                    if(!data.success) return alert(data.message);
+                    $("#email_display").html($("#email").val());
+                    $("#change_email_form").fadeOut();
+                  })
+                .fail(
+                  function(xhr,status,err) { alert(err); });
+                  
+              });
+
+            //handle submit click
+            $("#submit_change").on("click",
+              function()
+              {
+                if(!validate($("#password, #confirm_password"))) return;
+
+                $.post("/set_password",{ password: $("#password").val() })
+                .done(function(data,textStatus, jqXHR)
+                {
+                  if(!data.success)
+                  {
+                    $("#error_message").text(data.message);
+                    $("#reset_error").fadeIn();
+                    return;
+                  }
+
+                  $("#login_form").fadeOut();
+                  $("#reset_success").fadeIn();
+                })
+                .fail(function(xhr,status,err)
+                {
+                  alert(err);
+                });
+
+              });
         },
       /**
        * Logic for the recurring donations screen
        */
-      recurring_donations:
+      profile_recurring_donations:
         function()
         {
+          _gaq.push(["_trackPageview","/profile/recurring_donations"]);
 
-        },
-      /**
-       * Logic for the organizations screen
-       */
-      organizations:
-        function()
-        {
+          //get the widget markup and the subscription data
+          $.when(
+              $.get("/html/fragments/profile_recurring_donation_widget.html"), //get the markup template
+              $.get("/subscriptions")) //get the data
+            .done(
+              function(fragment, response)
+              {
+                fragment = fragment[0]; response = response[0];
+
+                if(!response.success)
+                  return alert("Error retrieving recurring donations, please try again later.");
+
+                if(response.subscriptions.length == 0)
+                  $("#subscriptions").html("<b>No active recurring donations.</b>");
+                else
+                  response.subscriptions.forEach(
+                    function(subscription)
+                    {
+                      subscription.last_transaction_date = subscription.last_transaction_date ? (new Date(subscription.last_transaction_date)).toLocaleDateString() : "None";
+                      subscription.next_transaction_date = (new Date(subscription.next_transaction_date)).toLocaleDateString();
+                      subscription.subscription_id = subscription.id;
+                      var $frag = $(Mustache.render(fragment,subscription));
+                      $frag.find("[field=amount]").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+                      $("#subscriptions").append($frag);
+                    });
+                
+              })
+            .fail(
+              function()
+              {
+                  return alert("Error retrieving recurring donations, please try again later.");
+              });
+
+          //handle cancel subscription click using delegated event
+          $("#subscriptions").on("click",".cancel_subscription",
+            function()
+            {
+              var subscription_id = $(this).attr("subscription_id");
+ 
+              $.post("/subscription/cancel",
+              {
+                subscription_id: subscription_id
+              })
+              .done(
+                function(result)
+                {
+                  if(!result.success)
+                  {
+                    return alert("Failed to cancel subscription. If this problem persists, please contact technical support");
+                  }
+                  //mark this row as canceled
+                  $(".recurring_donation_widget[subscription_id=" + subscription_id + "] > [field=next_transaction_date]")
+                    .html("canceled");
+
+                  //remove the cancel button
+                  $(".recurring_donation_widget[subscription_id=" + subscription_id + "] > button").remove();
+                })
+              .fail(
+                function()
+                {
+                  alert("Failed to cancel subscription. If this problem persists, please contact technical support");
+                });
+            });
+
         },
       /**
        * Logic for the donation history screen
        */
-      donation_history:
+      profile_donation_history:
         function()
         {
-        },
+          _gaq.push(["_trackPageview","/profile/donation_history"]);
+          $.get("/donation_history")
+            .done(
+              function(result)
+              {
+                if(!result.success)
+                  return alert("Unable to retrieve donation history. Please try again later.");
+                if(result.rows.length == 0)
+                  return $("#donation_history_display").html("<b>No transactions found.</b>");
+
+                result.rows.forEach(
+                  function(row)
+                  {
+                    $("#donation_history_table_body").append(
+                      "<tr>" + 
+                        "<td>" + (new Date(row.create_date)).toLocaleDateString() + "</td>" +
+                        "<td>" + row.charity_name + "</td>" + 
+                        "<td class='currency'>" + row.amount + "</td>" + 
+                        "<td>" + row.transaction_id + "</td>" + 
+                        "<td>" + row.status + "</td>" + 
+                      "</tr>"
+                      );
+                  });
+                $(".currency").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+              })
+            .fail(
+              function()
+              {
+                return alert("Unable to retrieve donation history. Please try again later.");
+              });
+        }
     };
 
     /*********************** Utility Functions **********************/
@@ -345,14 +540,16 @@
     /**
      * Validate the inputs on the currently active screen
      */
-    function validate()
+    function validate($eles)
     {
       var valid=true;
       $(".error").removeClass("error");
       $(".validation").hide();
 
+      var $validation_elements = $eles || $("input");
+
       //validate all fields
-      $("input").each(
+      $validation_elements.each(
         function()
         {
           if(this.validate && !this.validate())
@@ -386,6 +583,7 @@
      */
     function show_screen(screen)
     {
+      if(!locals.auth) screen = "profile_login";
       var fragment = screen + ".html";
       $.get("/html/fragments/" + fragment,
         function(data,status,jqXHR)
@@ -412,6 +610,32 @@
         });
     }
 
+    /**
+     * Initiallize the history plugin to support browser back buttons
+     */
+    function init_history()
+    {
+      $.History.bind(function(state)
+      {
+        var prev;
+        state = state.replace("/","");
+        if(state == "") state="profile_information";
+        show_screen(state);
+        current_screen = state;
+      });
+    }
+
+    /**
+     * Set up event handlers to deal with user navigation between screens
+     */
+    function init_navigation()
+    {
+      $(".process").on("click",
+        function()
+        {
+        });
+    }
+
 
     /**
      * Main
@@ -419,6 +643,11 @@
     $(document).ready(
       function()
       {
+
+        init_navigation();
+        current_screen = $.History.getHash();
+        current_screen = current_screen.replace("/","");
+
         $.getJSON("/auth",
           function(data,status,jqXHR)
           {
@@ -426,13 +655,21 @@
             {
               locals = $.extend(locals,data);
               $(".process").fadeIn();
-              show_screen("profile_information");
+              if(current_screen == "")
+              {
+                current_screen = "profile_information";
+                show_screen(current_screen);
+              }
             }
             else
             {
               locals.auth = null;
-              show_screen("profile_login");
+              if(current_screen == "")
+              {
+                show_screen("profile_login");
+              }
             }
+            init_history();
           });
       });
 

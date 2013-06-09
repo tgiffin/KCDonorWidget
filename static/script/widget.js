@@ -410,7 +410,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
       alert("creating widget for charity: " + charity_id + ", options loaded");
     */
 
-    $widget = $("<div id='klearchoice_donate_tab'>Donate</div>");
+    $widget = $("<div id='klearchoice_donate_tab'></div>");
     //style the tab. If a css class has been specified, use that class. Otherwise, use default styling
     if(tab_style)
     {
@@ -422,19 +422,11 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         {
           'position':'fixed',
           'cursor':'pointer',
-          'right':'-30px',
-          'height':'30px',
-          'width':'80px',
+          'right':'0px',
+          'height':'95px',
+          'width':'40px',
           'text-align':'center',
-          '-webkit-transform':'rotate(-90deg)',
-          '-moz-transform':'rotate(-90deg)',
-          //'-ms-transform-origin': '0 0',
-          '-ms-transform': 'rotate(-90deg)',
-          'border':'2px solid white',
-          'background-color':'#455a78',
-          'font-size':'20px',
-          'font-family':'Calibri,Helvetica,Arial',
-          'color':'white'
+          'background-image': "url('https://app.klearchoice.com/images/widget.png')"
         });
       if($.browser.msie) {
           //$widget.css({'right':'0px'});

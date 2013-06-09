@@ -7,6 +7,12 @@
     var locals = {fee:.5};
     var screen_logic;
 
+    //init google analytics
+    var _gaq=[["_setAccount","UA-30533633-2"],['_setDomainName','klearchoice.com']];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+        s.parentNode.insertBefore(g,s)}(document,"script"));
+
     //initialize logic for each screen
     screen_logic = {
       /**
@@ -17,6 +23,7 @@
         function()
         {
 
+          _gaq.push(["_trackPageview","/widget/donor_widget_no_auth"]);
 
           //a little initialization, in case this is a edit/back. The other values are loaded from the template
           if(locals.create_account)
@@ -219,6 +226,7 @@
       donor_widget_auth:
         function()
         {
+          _gaq.push(["_trackPageview","/widget/donor_widget_auth"]);
           //handle logout click
           $("#logout").on("click",
             function()
@@ -263,6 +271,7 @@
       donor_widget_confirm:
         function()
         {
+          _gaq.push(["_trackPageview","/widget/donor_widget_confirm"]);
           //set the correct amount in the UI and format it
           $("#donation_total_display").html(parseFloat(locals.amount) + locals.fee);
           $("#donation_total_display").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2, eventOnDecimalsEntered: true });
@@ -307,6 +316,47 @@
       donor_widget_thank_you:
         function()
         {
+          _gaq.push(["_trackPageview","/widget/donor_widget_thank_you"]);
+          if(locals.auth)
+          {
+            $("#recurring_container").show();
+          }
+
+          $("#amount_display").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
+
+          
+          $("#recurring").on("click",
+            function()
+            {
+              if($("#recurring").is(":checked"))
+                $("#recurring_options").fadeIn();
+              else
+                $("#recurring_options").fadeOut();
+            });
+          $("#create_recurring_donation").on("click",
+            function()
+            {
+              locals.frequency = $("#frequency").val();
+              $.post("/subscription/create",locals)
+                .done(
+                  function(result)
+                  {
+                    if(!result.success)
+                      return alert("Error creating recuring subscription, please try again later");
+                    $("#recurring_container").fadeOut(
+                      {
+                        done: function()
+                          {
+                            $("#recurring_created").fadeIn();
+                          }
+                      });
+                  })
+                .fail(
+                  function()
+                  {
+                    alert("Error creating recuring subscription, please try again later");
+                  });
+            });
         }
     };
 

@@ -42,6 +42,23 @@ module.exports = {
   },
 
   /**
+   * retrieve the rows from the transactions table with the donation history
+   * for the current user
+   */
+  get_donation_history: function(donor_id, callback)
+  {
+    connection.query("select transactions.id as transaction_id, charity_id, charity_name, amount, status, transactions.create_date as create_date "
+                    + "from transactions "
+                    + " join charity "
+                    + "  on charity.id = transactions.charity_id "
+                    + "where donor_id = ?",[donor_id],
+                    function(err, rows)
+                    {
+                      callback(err, rows);
+                    });
+  },
+
+  /**
    * Get charity info for the given id
    */
   get_charity: function(charity_id, callback)
@@ -246,7 +263,65 @@ module.exports = {
       {
         callback(err);
       });
-  }
+  },
 
+  /*********************************************
+   * Recurring Subscription Fucntions
+   *********************************************/
+  /**
+   * Retrieve the list of subscription records which have a next_date of today.
+   * This is used to create transactions from the cron job create_recurring_transactions.js
+   */
+  get_current_recurring_transactions: function(callback)
+  { 
+    var d = new Date();
+    var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    log.log(date_string);
+    connection.query("select * from subscription where next_transaction_date = ?",[date_string],
+      function(err, result)
+      {
+        callback(err,result); 
+      });
+
+  },
+
+  /**
+   * Retrieve all recurring transactions for the given donor
+   */
+  get_recurring_transactions: function(donor_id, callback)
+  {
+    connection.query("select subscription.id, charity_name, amount, frequency, last_transaction_date, next_transaction_date " +
+                      " from subscription " + 
+                      "   join charity on subscription.charity_id = charity.id " + 
+                      " where donor_id=? and next_transaction_date is not null",[donor_id],callback);
+  },
+
+  /**
+   * Cancel a subscription. This is achieved by simply setting the cancel date and nulling the next_transaction_date column
+   */
+  cancel_subscription: function(subscription_id, callback)
+  {
+    connection.query("update subscription set cancel_date = ?, next_transaction_date = null where id=?",[new Date(), subscription_id],
+      function(err, result)
+      {
+        callback(err);
+      });
+  },
+
+  /**
+   * Create a new subscription record
+   */
+  create_subscription: function(params, callback)
+  {
+    connection.query("insert into subscription set ?", params, callback);
+  },
+
+  /**
+   * Update the subscription record. This is a generic utility function that will update any fields passed in via the subscription object.
+   */
+  update_subscription: function(subscription, callback)
+  {
+    connection.query("update subscription set ? where id=?",[subscription,subscription.id], callback);
+  }
 
 }

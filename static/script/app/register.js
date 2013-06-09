@@ -1,8 +1,29 @@
+/**
+ * register.js
+ *
+ * Handles the logic for the registration screen.
+ *
+ * Good developers view source!
+ * For any questions please contact the author: clay@ratiosoftware.com
+ *
+ * History
+ * 
+ * Date         Author                                 Comment
+ * ----------------------------------------------------------------------
+ * 4/18/2013    Clay Gulick (clay@ratiosoftware.com)   Initial version created
+ * 
+ */
 (function($)
 {
   $(document).ready(
     function()
     {
+
+      //init google analytics
+      var _gaq=[["_setAccount","UA-30533633-1"],['_setDomainName','klearchoice.com'],["_trackPageview","/register/step1"]];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+      g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+      s.parentNode.insertBefore(g,s)}(document,"script"));
 
       var charity_info = {};
       var existing_account = null;
@@ -62,6 +83,7 @@
           if(!validate())
             return;
 
+          _gaq.push(["_trackPageView","/register/step2"]);
           show_next();
         });
 
@@ -124,6 +146,7 @@
               {
                 charity_info.id=data.charity_id;
                 $("#charity_id").html(charity_info.id);
+                _gaq.push(["_trackPageView","/register/step3"]);
                 show_next();
               }
               else
@@ -169,6 +192,7 @@
               {
                 charity_info.id = data.charity_id;
                 $("#charity_id").html(charity_info.id);
+                _gaq.push(["_trackPageView","/register/step3"]);
                 show_next();
               }
               else

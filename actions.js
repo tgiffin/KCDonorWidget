@@ -21,7 +21,7 @@ var mandrill = new Mandrill(
 /*********************************************************************************************
  * Templates / pages 
  *
- * These are actual html pages that are rendered upon user request
+ * These are the logic behind the actual html pages that are rendered upon user request
  *********************************************************************************************/
 
 /**
@@ -199,24 +199,29 @@ exports.recover_password = function(request, response)
  * API call to reset user password.
  *
  * In order for this to work, a token must already be in the session, otherwise an error will
- * be returned.
+ * be returned. 
  */
 exports.set_password = function(request, response)
 {
   //first, grab the token out of the session and validate it
   var token = request.session["reset_token"];
-  var password = request.body["password"];
-  if(!token)
-    return response.json(
+  var password = request.body["password"]; 
+  if(!token) 
+    return response.json(   
       {
-        success: false,
+        success: false, 
         message: "Missing or invalid token"
       });
   dal.open();
   //get the donor record based on the token
-  dal.get_donor_by_token(token,
+  dal.get_donor_by_token(token, 
     function(err,donor)
     {
+      if(err || !donor)
+        return response.json({
+          success: false,
+          message: "Invalid token"
+        });
       //check to see if the token has expired
       var date = donor.password_recovery_date;
       var ticks = (new Date()).getTime() - date.getTime();
@@ -461,8 +466,10 @@ exports.is_auth = function(request, response)
     response.json(
       {
         auth: true, 
+        donor_id: request.session.auth.id,
         first_name: request.session.auth.first_name,
-        last_name: request.session.auth.last_name
+        last_name: request.session.auth.last_name,
+        email: request.session.auth.email
       }
     );
   }
@@ -529,8 +536,10 @@ exports.auth = function(request, response, next)
           response.json(
             {
               auth: true,
+              donor_id: request.session.auth.id,
               first_name: request.session.auth.first_name,
-              last_name: request.session.auth.last_name
+              last_name: request.session.auth.last_name,
+              email: request.session.auth.email
             });
         }
         else
@@ -597,6 +606,35 @@ exports.logout = function(request,response)
 }
 
 /**
+ * Update the email address of the donor currently in session
+ */
+exports.update_donor_email = function(request, response)
+{
+  var donor_email = escapeHtml(request.body["email"]);
+  dal.open();
+  dal.update_donor({id: request.session.auth.id, email: donor_email},
+    function(err)
+    {
+      dal.close();
+      if(err)
+      {
+        response.json(
+          {
+            success:false,
+            message:"Error saving email"
+          });
+          return;
+      }
+      response.json(
+        {
+          success:true,
+          message:""
+        });
+        return;
+    });
+}
+
+/**
  * Lookup donor information based on email address, return JSON formated donor
  */
 exports.get_donor = function(request, response)
@@ -628,6 +666,37 @@ exports.get_donor = function(request, response)
           new_donor: donor.processor_id ? false : true 
         });
     });
+}
+
+/**
+ * Retrieve the donation history for the logged in user
+ */
+exports.get_donation_history = function(request, response)
+{
+  dal.open();
+  dal.get_donation_history(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        return reponse.json(
+          {
+            success: false,
+            message: "There was a problem retrieving donation history, please try again later. If this problem persists, please contact technical support with the following information: " + err.message
+          }
+        );
+      }
+
+      return response.json(
+        {
+          success: true,
+          message: "",
+          rows: rows
+        });
+
+    });
+
 }
 
 /**
@@ -741,6 +810,41 @@ exports.register_charity = function(request, response)
 
               return;
           }
+          mandrill.messages.sendTemplate(
+            {
+              template_name:"charity_registration_notification",
+              template_content: [
+                {name:"charity_name", content: charity_info.charity_name},
+                {name:"charity_id", content: charity_id},
+                {name:"address1", content: charity_info.address1},
+                {name:"address2", content: charity_info.address2},
+                {name:"city", content: charity_info.city},
+                {name:"state", content: charity_info.state},
+                {name:"zip", content: charity_info.zip},
+                {name:"mailing_address1", content: charity_info.mailing_address1},
+                {name:"mailing_address2", content: charity_info.mailing_address2},
+                {name:"mailing_city", content: charity_info.mailing_city},
+                {name:"mailing_state", content: charity_info.mailing_state},
+                {name:"mailing_zip", content: charity_info.mailing_zip},
+                {name:"first_name", content: charity_info.first_name},
+                {name:"last_name", content: charity_info.last_name},
+                {name:"title", content: charity_info.title},
+                {name:"email", content: charity_info.email},
+                {name:"phone", content: charity_info.phone},
+                {name:"domain", content: charity_info.domain},
+                {name:"board_type", content: charity_info.board_type}
+                  ],
+                  message: {
+                    to: [
+                      {email:"support@klearchoice.com"},
+                    ],
+                    tracking_domain: "klearchoice.com"
+                  }
+
+            },
+            function(){log.debug("email sent successfully");}, //success, do nothing
+            function(err){console.error(util.inspect(err));} //error
+          );
 
           response.json(
             {
@@ -803,6 +907,40 @@ exports.save_charity = function(request, response)
         return;
       }
 
+      mandrill.messages.sendTemplate(
+        {
+          template_name:"charity_registration_notification",
+          template_content: [
+            {name:"charity_name", content: charity_info.charity_name},
+            {name:"charity_id", content: charity_id},
+            {name:"address", content: charity_info.address},
+            {name:"city", content: charity_info.city},
+            {name:"state", content: charity_info.state},
+            {name:"zip", content: charity_info.zip},
+            {name:"mailing_address", content: charity_info.mailing_address},
+            {name:"mailing_city", content: charity_info.mailing_city},
+            {name:"mailing_state", content: charity_info.mailing_state},
+            {name:"mailing_zip", content: charity_info.mailing_zip},
+            {name:"first_name", content: charity_info.first_name},
+            {name:"last_name", content: charity_info.last_name},
+            {name:"title", content: charity_info.title},
+            {name:"email", content: charity_info.email},
+            {name:"phone", content: charity_info.phone},
+            {name:"domain", content: charity_info.domain},
+            {name:"board_type", content: charity_info.board_type}
+          ],
+          message: {
+            to: [
+              {email:"support@klearchoice.com"}
+            ],
+            tracking_domain: "klearchoice.com"
+          }
+
+            },
+            function(){log.debug("email sent successfully");}, //success, do nothing
+            function(err){console.error(util.inspect(err));} //error
+          );
+
       response.json(
         {
           success: true,
@@ -812,6 +950,152 @@ exports.save_charity = function(request, response)
     }); //end dal.save_charity()
 }
 
+/**
+ * Retrieve the donation history for the donor
+ */
+exports.get_donation_history = function(request, response)
+{
+  dal.open();
+  dal.get_donation_history(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        log.error("Error retrieving donation history: " + util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Error retreiving donation history"
+          });
+      }
+
+      response.json(
+        {
+          success: true,
+          message: "",
+          rows: rows
+        });
+    });
+}
+
+/*******************************
+ * Subscription API calls
+ *******************************/
+
+/**
+ * Retrieve a list of subscriptions for the authenticated donor
+ */
+ exports.get_subscriptions = function(request, response)
+ {
+  dal.open()
+  dal.get_recurring_transactions(request.session.auth.id,
+    function(err, rows)
+    {
+      dal.close();
+      if(err)
+      {
+        log.error(util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Error retreiving subscriptions"
+          });
+      }
+      response.json(
+        {
+          success: true,
+          message: "",
+          subscriptions: rows
+        });
+    });
+ }
+
+/**
+ * API method to create a new recurring donation/transaction
+ */
+exports.create_subscription = function(request, response)
+{
+  var valid_frequencies = ["daily","weekly","biweekly","monthly"];
+  log.debug("create subscription - frequency: " + request.body["frequency"] + " amount: " + request.body["amount"]);
+  if(!(valid_frequencies.indexOf(request.body["frequency"]) >= 0))
+    return response.json(
+      {
+        success: false,
+        message: "Invalid or missing frequency"
+      });
+  if(isNaN(parseFloat(request.body["amount"])))
+    return response.json(
+      {
+        success: false,
+        message: "Missing or invalid amount"
+      });
+  dal.open();
+  dal.create_subscription(
+      {
+        amount: parseFloat(request.body["amount"]),
+        frequency: request.body["frequency"],
+        donor_id: request.session.auth.id,
+        charity_id: request.session.charity.id,
+        next_transaction_date: date_string(getNextSubscriptionDate(request.body["frequency"],new Date()))
+      },
+      function(err, result)
+      {
+        dal.close();
+        if(err)
+        {
+          log.error("Error creating recurring subscription: " + util.inspect(err));
+          return response.json(
+            {
+              success: false,
+              message: "Error creating recurring subscription"
+            });
+        }
+
+        response.json(
+          {
+            success: true,
+            message: ""
+          });
+      });
+}
+
+/**
+ * Cancel subscription for the authenticated donor, for the 
+ * passed in subscription_id
+ */
+exports.cancel_subscription = function(request, response)
+{
+  var subscription_id = request.body["subscription_id"];
+  log.log("Canceling subscription: " + subscription_id);
+  if(!subscription_id)
+    return response.json(
+      {
+        success: false,
+        message: "Missing subscription_id"
+      });
+  dal.open();
+  dal.cancel_subscription(subscription_id,
+    function(err, result)
+    {
+      if(err)
+      {
+        log.error("Error canceling subscription: " + util.inspect(err));
+        return response.json(
+          {
+            success: false,
+            message: "Failed to cancel subscription"
+          });
+      }
+
+      response.json(
+        {
+          success: true,
+          message: ""
+        });
+    });
+
+}
 
 /* Utility functions */
 
@@ -907,8 +1191,29 @@ function send_payment(request, response, data, donor_id)
         });
       
       //send confirmation email
-      var clear_date = new Date((new Date()).getTime() + (24 * 60 * 60 * 1000));
-      var clear_date_formatted = clear_date.getMonth() + "/" + clear_date.getDate() + "/" + clear_date.getYear();
+      var clear_date = new Date().getTime();
+      //add three days
+      clear_date += (3 * 24 * 60 * 60 * 1000);
+      //now keep adding days until we hit a business day, i.e., one that isn't saturday (6) or sunday (0)
+      for(var i=0; i<3;i++)
+      {
+        if(
+          (
+            (new Date(clear_date))
+            .getDay() != 6
+          )
+          &&
+          (
+            (new Date(clear_date))
+            .getDay() != 0
+          )
+        ) break;
+
+        clear_date += (24 * 60 * 60 * 1000);
+      }
+
+      clear_date = new Date(clear_date);
+      var clear_date_formatted = (clear_date.getMonth() + 1) + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
       try
       {
         log.debug("sending confirmation email...");
@@ -920,7 +1225,7 @@ function send_payment(request, response, data, donor_id)
               {name:"last_name", content:data.last_name},
               {name:"charity", content:request.session.charity.charity_name},
               {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
-              {name:"amount", content:parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee },
+              {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee) },
               {name:"clear_date", content:clear_date_formatted},
               {name:"transaction_number", content:results.Response},
             ],
@@ -945,6 +1250,26 @@ function send_payment(request, response, data, donor_id)
     } //end http request callback
   );//end request call to dwolla
 } //end send_payment
+
+
+
+
+
+/**
+ * Simple utility function to format currency, deals with sign and commas
+ */
+function formatCurrency(num) {
+  num = num.toString().replace(/\$|\,/g, '');
+  if (isNaN(num)) num = "0";
+  sign = (num == (num = Math.abs(num)));
+  num = Math.floor(num * 100 + 0.50000000001);
+  cents = num % 100;
+  num = Math.floor(num / 100).toString();
+  if (cents < 10) cents = "0" + cents;
+  for (var i = 0; i < Math.floor((num.length - (1 + i)) / 3); i++)
+    num = num.substring(0, num.length - (4 * i + 3)) + ',' + num.substring(num.length - (4 * i + 3));
+  return (((sign) ? '' : '-') + '$' + num + '.' + cents);
+}
 
 /**
  * This creates the file with the encrypted account credentials
@@ -985,4 +1310,46 @@ function escapeHtml(unsafe) {
       .replace(/'/g, "&#039;");
 }
 
+/**
+ * Calculate the next subscription date for recurring transactions
+ */
+var getNextSubscriptionDate;
+exports.getNextSubscriptionDate = getNextSubscriptionDate = function (frequency, create_date)
+{
+  var dt = new Date();
+  switch(frequency)
+  {
+    case "daily":
+      dt.setDate(dt.getDate() + 1);
+      break;
+    case "weekly":
+      dt.setDate(dt.getDate() + 7);
+      break;
+    case "biweekly":
+      dt.setDate(dt.getDate() + 14);
+      break;
+    case "monthly":
+      //check to see if the last day of next month is less than the subscription date,
+      //if so, adjust accordingly
+      var current_date = new Date();
+      var temp_date = new Date(current_date.getFullYear(),current_date.getMonth() + 2,1);
+      var last_day_of_next_month = (new Date(temp_date - 1)).getDate();
+      var subscription_day = create_date.getDate();
+      if(last_day_of_next_month < subscription_day)
+        dt = new Date(dt.getFullYear(), dt.getMonth() + 1, last_day_of_next_month);
+      else
+        dt.setMonth(dt.getMonth() + 1);
+      break;
+  }
+  
+  return dt;
+}
 
+
+/**
+ * Returns a formatted my-sql compliant date string with no time component
+ */
+function date_string(d)
+{
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}

@@ -396,3 +396,42 @@ input.error {
   font-size: 1.1em;
   display: inline-block;
 }
+
+/**
+ * Thank you
+ */
+#recurring_container { display: none; }
+#recurring_container label { font-weight: bold; }
+#recurring_options
+{
+  display: none;
+  width: 300px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+#recurring_options label
+{
+  margin-top: 15px;
+  font-weight: bold;
+  width: 120px;
+  display: inline-block;
+}
+
+#create_recurring_donation
+{
+  margin-top: 10px;
+  width: 60px;
+  height: 25px;
+}
+
+#amount_display, #frequency
+{
+  width: 150px;
+  display: inline-block;
+}
+
+#recurring_created
+{
+  display: none;
+}
