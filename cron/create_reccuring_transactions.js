@@ -17,12 +17,12 @@
  *  5/26/2013   Clay Gulick (clay@ratiosoftware.com)    Initial version created
  */
 var conf = new require("../config.js")();
-var actions = require("../actions.js");
 var dal = require("../dal"); //data access layer
 var q = require("q");
 var log = conf.logger;
 log.name("create_recurring_transactions.js");
 var util = require("util");
+var getNextSubscriptionDate = require("../helpers").getNextSubscriptionDate;
 
 log.log("Start create_recurring_transactions.js...");
 dal.open();
@@ -82,7 +82,7 @@ function update_subscription(subscription)
 {
   var update = {};
   update.id=subscription.id;
-  update.next_transaction_date = date_string(actions.getNextSubscriptionDate(subscription.frequency, subscription.create_date));
+  update.next_transaction_date = date_string(getNextSubscriptionDate(subscription.frequency, subscription.create_date));
   update.last_transaction_date = date_string(new Date());
 
   dal.update_subscription(update,
