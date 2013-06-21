@@ -309,8 +309,8 @@
                   response.subscriptions.forEach(
                     function(subscription)
                     {
-                      subscription.last_transaction_date = subscription.last_transaction_date ? (new Date(subscription.last_transaction_date)).toLocaleDateString() : "None";
-                      subscription.next_transaction_date = (new Date(subscription.next_transaction_date)).toLocaleDateString();
+                      subscription.last_transaction_date = subscription.last_transaction_date ? date_local(subscription.last_transaction_date).toLocaleDateString() : "None";
+                      subscription.next_transaction_date = date_local(subscription.next_transaction_date).toLocaleDateString();
                       subscription.subscription_id = subscription.id;
                       var $frag = $(Mustache.render(fragment,subscription));
                       $frag.find("[field=amount]").formatCurrency({ colorize: false, negativeFormat: '-%s%n', roundToDecimalPlace: 2});
@@ -634,6 +634,16 @@
         function()
         {
         });
+    }
+
+    /**
+     * Takes a date in UTC format and returns it as local date, without the 
+     * subtraction for timezone
+     */
+    function date_local(utc_string)
+    {
+      var d = utc_string.split("T")[0].split("-");
+      return new Date(d[0],d[1]-1,d[2]);
     }
 
 
