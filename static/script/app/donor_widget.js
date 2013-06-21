@@ -58,6 +58,9 @@
           $("#donation_form input").on("blur",
             function()
             {
+              //ie 9 and below don't get responsive validation because it conflict with placeholder shim.
+              //if($.browser.msie && $.version < 10) return;
+
               if(this.validate && !this.validate()) show_error($(this).attr("id"));
               else clear_error($(this).attr("id"));
             });
@@ -92,7 +95,7 @@
             {
               var amt = parseFloat($(this).val().replace("$",""));
               if(isNaN(amt)) return false;
-              if(amt < 10 || amt > 2500) return false;
+              if(amt > 1000) return false;
               return true;
             });
           //just basic validator functions for these. Required validation
@@ -511,6 +514,7 @@
         if(($(this).attr("required") == "required"))
         {
           if(!($(this).val())) return false;
+          if ( this.value == $(this).attr("placeholder") ) return false;
         }
 
         if(fn)
@@ -574,6 +578,8 @@
           {
             $("#content").html(content);
             if(screen_logic[screen]) screen_logic[screen]();
+            placeholder();
+
           }
           else
             $("#content").fadeOut(
@@ -585,10 +591,42 @@
                     function()
                     {
                       if(screen_logic[screen]) screen_logic[screen]();
+                      placeholder();
                     }
                   );
               });
         });
+    }
+
+    function placeholder()
+    {
+      if ( !("placeholder" in document.createElement("input")) ) {
+        $("input[placeholder], textarea[placeholder]").each(function() {
+          var val = $(this).attr("placeholder");
+          if ( this.value == "" ) {
+            this.value = val;
+          }
+          $(this).focus(function() {
+            if ( this.value == val ) {
+              this.value = "";
+            }
+          }).blur(function() {
+            if ( $.trim(this.value) == "" ) {
+              this.value = val;
+            }
+          })
+        });
+
+        // Clear default placeholder values on form submit
+        $('form').submit(function() {
+          $(this).find("input[placeholder], textarea[placeholder]").not("input[type=password]").each(function() {
+            if ( this.value == $(this).attr("placeholder") ) {
+              this.value = "";
+            }
+          });
+        });
+      }
+
     }
 
 

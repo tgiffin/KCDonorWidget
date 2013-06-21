@@ -6,8 +6,23 @@ var qs = require("querystring");
 var log = conf.logger;
 var request = require("request");
 
-var klearchoice_fee = .25;
-var processor_fee = .25;
+var klearchoice_fee = function(amount)
+{
+  amount = parseFloat(amount);
+  if(amount <= 10)
+    return .5;
+
+  return .25;
+}
+
+var processor_fee = function(amount)
+{
+  amount = parseFloat(amount);
+  if(amount <= 10)
+    return 0;
+
+  return .25;
+}
 
 /**
  * Utility function for wrapping http requests
@@ -201,7 +216,7 @@ exports.dwolla =
           destinationType: 'Dwolla',
           notes: "Online Donation to " + params.charity_name,
           groupId: params.charity_id,
-          facilitatorAmount: klearchoice_fee,
+          facilitatorAmount: klearchoice_fee(params.amount),
           assumeAdditionalFees: true
         }
       },

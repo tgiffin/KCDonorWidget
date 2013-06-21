@@ -422,42 +422,16 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
         {
           'position':'fixed',
           'cursor':'pointer',
+          'top':'45%',
           'right':'0px',
           'height':'95px',
           'width':'40px',
           'text-align':'center',
           'background-image': "url('https://app.klearchoice.com/images/widget.png')"
         });
-      if($.browser.msie) {
-          //$widget.css({'right':'0px'});
-          if(parseFloat($.browser.version) < 9)
-          {
-            //for IE 8 and below, we need to transform differently, and add an outer wrapper, or the click event doesn't work. Grr.
-            $widget.css({
-              'filter':'progid:DXImageTransform.Microsoft.BasicImage(rotation=3)',
-              'position':'',
-              'right':''
-              });
-            var $wrapper = $("<div style='width:30px; height:80px'></div>");
-            $wrapper.css(
-              {
-                'position':'absolute',
-                'cursor':'pointer',
-                'right':'0px',
-                'background-color':'#455a78'
-              });
-            $wrapper.append($widget);
-            $widget=$wrapper;
-          }
-        }
     }
 
     $("body").append($widget);
-    $widget.offset(
-    {
-      top: ($("body").height() /2) - ($widget.width() /2),
-      left: $widget.left
-    });
 
     $widget.click(
       function()
@@ -516,7 +490,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||"").toLowerCase(),b[3]=b[3]&&new RegExp("(?:^
     {
       $dialog.css(
         {
-          'height':'550px',
+          'height':'565px',
           'width':'600px',
           'display':'none',
           'position':'absolute',

@@ -33,8 +33,9 @@ exports.donor_widget = function(request, response, next)
     var referer = request.headers['referer'];
     var parsedURI = URI.parse(referer);
     log.debug("referer: " + referer + " hostname: " + parsedURI.hostname);
+    //log.debug("locating base domain: " + parsedURI.hostname.split(".").slice(-2).join("."));
     dal.open();
-    dal.get_charity_by_domain(parsedURI.hostname,
+    dal.get_charity_by_domain(parsedURI.hostname.split(".").slice(-2).join("."),
       function(err, row)
       {
         dal.close();
@@ -316,8 +317,8 @@ exports.donate = function(request, response)
         donor_id: request.session.auth.id,
         charity_id: request.session.charity.id,
         amount: data.amount,
-        klearchoice_fee: payment.klearchoice_fee,
-        processor_fee: payment.processor_fee,
+        klearchoice_fee: payment.klearchoice_fee(data.amount),
+        processor_fee: payment.processor_fee(data.amount),
         status: "new",
         log: (new Date()).toString() + "Transaction created \n"
       },
@@ -356,10 +357,10 @@ exports.donate = function(request, response)
   if(isNaN(amt)) valid=false;
   else
   {
-    if(amt < 10 || amt > 2500)
+    if(amt > 1000)
     {
       valid=false;
-      message = "Please enter an amount between $5 and $2000";
+      message = "Please enter an amount less than $1000";
     }
   }
 
@@ -794,7 +795,7 @@ exports.register_charity = function(request, response)
           board_type: charity_info.board_type,
           email: charity_info.email,
           phone: charity_info.phone,
-          domain: URI.parse(charity_info.domain).hostname,
+          domain: URI.parse(charity_info.domain).hostname.split(".").slice(-2).join("."), //discard subdomains
           dob: charity_info.dob,
           ein: '' //not storing ein, for legal purposes 
         },
@@ -890,7 +891,7 @@ exports.save_charity = function(request, response)
       board_type: charity_info.board_type,
       email: charity_info.email,
       phone: charity_info.phone,
-      domain: URI.parse(charity_info.domain).hostname,
+      domain: URI.parse(charity_info.domain).hostname.split(".").slice(-2).join("."), //discard subdomain
       dob: charity_info.dob,
       ein: '' //not storing ein, for legal purposes 
     },
@@ -1106,6 +1107,7 @@ exports.cancel_subscription = function(request, response)
 function send_payment(request, response, data, donor_id)
 {
   log.debug("sending payment...");
+
   //send out the payment request
   payment.guest_send(
     {
@@ -1130,8 +1132,8 @@ function send_payment(request, response, data, donor_id)
             donor_id: donor_id,
             charity_id: request.session.charity.id,
             amount: data.amount,
-            klearchoice_fee: payment.klearchoice_fee,
-            processor_fee: payment.processor_fee,
+            klearchoice_fee: payment.klearchoice_fee(data.amount),
+            processor_fee: payment.processor_fee(data.amount),
             status: "error",
             message: err,
             log: (new Date()).toString() + "Error: " + err
@@ -1155,8 +1157,8 @@ function send_payment(request, response, data, donor_id)
             donor_id: donor_id,
             charity_id: request.session.charity.id,
             amount: data.amount,
-            klearchoice_fee: payment.klearchoice_fee,
-            processor_fee: payment.processor_fee,
+            klearchoice_fee: payment.klearchoice_fee(data.amount),
+            processor_fee: payment.processor_fee(data.amount),
             status: "error",
             message: util.inspect(results),
             log: (new Date()).toString() + "Error: " + util.inspect(results)
@@ -1179,8 +1181,8 @@ function send_payment(request, response, data, donor_id)
           donor_id: donor_id,
           charity_id: request.session.charity.id,
           amount: data.amount,
-          klearchoice_fee: payment.klearchoice_fee,
-          processor_fee: payment.processor_fee,
+          klearchoice_fee: payment.klearchoice_fee(data.amount),
+          processor_fee: payment.processor_fee(data.amount),
           status: "processed",
           message: "Successfully posted transaction",
           log: (new Date()).toString() + "Successfully posted transaction",
@@ -1226,7 +1228,7 @@ function send_payment(request, response, data, donor_id)
               {name:"last_name", content:data.last_name},
               {name:"charity", content:request.session.charity.charity_name},
               {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
-              {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee + payment.processor_fee) },
+              {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee(data.amount) + payment.processor_fee(data.amount)) },
               {name:"clear_date", content:clear_date_formatted},
               {name:"transaction_number", content:results.Response},
             ],
@@ -1298,6 +1300,7 @@ function create_secure_account_file(donor,callback)
 function loadTemplate(template) {
     return fs.readFileSync(app.set('views') + template+ '.html')+ '';
 }
+
 
 /** 
  * Utility for scrubbing input, escaping all html to prevent injection/xss

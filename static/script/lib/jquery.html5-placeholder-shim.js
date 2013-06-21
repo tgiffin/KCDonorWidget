@@ -33,7 +33,7 @@
       return this.each(function() {
         var $this = $(this);
         
-        if( $this.is(':visible') ) {
+        //if( $this.is(':visible') ) {
         
           if( $this.data('placeholder') ) {
             var $ol = $this.data('placeholder');
@@ -88,7 +88,7 @@
               var $target = ol.data('target')
               ol.css(calcPositionCss($target))
             });
-        }
+       // }
       });
     }
   });
