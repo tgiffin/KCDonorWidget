@@ -22,6 +22,7 @@ var q = require("q");
 var log = conf.logger;
 log.name("create_recurring_transactions.js");
 var util = require("util");
+var payment = require("../payment.js");
 var getNextSubscriptionDate = require("../helpers").getNextSubscriptionDate;
 
 log.log("Start create_recurring_transactions.js...");
@@ -47,8 +48,8 @@ dal.get_current_recurring_transactions(
             donor_id: item.donor_id,
             charity_id: item.charity_id,
             amount: item.amount,
-            klearchoice_fee: .25,
-            processor_fee: .25,
+            klearchoice_fee: payment.klearchoice_fee(item.amount),
+            processor_fee: payment.processor_fee(item.amount),
             status: "new",
             message: (new Date()).toString() + " recurring transaction created from subscription: " + item.id,
             log: (new Date()).toString() + " recurring transaction created from subscription: " + item.id
