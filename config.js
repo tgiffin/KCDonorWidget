@@ -41,7 +41,8 @@ module.exports = function()
         app_group_id: "recurse",
         options: {
           key: fs.readFileSync(__dirname + "/../keys/app.klearchoice.com.key"),
-          cert: fs.readFileSync(__dirname + "/../keys/app.klearchoice.com.crt")
+          cert: fs.readFileSync(__dirname + "/../keys/app.klearchoice.com.crt"),
+          ca: [fs.readFileSync("/../keys/gd1.crt"), fs.readFileSync("/../keys/gd2.crt")]
         }
       };
       break;
@@ -78,6 +79,7 @@ module.exports = function()
         options: {
           key: fs.readFileSync("/home/app/keys/app.klearchoice.com.key"),
           cert: fs.readFileSync("/home/app/keys/app.klearchoice.com.crt")
+          ca: [fs.readFileSync("/home/app/keys/gd1.crt"), fs.readFileSync("/home/app/keys/gd2.crt")]
         }
       };
       break;
