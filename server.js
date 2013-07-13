@@ -13,7 +13,7 @@ if(conf.env == "development")
 {
   var session_store = new express.session.MemoryStore();
 }
-else if(conf.env == "production")
+else if((conf.env == "production") || (conf.env == "qa"))
 {
   var session_store = new redis_store();
 }
