@@ -54,6 +54,11 @@ label.error
   color: #783447;
 }
 
+.top_bar
+{
+  position: absolute;
+}
+
 #giving_logo
 {
   position: absolute;
