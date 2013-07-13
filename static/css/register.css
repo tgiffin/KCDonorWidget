@@ -80,6 +80,11 @@ label.error
   font-family: Arial;
 }
 
+#unsupported_browser
+{
+  display: none;
+}
+
 #steps {
   position: absolute;
   width: 3200px;

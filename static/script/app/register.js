@@ -30,6 +30,14 @@
 
       //show_next(); 
       //setTimeout(show_next, 1100); //for debugging only
+      
+      //perform browser check
+      if($.browser.msie && $.browser.version < 10)
+      {
+        $("#steps").hide();
+        $("#unsupported_browser").show();
+        return;
+      }
 
       //init input masks
       $("#dob").mask("99/99/9999",{placeholder:" "});
