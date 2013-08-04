@@ -300,6 +300,8 @@
               {
                 fragment = fragment[0]; response = response[0];
 
+                $("#subscriptions").empty();
+
                 if(!response.success)
                   return alert("Error retrieving recurring donations, please try again later.");
 
@@ -371,6 +373,8 @@
                   return alert("Unable to retrieve donation history. Please try again later.");
                 if(result.rows.length == 0)
                   return $("#donation_history_display").html("<b>No transactions found.</b>");
+
+                $("#donation_history_table_body").empty();
 
                 result.rows.forEach(
                   function(row)
