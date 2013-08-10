@@ -43,13 +43,14 @@ dal.get_current_recurring_transactions(
         item.d = q.defer();
         promises.push(item.d.promise);
         log.log("Creating transaction - donor id: " + item.donor_id + " charity id: " + item.charity_id + " amount: " + item.amount + " frequency: " + item.frequency);
+	debugger;
         dal.log_transaction(
           {
             donor_id: item.donor_id,
             charity_id: item.charity_id,
             amount: item.amount,
-            klearchoice_fee: payment.klearchoice_fee(item.amount),
-            processor_fee: payment.processor_fee(item.amount),
+            klearchoice_fee: payment.dwolla.klearchoice_fee(item.amount),
+            processor_fee: payment.dwolla.processor_fee(item.amount),
             status: "new",
             message: (new Date()).toString() + " recurring transaction created from subscription: " + item.id,
             log: (new Date()).toString() + " recurring transaction created from subscription: " + item.id
