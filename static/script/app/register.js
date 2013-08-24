@@ -291,7 +291,7 @@
           errors.push("You must accept the Dwolla Terms of Service to proceed");
 
         if(!$("#authorized_registrar").prop("checked"))
-          errors.push("You must be authorized as the registrar for the church to proceed");
+          errors.push("You must be authorized as the registrar for the organization to proceed");
 
 
         if(errors.length > 0)
