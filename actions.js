@@ -415,8 +415,6 @@ exports.donate = function(request, response)
       //the newly inserted donor id
       var donor_id = result.insertId;
 
-      console.log(util.inspect(data));
-
       //if we're creating an account, send the secure account file over
       if(data.create_account=='true')
       {
@@ -1189,9 +1187,9 @@ function send_payment(request, response, data, donor_id)
           log: (new Date()).toString() + "Successfully posted transaction",
           processor_transaction_id: results.Response
         },
-        function(insertResult)
+        function(err,insertResult)
         {
-	  var transactionId=0;
+          var transactionId=0;
           transactionId=insertResult.insertId;
           dal.close();
           //send confirmation email
@@ -1231,7 +1229,7 @@ function send_payment(request, response, data, donor_id)
                   {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
                   {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee(data.amount) + payment.processor_fee(data.amount)) },
                   {name:"clear_date", content:clear_date_formatted},
-                  {name:"transaction_number", content:results.Response},
+                  {name:"transaction_number", content:transactionId},
                 ],
                 message: {
                   to: [

@@ -15,7 +15,7 @@ module.exports = function()
         env: "development", 
         recaptcha_public_key: "6Ld6XeASAAAAAGc2bgxW4EOf-dkCKV9htqXhxdbd",
         recaptcha_private_key: "6Ld6XeASAAAAAC7Q5mwT_xP6YQpxZglV8wDOcAr6",
-        prevent_payment_processing: true,
+        prevent_payment_processing: false,
         logger: log,
         port: 3000,
         db_host: "db_host",
