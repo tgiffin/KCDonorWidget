@@ -1149,6 +1149,7 @@ function send_payment(request, response, data, donor_id)
             });
             return;
       }
+	
       if(!results.Success)
       {
         console.log(util.inspect(results));
@@ -1163,7 +1164,7 @@ function send_payment(request, response, data, donor_id)
             message: util.inspect(results),
             log: (new Date()).toString() + "Error: " + util.inspect(results)
           },
-          function()
+          function(insertResult)
           {
             dal.close();
           });
@@ -1188,74 +1189,73 @@ function send_payment(request, response, data, donor_id)
           log: (new Date()).toString() + "Successfully posted transaction",
           processor_transaction_id: results.Response
         },
-        function()
+        function(insertResult)
         {
+	  var transactionId=0;
+          transactionId=insertResult.insertId;
           dal.close();
-        });
-      
-      //send confirmation email
-      var clear_date = new Date().getTime();
-      //add three days
-      clear_date += (3 * 24 * 60 * 60 * 1000);
-      //now keep adding days until we hit a business day, i.e., one that isn't saturday (6) or sunday (0)
-      for(var i=0; i<3;i++)
-      {
-        if(
-          (
-            (new Date(clear_date))
-            .getDay() != 6
-          )
-          &&
-          (
-            (new Date(clear_date))
-            .getDay() != 0
-          )
-        ) break;
-
-        clear_date += (24 * 60 * 60 * 1000);
-      }
-
-      clear_date = new Date(clear_date);
-      var clear_date_formatted = (clear_date.getMonth() + 1) + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
-      try
-      {
-        log.debug("sending confirmation email...");
-        mandrill.messages.sendTemplate(
+          //send confirmation email
+          var clear_date = new Date().getTime();
+          //add three days
+          clear_date += (3 * 24 * 60 * 60 * 1000);
+          //now keep adding days until we hit a business day, i.e., one that isn't saturday (6) or sunday (0)
+          for(var i=0; i<3;i++)
           {
-            template_name:"donorpaymentsent",
-            template_content: [
-              {name:"first_name", content:data.first_name},
-              {name:"last_name", content:data.last_name},
-              {name:"charity", content:request.session.charity.charity_name},
-              {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
-              {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee(data.amount) + payment.processor_fee(data.amount)) },
-              {name:"clear_date", content:clear_date_formatted},
-              {name:"transaction_number", content:results.Response},
-            ],
-            message: {
-              to: [
-                    {email:data.email, name:data.first_name + " " + data.last_name}
-                  ],
-              tracking_domain: "klearchoice.com"
-            }
-
-          },
-          function(){}, //success, do nothing
-          function(err){console.error(util.inspect(err));} //error
-          );
-      }
-      catch(e) { console.error("error sending email: " + util.inspect(e)); }
-
-      response.json(
-        {
-          success: true
-        });
+            if(
+              (
+                (new Date(clear_date))
+                .getDay() != 6
+              )
+              &&
+              (
+                (new Date(clear_date))
+                .getDay() != 0
+              )
+            ) break;
+    
+            clear_date += (24 * 60 * 60 * 1000);
+          }
+    
+          clear_date = new Date(clear_date);
+          var clear_date_formatted = (clear_date.getMonth() + 1) + "/" + clear_date.getDate() + "/" + clear_date.getFullYear();
+          try
+          {
+            log.debug("sending confirmation email...");
+            mandrill.messages.sendTemplate(
+              {
+                template_name:"donorpaymentsent",
+                template_content: [
+                  {name:"first_name", content:data.first_name},
+                  {name:"last_name", content:data.last_name},
+                  {name:"charity", content:request.session.charity.charity_name},
+                  {name:"account_number", content:"XXXXXX" + data.account_number.slice(-3)},
+                  {name:"amount", content: formatCurrency(parseFloat(data.amount) + payment.klearchoice_fee(data.amount) + payment.processor_fee(data.amount)) },
+                  {name:"clear_date", content:clear_date_formatted},
+                  {name:"transaction_number", content:results.Response},
+                ],
+                message: {
+                  to: [
+                        {email:data.email, name:data.first_name + " " + data.last_name}
+                      ],
+                  tracking_domain: "klearchoice.com"
+                }
+    
+              },
+              function(){}, //success, do nothing
+              function(err){console.error(util.inspect(err));} //error
+              );
+         }
+         catch(e) { console.error("error sending email: " + util.inspect(e)); }
+    
+         response.json(
+           {
+             success: true
+           });
+      }); //end log transaction
+      
     } //end http request callback
   );//end request call to dwolla
 } //end send_payment
-
-
-
 
 
 /**

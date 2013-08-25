@@ -47,7 +47,7 @@ module.exports = {
    */
   get_donation_history: function(donor_id, callback)
   {
-    connection.query("select transactions.id as transaction_id, charity_id, charity_name, amount, status, transactions.create_date as create_date "
+    connection.query("select transactions.id as transaction_id, charity_id, charity_name, (amount + klearchoice_fee + processor_fee) as amount, status, transactions.create_date as create_date "
                     + "from transactions "
                     + " join charity "
                     + "  on charity.id = transactions.charity_id "
